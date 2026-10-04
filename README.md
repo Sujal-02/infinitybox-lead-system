@@ -132,6 +132,9 @@ GitHub Pages only serves files, so the dashboard on Pages talks to a small serve
 3. **Open** `.../dashboard/`. It asks for the access code once per browser tab, then everything works: Find leads, Write the email, outbox.
 **How credits are capped:** the server runs with `BUDGET_PROFILE=demo`: a smaller allowance (`demo:` in `config/budgets.yaml`, for example 100 Gemini requests and 6 Hunter searches a month), only the Quick look size, one run at a time, and the Home tab shows what is left. A wrong access code is rate limited, and the public-page endpoints are switched off on the server. A free host sleeps when idle (the first request can take a minute) and forgets its lead lists when it restarts; the lists are rebuilt by Find leads, or kept in the Google Sheet when `SHEET_WEBHOOK_URL` is set.
 
+## Enquiries from the live page, in the sheet and on the dashboard
+Set the repository variable `APPS_SCRIPT_URL` (Settings, Secrets and variables, Actions, Variables) to your Apps Script web-app address (`https://script.google.com/.../exec`), then run the `deploy-inbound-page` workflow. The deployed public page then stores each enquiry in the sheet's `Leads` tab and each visit step in `Events`, and the dashboard's **Website enquiries** tab shows both next to this app's own (each row says "Google Sheet" or "This app"; the funnel counts both; the sheet is re-read at most every 20 seconds). Without the variable the page runs in preview mode and stores nothing.
+
 ## CI/CD (`.github/workflows/`)
 - `ci.yml`: on every push and pull request, runs the tests and checks that the built pages match their sources. In a public repo it also fails if a key file or key-shaped string is tracked.
 - `pages.yml`: on a push to `main` that touches the page or dashboard, runs the page tests, then publishes the page, `/dashboard/` and a 404 page to GitHub Pages. Pages needs a public repo or a paid GitHub plan (it does not work for private repos on the free plan).

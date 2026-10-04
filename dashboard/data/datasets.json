@@ -1,1 +1,1 @@
-[{"id": "pune", "label": "Pune (pipeline)"}, {"id": "bengaluru", "label": "Bengaluru (pipeline)"}, {"id": "bengaluru_agent", "label": "Bengaluru (Gemini agent)"}, {"id": "bangalore", "label": "Bangalore (pipeline)"}]
+[{"id": "pune", "label": "Pune (pipeline)", "sheet": true}, {"id": "bengaluru", "label": "Bengaluru (pipeline)", "sheet": true}, {"id": "bengaluru_agent", "label": "Bengaluru (Gemini agent)", "sheet": false}, {"id": "bangalore", "label": "Bangalore (pipeline)", "sheet": true}]

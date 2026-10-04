@@ -185,7 +185,7 @@ dialog::backdrop{background:rgba(30,30,60,.45)}
 
 <section class="view" id="v-inbound">
   <div class="card"><h2>How the public page is doing</h2><p class="muted">Anonymous counts only: no cookies, no names. Each bar is the number of different visitors who got that far.</p><div class="fun" id="funnel"></div><div id="campaigns"></div></div>
-  <div class="card"><h2>Enquiries from the website</h2><p class="muted">People who used the calculator and asked to be contacted. Each one is routed to a team by what they told us they are. <a href="/site/" target="_blank" rel="noopener">Open the public page</a></p><div class="tablewrap" id="inbound"></div></div>
+  <div class="card"><div class="row"><h2>Enquiries from the website</h2><button class="btn soft" onclick="loadInbound()">Refresh</button></div><p class="muted">People who used the calculator and asked to be contacted. Each one is routed to a team by what they told us they are. <a href="/site/" target="_blank" rel="noopener">Open the public page</a></p><div class="tablewrap" id="inbound"></div></div>
 </section>
 
 <section class="view" id="v-outbox">
@@ -483,9 +483,9 @@ async function loadInbound() {
   $('#campaigns').replaceChildren(f.campaigns.length ? h('div', {}, h('h3', { style: 'margin-top:18px' }, 'By outreach batch'), h('p', { class: 'muted small' }, 'From the utm_campaign in each email link.'),
     h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Batch', 'Visited', 'Saw a result', 'Sent an enquiry'].map(x => h('th', {}, x)))), h('tbody', {}, f.campaigns.map(c => h('tr', {}, h('td', {}, c.campaign), h('td', {}, c.steps[0].visitors), h('td', {}, c.steps[3].visitors), h('td', {}, c.steps[5].visitors))))))) : h('p', { class: 'muted small', style: 'margin-top:14px' }, 'No outreach batches seen yet. Add ?utm_campaign=batch1 to the links in your emails.'));
   const parse = r => { try { return JSON.parse(r.inputs_json); } catch (e) { return {}; } };
-  $('#inbound').replaceChildren(o.length ? h('table', {}, h('thead', {}, h('tr', {}, ['When', 'Company', 'Who', 'City', 'They are', 'Routed to', 'Meals/day', 'Their estimate / month'].map(x => h('th', {}, x)))),
+  $('#inbound').replaceChildren(o.length ? h('table', {}, h('thead', {}, h('tr', {}, ['When', 'Company', 'Who', 'City', 'They are', 'Routed to', 'Meals/day', 'Their estimate / month', 'Stored in'].map(x => h('th', {}, x)))),
     h('tbody', {}, o.map(r => { const p = parse(r), c = p.calc || {}; return h('tr', {}, h('td', {}, r.ts.replace('T', ' ')), h('td', {}, r.company), h('td', {}, (c.name || '') + (c.name ? ' · ' : '') + r.role, h('div', { class: 'muted small' }, p.contact || '')),
-      h('td', {}, r.city), h('td', {}, SEG[r.segment] || r.segment), h('td', {}, h('span', { class: 'tag tota' }, QUEUE_LABEL[r.queue] || r.queue)), h('td', {}, String(r.meals)), h('td', {}, c.totalRs ? 'Rs ' + c.totalRs.toLocaleString('en-IN') : '')); })))
+      h('td', {}, r.city), h('td', {}, SEG[r.segment] || r.segment), h('td', {}, h('span', { class: 'tag tota' }, QUEUE_LABEL[r.queue] || r.queue)), h('td', {}, String(r.meals)), h('td', {}, c.totalRs ? 'Rs ' + c.totalRs.toLocaleString('en-IN') : ''), h('td', {}, h('span', { class: 'tag ' + (r.source === 'sheet' ? 'mor' : 'haldi') }, r.source === 'sheet' ? 'Google Sheet' : 'This app'))); })))
     : h('div', { class: 'empty' }, 'No enquiries yet. Fill in the form on the public page and it will appear here.'));
 }
 async function loadOutbox() {

@@ -231,3 +231,28 @@ def test_local_sheet_download_and_setup_status(monkeypatch):
     wb = openpyxl.load_workbook(io.BytesIO(server.workbook_bytes(ds["id"])))
     assert {"Accounts", "Scores", "Drafts", "Pipeline"} <= set(wb.sheetnames)
     assert server.store.DIR == before                                                      # the store is pointed back after the export
+
+
+def test_dashboard_shows_enquiries_and_visits_stored_in_the_google_sheet(monkeypatch):
+    """The live public page writes to the sheet (Leads, Events); the dashboard reads them through the gateway next to its own."""
+    tabs = {"Leads": [["ts", "company", "role", "city", "segment", "seats", "meals", "inputs_json", "queue", "owner"],
+                      ["2026-10-04T10:00:00Z", "Acme Foods", "Facilities", "Pune", "corporate", "500", "900", '{"contact": "a@acme.com"}', "warewashing", ""]],
+            "Events": [["ts", "sid", "event", "utm_source", "utm_medium", "utm_campaign", "ref", "path"],
+                       ["t", "s1", "view", "email", "outreach", "pune-202610", "", "/"], ["t", "s1", "lead", "email", "outreach", "pune-202610", "", "/"],
+                       ["t", "s2", "junk", "", "", "", "", "/"]]}
+
+    class Book:
+        def call(self, op, title="", **kw):
+            return tabs[title]
+    monkeypatch.setenv("SHEET_WEBHOOK_URL", "https://example.test/exec")
+    monkeypatch.setattr(server.sheet, "open_book", lambda: Book())
+    monkeypatch.setattr(server, "_read", lambda name: [])
+    server._SHEET.clear()
+    rows = server.inbound()
+    assert rows[0]["company"] == "Acme Foods" and rows[0]["source"] == "sheet" and rows[0]["meals"] == 900 and rows[0]["queue"] == "warewashing"
+    f = server.funnel()
+    assert [s["visitors"] for s in f["overall"]][0] == 1 and f["overall"][-1]["visitors"] == 1   # visited 1, sent an enquiry 1; the unknown event is ignored
+    assert f["campaigns"][0]["campaign"] == "pune-202610"
+    monkeypatch.delenv("SHEET_WEBHOOK_URL")
+    server._SHEET.clear()
+    assert server.inbound() == [] and server.sheet_tab("Leads") == []                           # no gateway: nothing read, nothing broken

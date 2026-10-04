@@ -49,14 +49,43 @@ def record_event(body: dict) -> tuple[int, dict]:
     return 200, {"ok": True}
 
 
+_SHEET: dict[str, tuple[float, list[dict]]] = {}  # tab -> (time read, rows)
+
+
+def sheet_tab(tab: str) -> list[dict]:
+    """Rows of a tab in the Google Sheet, read through the Apps Script gateway and kept for 20 s so page loads stay quick.
+    This is where the live public page (on GitHub Pages) stores enquiries and visit events. [] when no gateway is set or it fails."""
+    if not os.getenv("SHEET_WEBHOOK_URL"):
+        return []
+    hit = _SHEET.get(tab)
+    if hit and time.time() - hit[0] < 20:
+        return hit[1]
+    try:
+        v = sheet.open_book().call("values", tab) or []
+        rows = [dict(zip(v[0], r)) for r in v[1:]]
+    except Exception:  # a sheet hiccup must not break the dashboard: show the last rows we had
+        rows = hit[1] if hit else []
+    _SHEET[tab] = (time.time(), rows)
+    return rows
+
+
+def inbound() -> list[dict]:
+    """Enquiries from the public page: this app's own store plus the Google Sheet "Leads" tab, newest first.
+    Each row says where it came from (`source`), so the dashboard can show both."""
+    mine = [{**r, "source": "app"} for r in (_read("inbound_leads.json") or [])]
+    num = lambda v: int(float(v)) if str(v).replace(".", "", 1).isdigit() else 0
+    theirs = [{**r, "seats": num(r.get("seats")), "meals": num(r.get("meals")), "source": "sheet"} for r in sheet_tab("Leads") if r.get("company")]
+    return sorted(mine + theirs, key=lambda r: str(r.get("ts", "")), reverse=True)
+
+
 def funnel() -> dict:
-    """Unique visitors reaching each step, overall and per outreach campaign (utm_campaign)."""
-    ev = _read("events.json") or []
+    """Unique visitors reaching each step, overall and per outreach campaign (utm_campaign). Counts this app's events and the sheet's."""
+    ev = (_read("events.json") or []) + [e for e in sheet_tab("Events") if e.get("event") in FUNNEL and e.get("sid")]
     def count(rows):
         seen = {s: {e["sid"] for e in rows if e["event"] == s} for s in FUNNEL}
         return [{"step": s, "label": FUNNEL_LABEL[s], "visitors": len(seen[s])} for s in FUNNEL]
-    camps = sorted({e["utm_campaign"] for e in ev if e["utm_campaign"]})
-    return {"overall": count(ev), "campaigns": [{"campaign": c, "steps": count([e for e in ev if e["utm_campaign"] == c])} for c in camps]}
+    camps = sorted({e["utm_campaign"] for e in ev if e.get("utm_campaign")})
+    return {"overall": count(ev), "campaigns": [{"campaign": c, "steps": count([e for e in ev if e.get("utm_campaign") == c])} for c in camps]}
 
 
 def record_lead(body: dict) -> tuple[int, dict]:
@@ -263,7 +292,7 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/funnel":
                 return self._send(200, funnel())
             if u.path == "/api/inbound":
-                return self._send(200, _read("inbound_leads.json") or [])
+                return self._send(200, inbound())
             if u.path == "/site" or u.path.startswith("/site/"):
                 rel = u.path[len("/site"):].lstrip("/") or "index.html"
                 f = (SITE / rel).resolve()
