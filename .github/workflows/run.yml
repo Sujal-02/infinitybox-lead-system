@@ -23,13 +23,25 @@ jobs:
           restore-keys: apicache-
       - run: pip install -r requirements.txt
       - run: python -m pytest -q
-      - run: echo '${{ secrets.GOOGLE_CREDS_JSON }}' > creds.json
+      - name: Google Sheet key (only if the secret exists; otherwise a local workbook is written)
+        env:
+          GOOGLE_CREDS_JSON: ${{ secrets.GOOGLE_CREDS_JSON }}
+        run: if [ -n "$GOOGLE_CREDS_JSON" ]; then printf '%s' "$GOOGLE_CREDS_JSON" > creds.json; fi
       - run: python -m src.run all --city "${{ github.event.inputs.city || 'Pune' }}"
         env:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}          # optional: leave the secret out to skip LinkedIn actors
           GSHEET_ID: ${{ secrets.GSHEET_ID }}
           GOOGLE_CREDS_PATH: creds.json
-          TOP_N_PEOPLE: "2"
+          TOP_N_PEOPLE: ${{ vars.TOP_N_PEOPLE || '2' }}
           DRY_RUN: "0"
+      - uses: actions/upload-artifact@v4     # the run's results (lead lists and, without a Sheet, the workbook); visible to repo members only
+        if: always()
+        with:
+          name: leads-${{ github.event.inputs.city || 'Pune' }}
+          path: |
+            data
+            workbook_*.xlsx
+          if-no-files-found: ignore
