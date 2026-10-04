@@ -223,14 +223,21 @@ def test_local_sheet_download_and_setup_status(monkeypatch):
     import io
     import openpyxl
     from app import data
-    monkeypatch.setenv("GEMINI_API_KEY", "x")
+    monkeypatch.setenv("GEMINI_API_KEY", "sk-test-secret-123")
     monkeypatch.setenv("FIRECRAWL_API_KEY", "")
     st = server.setup_status()
-    assert [k["set"] for k in st["keys"]][:2] == [True, False] and "x" not in str(st)       # status only, never the key
-    ds, before = next(d for d in data.available() if d["sheet"]), server.store.DIR
-    wb = openpyxl.load_workbook(io.BytesIO(server.workbook_bytes(ds["id"])))
-    assert {"Accounts", "Scores", "Drafts", "Pipeline"} <= set(wb.sheetnames)
-    assert server.store.DIR == before                                                      # the store is pointed back after the export
+    assert [k["set"] for k in st["keys"]][:2] == [True, False] and "sk-test-secret-123" not in str(st)   # status only, never the key
+    folder = cfg.ROOT / "cache" / "_app_test" / "ds"                                       # a tiny empty run, so this works on a clean checkout too
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "accounts.json").write_text("[]", "utf-8")
+    monkeypatch.setitem(data.DATASETS, "t", {"label": "t", "kind": "pipeline", "dir": "cache/_app_test/ds", "city": "Pune"})
+    try:
+        ds, before = next(d for d in data.available() if d["id"] == "t"), server.store.DIR
+        wb = openpyxl.load_workbook(io.BytesIO(server.workbook_bytes(ds["id"])))
+        assert {"Accounts", "Scores", "Drafts", "Pipeline"} <= set(wb.sheetnames)
+        assert server.store.DIR == before                                                  # the store is pointed back after the export
+    finally:
+        shutil.rmtree(cfg.ROOT / "cache" / "_app_test", ignore_errors=True)
 
 
 def test_dashboard_shows_enquiries_and_visits_stored_in_the_google_sheet(monkeypatch):

@@ -112,7 +112,7 @@ def _read(name: str):
 
 
 def _write(name: str, obj) -> None:
-    STATE.mkdir(exist_ok=True)
+    STATE.mkdir(parents=True, exist_ok=True)
     (STATE / name).write_text(json.dumps(obj, indent=1, ensure_ascii=False), "utf-8")
 
 
@@ -126,7 +126,7 @@ def workbook_bytes(ds: str) -> bytes | None:
     if d["kind"] != "pipeline":
         return None
     out = STATE / "export.xlsx"
-    STATE.mkdir(exist_ok=True)
+    STATE.mkdir(parents=True, exist_ok=True)
     with EXPORT_LOCK:
         keep, store.DIR = store.DIR, ROOT / d["dir"]
         try:
