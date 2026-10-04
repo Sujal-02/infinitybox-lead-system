@@ -150,6 +150,62 @@ def read(book, tab: str) -> list[BaseModel]:
     return [TABS[tab].model_validate({k: v for k, v in r.items() if v != ""}) for r in recs]
 
 
+# (store file, sheet tab, model): the five tables the pipeline keeps. Each row belongs to one account, and each account to one city.
+TABLES = [("accounts", "Accounts", Account), ("signals", "Signals", Signal), ("people", "People", Person),
+          ("scores", "Scores", Score), ("drafts", "Drafts", Draft)]
+
+
+def _key(tab: str, r) -> tuple[str, str]:
+    """(account id, city): the same company can be a lead in two cities, so the id alone is not unique."""
+    return (r.id, r.city) if tab == "Accounts" else (r.account_id, r.city)
+
+
+def _read_keyed(book, tab: str, accounts: list) -> list[BaseModel]:
+    """Rows of a tab; rows saved before the city column existed get the city of the account that has their id."""
+    rows = read(book, tab)
+    if tab != "Accounts":
+        city_of = {}
+        for a in accounts:
+            city_of.setdefault(a.id, a.city)
+        for r in rows:
+            r.city = r.city or city_of.get(r.account_id, "")
+    return rows
+
+
+def push(book, tables: dict[str, list[BaseModel]]) -> None:
+    """EXPORT: save local tables to the sheet as a database. Rows are keyed by (account, city), so a run for one city replaces
+    only that city's rows and never erases another's. A `status` edited in the sheet is kept, so people can work in it."""
+    init(book)
+    city_of = {a.id: a.city for a in tables["Accounts"]}
+    for tab in ("Signals", "People", "Scores", "Drafts"):
+        for r in tables[tab]:
+            r.city = city_of.get(r.account_id, r.city)
+    cities = {a.city for a in tables["Accounts"]}
+    old_accounts = read(book, "Accounts")
+    old = {tab: (old_accounts if tab == "Accounts" else _read_keyed(book, tab, old_accounts)) for _, tab, _ in TABLES}
+    status = {(tab, _key(tab, r)): r.status for tab in ("Accounts", "Drafts") for r in old[tab]}
+    for _, tab, _ in TABLES:
+        if tab in ("Accounts", "Drafts"):
+            for r in tables[tab]:
+                r.status = status.get((tab, _key(tab, r)), r.status)
+        replace(book, tab, [r for r in old[tab] if r.city not in cities] + tables[tab])
+    replace(book, "Pipeline", [r for r in read(book, "Pipeline") if r.city not in cities] + tables["Pipeline"])
+
+
+def pull(book, city: str) -> dict[str, list[BaseModel]]:
+    """IMPORT: one city's rows from the sheet, per tab (accounts of that city and everything that belongs to them)."""
+    accounts = read(book, "Accounts")
+    mine = [a for a in accounts if a.city == city]
+    keys = {_key("Accounts", a) for a in mine}
+    return {"Accounts": mine, **{tab: [r for r in _read_keyed(book, tab, accounts) if _key(tab, r) in keys] for _, tab, _ in TABLES[1:]}}
+
+
+def cities(book) -> dict[str, int]:
+    """City -> number of accounts stored in the sheet."""
+    from collections import Counter
+    return dict(Counter(a.city for a in read(book, "Accounts")))
+
+
 def replace(book, tab: str, rows: list[BaseModel]) -> None:
     """Overwrite a tab's data (used for Scores, which is recomputed each run)."""
     ws = book.worksheet(tab)

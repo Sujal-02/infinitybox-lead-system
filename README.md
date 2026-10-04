@@ -132,6 +132,12 @@ GitHub Pages only serves files, so the dashboard on Pages talks to a small serve
 3. **Open** `.../dashboard/`. It asks for the access code once per browser tab, then everything works: Find leads, Write the email, outbox.
 **How credits are capped:** the server runs with `BUDGET_PROFILE=demo`: a smaller allowance (`demo:` in `config/budgets.yaml`, for example 100 Gemini requests and 6 Hunter searches a month), only the Quick look size, one run at a time, and the Home tab shows what is left. A wrong access code is rate limited, and the public-page endpoints are switched off on the server. A free host sleeps when idle (the first request can take a minute) and forgets its lead lists when it restarts; the lists are rebuilt by Find leads, or kept in the Google Sheet when `SHEET_WEBHOOK_URL` is set.
 
+## The Google Sheet as the database (import and export)
+With a sheet connected (`SHEET_WEBHOOK_URL`/`SHEET_API_TOKEN`, or a key file), the sheet holds the lead lists, keyed by city, in the tabs Accounts, Signals, People, Scores, Drafts and Pipeline (each child row carries its city, so the same company in two cities never collides).
+- **Export (app to sheet):** every pipeline run saves its city automatically, and the Home tab has **Save to sheet** per list. Only that city's rows are replaced; other cities stay. A `status` you change in the sheet is kept.
+- **Import (sheet to app):** the Home tab's **Google Sheet** card lists the cities in the sheet with **Load from sheet**. On start, a server with an empty disk (a free host after a restart) loads every city from the sheet by itself, so the sheet is what makes the hosted dashboard durable.
+- Not connected? Lists stay as local files and can be downloaded as Excel.
+
 ## Enquiries from the live page, in the sheet and on the dashboard
 Set the repository variable `APPS_SCRIPT_URL` (Settings, Secrets and variables, Actions, Variables) to your Apps Script web-app address (`https://script.google.com/.../exec`), then run the `deploy-inbound-page` workflow. The deployed public page then stores each enquiry in the sheet's `Leads` tab and each visit step in `Events`, and the dashboard's **Website enquiries** tab shows both next to this app's own (each row says "Google Sheet" or "This app"; the funnel counts both; the sheet is re-read at most every 20 seconds). Without the variable the page runs in preview mode and stores nothing.
 

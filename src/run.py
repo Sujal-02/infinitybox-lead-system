@@ -10,21 +10,16 @@ from .cfg import env
 from .discover import city as city_sources, news, web
 from .draft import draft
 from .extract import extract
-from .models import Account, Doc, Draft, Person, Score, Signal
+from .models import Account, Doc, Person, Score, Signal
 from .people import find_people
 from .score import score_all, top_signal
 
 stats: dict = {}
 
 
-# (store file, sheet tab, model): the five tables the pipeline keeps, in the order they are produced
-TABLES = [("accounts", "Accounts", Account), ("signals", "Signals", Signal), ("people", "People", Person),
-          ("scores", "Scores", Score), ("drafts", "Drafts", Draft)]
-
-
 def local_tables() -> dict:
     """Every tab's rows from the local store (the same data that goes to Google Sheets)."""
-    t = {tab: store.load(name, model) for name, tab, model in TABLES}
+    t = {tab: store.load(name, model) for name, tab, model in sheet.TABLES}
     t["Pipeline"] = leads.build() if t["Accounts"] else []
     return t
 
@@ -53,15 +48,7 @@ def _push_to_sheet() -> None:
         print(f"no Google Sheet configured (creds.json or SHEET_WEBHOOK_URL): wrote local workbook {export_workbook()}")
         return
     book = sheet.open_book()
-    sheet.init(book)
-    keep = {t: {r.id if t == "Accounts" else r.account_id: r.status for r in sheet.read(book, t)} for t in ("Accounts", "Drafts")}
-    for name, tab, model in TABLES:
-        rows = store.load(name, model)
-        for r in rows:
-            if tab in keep and keep[tab].get(getattr(r, "id", None) or r.account_id):
-                r.status = keep[tab][getattr(r, "id", None) or r.account_id]
-        sheet.replace(book, tab, rows)
-    sheet.replace(book, "Pipeline", leads.build())
+    sheet.push(book, local_tables())  # keyed by city: other cities' rows stay
     if hasattr(book, "set_basic_filter") or not isinstance(book, sheet.ScriptBook):  # the Apps Script gateway has no filter call
         try:
             book.worksheet("Pipeline").set_basic_filter()  # filter dropdowns on the header row

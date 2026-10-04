@@ -16,7 +16,8 @@
  5 DRAFT    ── Gemini writes the message body per company from the playbook; code adds greeting
                and sign-off; guardrails reject forbidden words, unsupported numbers, invented emails
         |
- Lead desk (local web app, app/)  ──►  outbox.json / workbook .xlsx / Google Sheet (optional)
+ Lead desk (web app, app/)  ◄──►  Google Sheet = database keyed by city (Save / Load, auto-load on start)
+                              └──►  outbox.json / workbook .xlsx (when no sheet is connected)
 
  Public page (inbound/, static)  ── calculator → form ──► Google Apps Script web app
         ├─ appends row to Sheet tab "Leads" and routes by segment (script has one scope: this sheet only)

@@ -136,6 +136,59 @@ def workbook_bytes(ds: str) -> bytes | None:
     return out.read_bytes()
 
 
+def sheet_status() -> dict:
+    """What the Google Sheet holds: accounts per city, so the dashboard can offer Load (import) and Save (export)."""
+    if not sheet.enabled():
+        return {"enabled": False}
+    try:
+        book = sheet.open_book()
+        return {"enabled": True, "title": book.title, "cities": sheet.cities(book)}
+    except Exception as e:
+        return {"enabled": True, "error": f"{type(e).__name__}: {str(e)[:120]}", "cities": {}}
+
+
+def sheet_save(ds: str) -> dict:
+    """EXPORT one local lead list to the sheet (only that city's rows are replaced)."""
+    d = data.config(ds)
+    if d["kind"] != "pipeline":
+        return {"error": "Only lists made by Find leads can be saved to the sheet."}
+    with EXPORT_LOCK:
+        keep, store.DIR = store.DIR, ROOT / d["dir"]
+        try:
+            tables = pipeline.local_tables()
+        finally:
+            store.DIR = keep
+    sheet.push(sheet.open_book(), tables)
+    return {"ok": True, "city": d["city"], "accounts": len(tables["Accounts"])}
+
+
+def sheet_load(city: str) -> dict:
+    """IMPORT one city from the sheet into this app (replaces this app's copy of that city's list)."""
+    t = sheet.pull(sheet.open_book(), city)
+    if not t["Accounts"]:
+        return {"error": f"The sheet has no accounts for {city}."}
+    folder = ROOT / f"data_{jobs.slug(city)}"
+    with EXPORT_LOCK:
+        keep, store.DIR = store.DIR, folder
+        try:
+            for name, tab, _ in sheet.TABLES:
+                store.save(name, t[tab])
+        finally:
+            store.DIR = keep
+    CACHE.pop(jobs.slug(city), None)
+    return {"ok": True, "city": city, "accounts": len(t["Accounts"])}
+
+
+def autoload() -> None:
+    """On start, a server with an empty disk (a free host after a restart) fills itself from the sheet: the sheet is the database."""
+    try:
+        for city in sheet.cities(sheet.open_book()) if sheet.enabled() else []:
+            if not (ROOT / f"data_{jobs.slug(city)}" / "accounts.json").exists():
+                print(f"loaded {city} from the Google Sheet: {sheet_load(city)}", flush=True)
+    except Exception as e:
+        print(f"could not load from the sheet at start: {type(e).__name__}", flush=True)
+
+
 def setup_status() -> dict:
     """Which keys are saved (never the keys themselves) and where results go."""
     names = {"GEMINI_API_KEY": "Gemini (AI)", "FIRECRAWL_API_KEY": "Firecrawl (web pages)", "HUNTER_API_KEY": "Hunter (emails)", "APIFY_TOKEN": "Apify (LinkedIn lists)"}
@@ -164,6 +217,10 @@ def handle_post(path: str, body: dict) -> tuple[int, dict]:
         return record_event(body)
     if path == "/api/run":
         return jobs.start(body.get("city", ""), body.get("size", ""))
+    if path == "/api/sheet/save":
+        return 200, sheet_save(body["dataset"])
+    if path == "/api/sheet/load":
+        return 200, sheet_load(body["city"])
     lead = find(body["dataset"], body["lead_id"])
     if path == "/api/draft":
         idx = body.get("contact", -1)
@@ -276,6 +333,8 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/run-options":
                 return self._send(200, {"cities": jobs.cities(), "sizes": {k: {x: v[x] for x in ("label", "minutes", "cost")} for k, v in jobs.sizes().items()},
                                         "demo": os.getenv("BUDGET_PROFILE") == "demo"})
+            if u.path == "/api/sheet":
+                return self._send(200, sheet_status())
             if u.path == "/api/setup":
                 return self._send(200, setup_status())
             if u.path == "/api/export":
@@ -324,5 +383,6 @@ class Handler(BaseHTTPRequestHandler):
 def serve(port: int = 8765) -> None:
     host, port = os.getenv("HOST", "127.0.0.1"), int(os.getenv("PORT", port))
     srv = ThreadingHTTPServer((host, port), Handler)
+    threading.Thread(target=autoload, daemon=True).start()
     print(f"InfinityBox Leads app: http://{host}:{port}   public page: http://{host}:{port}/site/   (Ctrl+C to stop)", flush=True)
     srv.serve_forever()

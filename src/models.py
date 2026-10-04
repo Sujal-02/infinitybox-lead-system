@@ -43,6 +43,7 @@ class Signal(BaseModel):
     source_url: str
     evidence: str  # verbatim substring of the fetched text
     conf: float = 0.5
+    city: str = ""  # filled when saved to the sheet: rows are keyed by (account, city)
 
 
 class Person(BaseModel):
@@ -59,6 +60,7 @@ class Person(BaseModel):
     tier: str = ""  # tier1 decision maker | tier2 day-to-day owner | tier3 gatekeeper | generic | none
     why: str = ""  # why this person is (not) the right contact
     purpose: str = "B2B outreach to business role"  # DPDP: why we hold this
+    city: str = ""  # filled when saved to the sheet: rows are keyed by (account, city)
 
 
 class Score(BaseModel):
@@ -70,6 +72,7 @@ class Score(BaseModel):
     reason: str
     rank: int = 0
     updated: str = ""
+    city: str = ""  # filled when saved to the sheet: rows are keyed by (account, city)
 
 
 class Draft(BaseModel):
@@ -79,6 +82,7 @@ class Draft(BaseModel):
     body: str
     trigger_used: str
     status: str = "draft"
+    city: str = ""  # filled when saved to the sheet: rows are keyed by (account, city)
 
 
 class Lead(BaseModel):

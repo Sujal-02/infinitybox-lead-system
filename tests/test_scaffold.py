@@ -46,7 +46,7 @@ def test_init_creates_all_tabs_once():
     b = FakeBook()
     assert set(sheet.init(b)) == set(sheet.TABS) | {"Events"}
     assert sheet.init(b) == []  # idempotent
-    assert b.ws["Scores"].rows[0] == ["account_id", "fit", "trigger", "reach", "total", "reason", "rank", "updated"]
+    assert b.ws["Scores"].rows[0] == ["account_id", "fit", "trigger", "reach", "total", "reason", "rank", "updated", "city"]
 
 
 def test_append_and_read_roundtrip():
@@ -137,3 +137,43 @@ def test_setup_script_keeps_other_settings_and_never_prints_keys(tmp_path_factor
     assert env.read_text("utf-8").startswith("# my notes")
     assert s.mask("key-1234567890") == "...7890" and "key-12" not in s.mask("key-1234567890") and s.mask("") == "(not set)"
     assert all(x["does"] and x["without"] and x["free"] for x in s.SERVICES) and [x["required"] for x in s.SERVICES].count(True) == 1
+
+
+def _city_tables(city, name, *, status="new"):
+    from src.models import Draft, LeadRow, Person, Score, Signal
+    a = Account(id=name.lower(), name=name, city=city, segment="corporate", first_seen=date(2026, 3, 1), status=status)
+    return {"Accounts": [a],
+            "Signals": [Signal(id="s1", account_id=a.id, type="new_campus", date=date(2026, 3, 1), summary="s", source_url="u", evidence="e")],
+            "People": [Person(account_id=a.id, role="Head of Facilities", name="N", source="website")],
+            "Scores": [Score(account_id=a.id, fit=1, trigger=2, reach=3, total=6, reason="r", rank=1)],
+            "Drafts": [Draft(account_id=a.id, role="r", subject="s", body="b", trigger_used="s1")],
+            "Pipeline": [LeadRow(rank=1, account=name, city=city, segment="corporate", total=6, fit=1, trigger=2, reach=3, reason="r", triggers="new_campus", newest_signal="2026-03-01")]}
+
+
+def test_sheet_is_a_database_keyed_by_city():
+    """A run for one city must not erase another's rows; export then import returns the same data; sheet edits to status survive."""
+    b = FakeBook()
+    sheet.push(b, _city_tables("Pune", "Acme"))
+    sheet.push(b, _city_tables("Bangalore", "Beta"))
+    assert sheet.cities(b) == {"Pune": 1, "Bangalore": 1}                       # the second city did not wipe the first
+    b.ws["Accounts"].rows[1][b.ws["Accounts"].rows[0].index("status")] = "contacted"   # someone edits the sheet by hand
+    sheet.push(b, _city_tables("Pune", "Acme"))                                   # re-running Pune replaces its rows only
+    got = sheet.pull(b, "Pune")
+    assert [a.name for a in got["Accounts"]] == ["Acme"] and got["Accounts"][0].status == "contacted"
+    assert len(got["Signals"]) == len(got["People"]) == len(got["Scores"]) == len(got["Drafts"]) == 1
+    assert sheet.pull(b, "Bangalore")["Accounts"][0].name == "Beta" and sheet.pull(b, "Mumbai")["Accounts"] == []
+    assert len(b.ws["Pipeline"].rows) == 3                                        # header + one row per city
+
+
+def test_same_company_in_two_cities_does_not_collide_in_the_sheet():
+    """TCS can be a lead in Pune and in Bangalore with the same account id: saving one city must keep the other's row."""
+    b = FakeBook()
+    sheet.push(b, _city_tables("Pune", "Tcs"))
+    sheet.push(b, _city_tables("Bangalore", "Tcs"))
+    assert sheet.cities(b) == {"Pune": 1, "Bangalore": 1}
+    sheet.push(b, _city_tables("Bangalore", "Tcs"))                               # re-saving Bangalore again
+    for city in ("Pune", "Bangalore"):
+        got = sheet.pull(b, city)
+        assert len(got["Accounts"]) == len(got["Signals"]) == len(got["People"]) == len(got["Scores"]) == len(got["Drafts"]) == 1
+        assert got["Signals"][0].city == city
+

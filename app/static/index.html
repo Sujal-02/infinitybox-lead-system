@@ -156,7 +156,8 @@ dialog::backdrop{background:rgba(30,30,60,.45)}
     <div class="actions"><button class="btn" data-go="leads">Review leads</button><button class="btn soft" data-go="find">Find leads for a city</button></div>
   </div>
   <div class="card" id="setupCard" hidden><h3>Setup</h3><div class="muted small" id="setupNote"></div><div id="setupKeys" style="margin-top:8px"></div></div>
-  <div class="card quota"><h3>Free credits left</h3><div class="muted small">The desk stops by itself before these run out.</div><div id="quota"><div class="empty">Checking...</div></div></div>
+  <div class="card quota"><h3>Free credits left</h3><div class="muted small">The desk stops by itself before these run out.</div><div id="quota"><div class="empty">Checking...</div></div>
+  <div class="card" id="sheetcard"><h3>Google Sheet (the database)</h3><div class="muted small">Lead lists are saved to the sheet, so they survive restarts and can be shared. <b>Load</b> brings a city from the sheet into this app; <b>Save</b> sends this app's list to the sheet (only that city's rows change).</div><div id="sheetbox" style="margin-top:10px"></div></div></div>
 </section>
 
 <section class="view" id="v-leads">
@@ -271,8 +272,31 @@ async function loadSetup() {   // which keys are saved (local desk only); never 
     $('#setupKeys').replaceChildren(...s.keys.map(k => h('span', { class: 'tag ' + (k.set ? 'tota' : k.required ? 'sindoor' : 'haldi') }, (k.set ? '✓ ' : k.required ? '✗ ' : '– ') + k.name + (k.set ? '' : k.required ? ' (required)' : ' (optional, not set)'))));
   } catch (e) { /* the setup card is a nicety */ }
 }
+async function loadSheet() {
+  const card = $('#sheetcard'), box = $('#sheetbox');
+  if (STATIC) { card.hidden = true; return; }
+  box.replaceChildren(h('div', { class: 'muted small' }, 'Checking the sheet...'));
+  let st, ds;
+  try { [st, ds] = await Promise.all([api('/api/sheet'), api('/api/datasets')]); } catch (e) { box.replaceChildren(h('div', { class: 'note bad' }, e.message)); return; }
+  if (!st.enabled) { box.replaceChildren(h('div', { class: 'note warn' }, 'Not connected. Set SHEET_WEBHOOK_URL and SHEET_API_TOKEN (or a Google key file) in the .env of the machine running the app. Until then lists are kept as local files, and you can download them as Excel from the Leads tab.')); return; }
+  if (st.error) { box.replaceChildren(h('div', { class: 'note bad' }, 'The sheet could not be read: ' + st.error)); return; }
+  const local = Object.fromEntries(ds.filter(d => d.sheet && d.city).map(d => [d.city, d])), msg = h('div');
+  const cities = [...new Set([...Object.keys(st.cities), ...Object.keys(local)])].sort();
+  const act = async (btn, path, body, done) => {
+    btn.disabled = true; btn.textContent = 'Working...';
+    try { const o = await api(path, body); msg.replaceChildren(o.error ? h('div', { class: 'note bad' }, o.error) : h('div', { class: 'note ok' }, done(o))); if (!o.error) { await initLeads(); } }
+    catch (e) { msg.replaceChildren(h('div', { class: 'note bad' }, e.message)); }
+    loadSheet();
+  };
+  box.replaceChildren(h('div', { class: 'muted small' }, 'Connected to "' + st.title + '".'),
+    cities.length ? h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['City', 'In the sheet', 'In this app', ''].map(x => h('th', {}, x)))),
+      h('tbody', {}, cities.map(c => h('tr', {}, h('td', {}, c === 'Bangalore' ? 'Bengaluru' : c), h('td', {}, st.cities[c] ? st.cities[c] + ' accounts' : 'nothing yet'), h('td', {}, local[c] ? 'a list' : 'nothing yet'),
+        h('td', {}, st.cities[c] ? h('button', { class: 'btn soft', style: 'margin-right:6px', onclick: e => { if (!local[c] || confirm('Replace this app\'s list for ' + c + ' with the version in the sheet?')) act(e.target, '/api/sheet/load', { city: c }, o => 'Loaded ' + o.accounts + ' accounts for ' + c + ' from the sheet.'); } }, 'Load from sheet') : null,
+          local[c] ? h('button', { class: 'btn soft', onclick: e => act(e.target, '/api/sheet/save', { dataset: local[c].id }, o => 'Saved ' + o.accounts + ' accounts for ' + c + ' to the sheet.') }, 'Save to sheet') : null)))))) : h('div', { class: 'empty' }, 'The sheet has no lead lists yet. Run Find leads, then Save to sheet.'),
+    msg);
+}
 async function loadHome() {
-  loadSetup();
+  loadSetup(); loadSheet();
   const [ob, inb] = await Promise.all([api('/api/outbox'), api('/api/inbound')]);
   $('#sOut').textContent = ob.length; $('#sIn').textContent = inb.length; $('#sLeads').textContent = S.leads.length || '-';
   const box = $('#quota');
