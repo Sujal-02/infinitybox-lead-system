@@ -42,7 +42,7 @@ Written from the playbook (`config/playbook.yaml`): the first sentence restates 
 
 > Saw that Department of Sales Tax Maharashtra floated a tender for semi-mechanized housekeeping services at GST Bhavan in Yerwada, Pune. InfinityBox provides offsite and onsite warewashing for cafeterias, so a cafeteria can serve on reusable ware instead of single-use items. The washing can be done in InfinityBox's own centralised facilities or in a unit inside your premises, whichever suits your space and meal volume. Would a 15-minute call be useful?
 >
-> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://sujal-02.github.io/infinitybox-lead-system/?c=Department+of+Sales+Tax+Maharashtra&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
+> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://infinitybox-desk.onrender.com/site/?c=Department+of+Sales+Tax+Maharashtra&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
 
 ### 2. Jabil
 **To (role):** Head Of Admin  
@@ -50,7 +50,7 @@ Written from the playbook (`config/playbook.yaml`): the first sentence restates 
 
 > Saw that Jabil inaugurated its new advanced manufacturing facility in Pune. InfinityBox provides offsite and onsite warewashing for cafeterias, so a cafeteria can serve on reusable ware instead of single-use items. The washing can be done in InfinityBox's own centralised facilities or in a unit inside your premises, whichever suits your space and meal volume. If your cafeteria is run by a caterer, I can send a short note you can forward to them: no capex, less dishwashing labour, lower cost per meal. Would a 15-minute call be useful?
 >
-> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://sujal-02.github.io/infinitybox-lead-system/?c=Jabil&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
+> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://infinitybox-desk.onrender.com/site/?c=Jabil&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
 
 ### 3. Hexadex
 **To (role):** Head Of Facilities  
@@ -58,7 +58,7 @@ Written from the playbook (`config/playbook.yaml`): the first sentence restates 
 
 > Saw that Hexadex established a new capability centre in Pune. InfinityBox provides warewashing and commercial kitchen design, including the dish-wash area. The washing can be done in InfinityBox's own centralised facilities or in a unit inside your premises, whichever suits your space and meal volume. If the cafeteria or kitchen is still being planned, it may be useful to talk before the layout is fixed. Would a 15-minute call be useful?
 >
-> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://sujal-02.github.io/infinitybox-lead-system/?c=Hexadex&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
+> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://infinitybox-desk.onrender.com/site/?c=Hexadex&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
 
 ### 4. DataBahn
 **To (role):** Head Of Facilities  
@@ -66,7 +66,7 @@ Written from the playbook (`config/playbook.yaml`): the first sentence restates 
 
 > Saw that DataBahn named Pune as its next India office, a second engineering base alongside its Chennai operation. InfinityBox provides warewashing and commercial kitchen design, including the dish-wash area. The washing can be done in InfinityBox's own centralised facilities or in a unit inside your premises, whichever suits your space and meal volume. If the cafeteria or kitchen is still being planned, it may be useful to talk before the layout is fixed. Would a 15-minute call be useful?
 >
-> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://sujal-02.github.io/infinitybox-lead-system/?c=DataBahn&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
+> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://infinitybox-desk.onrender.com/site/?c=DataBahn&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
 
 ### 5. Altimetrik
 **To (role):** Head Of Facilities  
@@ -74,5 +74,5 @@ Written from the playbook (`config/playbook.yaml`): the first sentence restates 
 
 > Saw that Altimetrik opened its second technology centre in Pune. InfinityBox provides warewashing and commercial kitchen design, including the dish-wash area. The washing can be done in InfinityBox's own centralised facilities or in a unit inside your premises, whichever suits your space and meal volume. If the cafeteria or kitchen is still being planned, it may be useful to talk before the layout is fixed. Would a 15-minute call be useful?
 >
-> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://sujal-02.github.io/infinitybox-lead-system/?c=Altimetrik&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
+> To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: https://infinitybox-desk.onrender.com/site/?c=Altimetrik&s=corporate&city=Pune&utm_source=email&utm_medium=outreach&utm_campaign=pune-202610
 

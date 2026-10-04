@@ -19,7 +19,7 @@ forbidden_words: [IoT, NABH, closed-loop, zero-waste, zero waste, guarantee, gua
 # The public page every draft links to (the app appends it; the model never writes URLs). Tracking tags are added per lead:
 # ?c=<company>&s=<segment>&city=<city>&utm_source=email&utm_medium=outreach&utm_campaign=<city>-<yyyymm>
 link:
-  url: "https://sujal-02.github.io/infinitybox-lead-system/"
+  url: "https://infinitybox-desk.onrender.com/site/"
   line: "To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: {link}"
 
 # One opening line. {company} and {event_phrase} are the only slots; event_phrase must restate the trigger from the evidence.

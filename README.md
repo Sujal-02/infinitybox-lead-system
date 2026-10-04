@@ -7,7 +7,7 @@ Finds companies likely to need cafeteria warewashing or kitchen design **right n
 | What | Where |
 |---|---|
 | **Live dashboard** (find leads, write drafts, enquiries, sheet) | https://infinitybox-desk.onrender.com/ (an access code is shared separately; a free host can take a minute to wake up) |
-| **Live public page** (calculator and enquiry form) | https://infinitybox-desk.onrender.com/site/ and, on GitHub Pages, https://sujal-02.github.io/infinitybox-lead-system/ |
+| **Live public page** (calculator and enquiry form) | https://infinitybox-desk.onrender.com/site/ (open to everyone; no code) |
 | Code | this repository (GitHub, private; access shared) |
 | Live run on one city: 25 ranked accounts and 5 drafts | [RESULTS_PUNE.md](RESULTS_PUNE.md); the same data is the "Pune" list in the dashboard |
 | Architecture, data flow and monthly cost in rupees | [ARCHITECTURE.md](ARCHITECTURE.md) |
