@@ -7,7 +7,12 @@ Finds companies likely to need cafeteria warewashing or kitchen design **right n
 1. **Start**: install Python 3.11+, then double-click `start.bat` (Windows) or run `./start.sh`. The first run sets up a private environment and creates `.env`.
 2. **Keys**: open `.env` and fill in (all have free tiers; nothing is committed): `GEMINI_API_KEY` (aistudio.google.com), `FIRECRAWL_API_KEY` (firecrawl.dev), `HUNTER_API_KEY` (hunter.io), optional `APIFY_TOKEN` (leave empty to skip LinkedIn actors). Run `start` again.
 3. **Use**: the lead desk opens in the browser. "Find leads" runs a city (about 3 to 5 minutes for a quick look); "Leads" shows the ranked list.
-4. **Optional, Google Sheet** instead of a local workbook: put the sheet id in `GSHEET_ID`, save a service-account key as `creds.json`, share the sheet with its email, set `DRY_RUN=0`, run `python -m src.run init`. Without `creds.json` the pipeline writes a local `workbook_<city>.xlsx`.
+4. **Optional, Google Sheet** instead of a local workbook (one sheet holds the pipeline tabs, the website "Leads" and "Events"):
+   1. console.cloud.google.com: create a project, then enable **Google Sheets API** and **Google Drive API** (APIs & Services -> Library).
+   2. IAM & Admin -> Service accounts -> Create. No roles needed. Open it -> Keys -> Add key -> JSON. Save the file as `creds.json` in this folder (git-ignored). Copy the account's email (`...@...iam.gserviceaccount.com`).
+   3. Create an empty Google Sheet, **Share** it with that email as Editor, and copy the id from its URL (between `/d/` and `/edit`) into `GSHEET_ID` in `.env`.
+   4. `python -m src.run sheet_check` (says in plain words what is missing), then `python -m src.run init` (creates the tabs), then set `DRY_RUN=0`.
+   5. For website enquiries: Apps Script on the same sheet, Script Properties `SHEET_ID` and `TEAM_EMAIL`, deploy `inbound/apps_script.gs` as a web app. In GitHub Actions use the secrets `GSHEET_ID` and `GOOGLE_CREDS_JSON` (the whole JSON).
 5. **Terminal alternative**: `python -m src.run all --city Pune`.
 
 Try it first without any keys or network: `python -m src.run all --city Pune --dry-run` (uses `tests/fixtures`).

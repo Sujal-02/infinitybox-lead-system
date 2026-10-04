@@ -278,7 +278,7 @@ def report() -> None:
 
 def main(argv=None):
     p = argparse.ArgumentParser(prog="src.run")
-    p.add_argument("cmd", choices=["init", "check_city_sources", "export", "quota", "leads", "contacts", "check_sources", "apify_test", "discover", "extract", "score", "people", "draft", "all"])
+    p.add_argument("cmd", choices=["init", "sheet_check", "check_city_sources", "export", "quota", "leads", "contacts", "check_sources", "apify_test", "discover", "extract", "score", "people", "draft", "all"])
     p.add_argument("--city", default=env("CITY", "Bangalore"))
     p.add_argument("--top", type=int)
     p.add_argument("--limit", type=int)
@@ -307,6 +307,8 @@ def main(argv=None):
         else:
             print("created:", ", ".join(sheet.init(sheet.open_book())) or "nothing (all tabs exist)")
         return
+    if a.cmd == "sheet_check":
+        return print(sheet.check())
     cfg.dry = a.dry_run or env("DRY_RUN") == "1"
     if a.cmd == "check_city_sources":
         return do_check_city_sources()

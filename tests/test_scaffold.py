@@ -44,7 +44,7 @@ class FakeBook:
 
 def test_init_creates_all_tabs_once():
     b = FakeBook()
-    assert set(sheet.init(b)) == set(sheet.TABS)
+    assert set(sheet.init(b)) == set(sheet.TABS) | {"Events"}
     assert sheet.init(b) == []  # idempotent
     assert b.ws["Scores"].rows[0] == ["account_id", "fit", "trigger", "reach", "total", "reason", "rank", "updated"]
 

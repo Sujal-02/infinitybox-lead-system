@@ -19,6 +19,29 @@ def open_book():
     return gc.open_by_key(env("GSHEET_ID"))
 
 
+EVENTS_HEADER = ["ts", "sid", "event", "utm_source", "utm_medium", "utm_campaign", "ref", "path"]  # written by inbound/apps_script.gs
+
+
+def check() -> str:
+    """Open the sheet and say what is wrong in plain words if it cannot be opened. Returns a short success line."""
+    import json
+    from pathlib import Path
+    from .cfg import ROOT
+    path = ROOT / env("GOOGLE_CREDS_PATH", "creds.json")
+    if not path.exists():
+        raise SystemExit(f"{path.name} not found: download the service-account JSON key from Google Cloud and save it here")
+    if not env("GSHEET_ID"):
+        raise SystemExit("GSHEET_ID is empty: put the id from the sheet's URL (between /d/ and /edit) in .env")
+    who = json.loads(path.read_text("utf-8")).get("client_email", "?")
+    try:
+        book = open_book()
+    except gspread.exceptions.SpreadsheetNotFound:
+        raise SystemExit(f"cannot open the sheet. Share it (Editor) with {who} and check GSHEET_ID")
+    except gspread.exceptions.APIError as e:
+        raise SystemExit(f"Google refused: {str(e)[:200]}. Enable the Google Sheets API and the Google Drive API for the project of {who}")
+    return f"ok: '{book.title}' opened as {who}; tabs: {', '.join(w.title for w in book.worksheets())}"
+
+
 def init(book) -> list[str]:
     """Create any missing tabs with header rows. Returns the tabs created."""
     have = {w.title for w in book.worksheets()}
@@ -30,6 +53,10 @@ def init(book) -> list[str]:
         ws = book.worksheet(tab)
         if not ws.row_values(1):
             ws.append_row(columns(tab))
+    if "Events" not in have:  # anonymous page visits, filled by the Apps Script
+        book.add_worksheet(title="Events", rows=1000, cols=len(EVENTS_HEADER))
+        book.worksheet("Events").append_row(EVENTS_HEADER)
+        made.append("Events")
     return made
 
 
