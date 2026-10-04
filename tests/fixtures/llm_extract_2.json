@@ -1,0 +1,7 @@
+{"items": [
+ {"company": "Northwind GCC", "segment": "corporate", "type": "facilities_hiring", "date": "2026-03-02",
+  "summary": "Hiring a Facilities Manager at Hinjewadi", "evidence": "is hiring a Facilities Manager for its Hinjewadi office",
+  "size_est": null, "caterer": "", "domain": "", "conf": 0.7},
+ {"company": "Northwind GCC", "segment": "corporate", "type": "new_campus", "date": "2026-03-02",
+  "summary": "Invented campus expansion", "evidence": "Northwind is opening a 5,000-seat campus",
+  "size_est": 5000, "caterer": "", "domain": "", "conf": 0.9}]}

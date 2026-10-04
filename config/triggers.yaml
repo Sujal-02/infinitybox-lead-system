@@ -1,0 +1,8 @@
+# weight = points a fresh signal contributes; half_life = days until it counts half.
+new_campus:       {weight: 25, half_life: 90}
+lease:            {weight: 18, half_life: 90}
+cafeteria_revamp: {weight: 25, half_life: 60}
+tender:           {weight: 30, half_life: 60}
+caterer_renewal:  {weight: 20, half_life: 60}
+esg_plastic:      {weight: 12, half_life: 90}
+facilities_hiring: {weight: 15, half_life: 60}

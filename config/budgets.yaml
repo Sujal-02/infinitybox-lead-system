@@ -1,0 +1,17 @@
+# Free-trial budget. Every call that costs something (a cache miss) is charged here; a cap hit stops that source
+# with a clear message and the run carries on. Check real balances any time:  python -m src.run quota
+# Balances on 2026-10-03: Hunter 39 searches / 79 verifications left; Firecrawl 929 of 1000 credits (resets 2 Nov);
+# Apify FREE $5/month but the LinkedIn actor's own 10-run free limit is used up; Gemini key returns 403.
+#
+# Units: firecrawl = credits (search 2 + 1 per scraped result, scrape 1) | hunter = searches (domain-search, email-finder)
+#        apify = actor runs | gemini = requests
+per_run:        # one CLI invocation
+  firecrawl: 120
+  hunter: 6
+  apify: 5
+  gemini: 90    # the Gemini-only agent makes one request per step
+monthly:        # calendar month; keep a reserve below your real balance
+  firecrawl: 700
+  hunter: 30
+  apify: 20     # runs. People search ~ $0.10 per run on the free $5 credit; harvestapi actor is refused after 10 free runs, the fallback is not
+  gemini: 300

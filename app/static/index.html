@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InfinityBox Lead Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Yatra+One&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF8F1; --surface:#FFFFFF; --ink:#2E2D52; --mute:#6F6E8C; --line:#ECE6D8; --brand:#4B4A95; --brand-ink:#FFFFFF; --brand-soft:#ECECF9;
+  --haldi:#FCEBB0; --haldi-i:#7A5A00; --rani:#F9D6E4; --rani-i:#8C2A57; --mor:#D2EEF1; --mor-i:#0A5E6B; --tota:#DDF1D6; --tota-i:#2E6B2A; --sindoor:#F9DAD3; --sindoor-i:#8A3022;
+  --shadow:0 6px 24px rgba(46,45,82,.07); --r:20px;
+  --font:"Baloo 2",system-ui,-apple-system,"Segoe UI",sans-serif; --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#15152A; --surface:#1E1E3A; --ink:#ECEBFA; --mute:#A3A2C4; --line:#2E2E52; --brand:#8F8EE6; --brand-ink:#15152A; --brand-soft:#2A2A52;
+  --haldi:#4A3D10; --haldi-i:#F5DC8A; --rani:#4A2236; --rani-i:#F5B5D0; --mor:#173E45; --mor-i:#9ADCE6; --tota:#22381F; --tota-i:#B5E3AD; --sindoor:#4A241D; --sindoor-i:#F2B3A6; --shadow:0 6px 24px rgba(0,0,0,.35);}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body)}
+h1,h2,h3,.f{font-family:var(--font)}
+h2{font-size:26px;margin:0 0 4px;font-weight:800} h3{font-size:19px;margin:0 0 8px;font-weight:700}
+.muted{color:var(--mute)} .small{font-size:14px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+
+/* header */
+.bar{display:flex;align-items:center;gap:18px;padding:12px 24px;background:var(--surface);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font:800 21px var(--font)}
+.brand small{display:block;font:500 12px var(--body);color:var(--mute);margin-top:-6px}
+.rosette{width:36px;height:36px;animation:spin 24s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto}
+.tabs button{border:0;background:none;padding:8px 16px;border-radius:99px;cursor:pointer;font:700 16px var(--font);color:var(--mute);transition:background .2s,color .2s}
+.tabs button:hover{background:var(--brand-soft);color:var(--ink)}
+.tabs button[aria-current="true"]{background:var(--brand);color:var(--brand-ink)}
+.trim{height:12px;background:linear-gradient(135deg,#F3B8A8 25%,transparent 25%) 0 0/24px 12px,linear-gradient(225deg,#BFE3B5 25%,transparent 25%) 0 0/24px 12px,var(--surface)}
+main{max-width:1240px;margin:0 auto;padding:26px 24px 60px}
+.view{display:none}.view.on{display:block;animation:fade .35s ease both}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* basics */
+.card{background:var(--surface);border-radius:var(--r);padding:22px;box-shadow:var(--shadow);margin-bottom:18px;border:1px solid var(--line)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:99px;padding:10px 22px;background:var(--brand);color:var(--brand-ink);font:700 16px var(--font);cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .2s;box-shadow:0 3px 0 rgba(0,0,0,.12)}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(2px);box-shadow:none}.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.btn.soft{background:var(--brand-soft);color:var(--ink);box-shadow:none}.btn.line{background:none;border:2px solid var(--line);color:var(--ink);box-shadow:none}
+input[type=text],select,textarea{width:100%;background:var(--bg);border:2px solid var(--line);border-radius:14px;padding:10px 14px}
+textarea{resize:vertical;line-height:1.55}
+.tag{display:inline-block;border-radius:99px;padding:2px 12px;font-size:13px;font-weight:700;margin:0 4px 4px 0;background:var(--brand-soft);color:var(--ink)}
+.tag.haldi{background:var(--haldi);color:var(--haldi-i)}.tag.rani{background:var(--rani);color:var(--rani-i)}.tag.mor{background:var(--mor);color:var(--mor-i)}
+.tag.tota{background:var(--tota);color:var(--tota-i)}.tag.sindoor{background:var(--sindoor);color:var(--sindoor-i)}
+.note{border-radius:14px;padding:10px 14px;margin:10px 0;font-size:15px}.note.warn{background:var(--haldi);color:var(--haldi-i)}.note.bad{background:var(--sindoor);color:var(--sindoor-i)}.note.ok{background:var(--tota);color:var(--tota-i)}
+.empty{text-align:center;color:var(--mute);padding:44px 12px}
+.spin{display:inline-block;width:15px;height:15px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+.ring{--p:50;width:52px;height:52px;border-radius:50%;background:conic-gradient(var(--brand) calc(var(--p) * 1%),var(--line) 0);display:grid;place-items:center;flex:none}
+.ring::after{content:attr(data-v);width:40px;height:40px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font:800 15px var(--font)}
+.ring.big{width:72px;height:72px}.ring.big::after{width:56px;height:56px;font-size:20px}
+.bar2{height:12px;background:var(--line);border-radius:99px;overflow:hidden;margin:4px 0 6px}.bar2 i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .8s cubic-bezier(.645,.045,.355,1)}
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}@media(max-width:860px){.grid3{grid-template-columns:1fr}}
+
+/* home */
+.hello{display:flex;gap:18px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.hello h1{font:400 clamp(30px,5vw,46px)/1.1 "Yatra One",var(--font);margin:0}
+.stat{border-radius:var(--r);padding:20px 22px;cursor:pointer;transition:transform .2s;border:0;text-align:left;width:100%}
+.stat:hover{transform:translateY(-3px)}
+.stat b{display:block;font:800 40px/1 var(--font)}.stat span{font-weight:700}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}@media(max-width:860px){.steps{grid-template-columns:1fr 1fr}}
+.stepc{padding:16px;border-radius:16px;background:var(--bg)}.stepc .n{width:32px;height:32px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font:800 16px var(--font);margin-bottom:8px}
+.quota .q{margin:10px 0}.quota .lab{display:flex;justify-content:space-between;font-weight:700;font-size:15px}
+
+/* leads */
+.split{display:grid;grid-template-columns:350px 1fr;gap:22px;align-items:start}
+@media(max-width:960px){.split{grid-template-columns:1fr}}
+.listcol{position:sticky;top:96px;max-height:calc(100vh - 118px);overflow:auto;padding-right:4px}
+@media(max-width:960px){.listcol{position:static;max-height:none}}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.chip{border:2px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 14px;cursor:pointer;font:700 14px var(--font)}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.lead{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--surface);border:2px solid transparent;border-radius:18px;padding:12px 14px;margin-bottom:10px;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s,border-color .2s}
+.lead:hover{transform:translateY(-2px)}.lead[aria-current="true"]{border-color:var(--brand)}
+.lead b{display:block;font:700 17px/1.2 var(--font)}
+.dtabs{display:flex;gap:6px;margin:0 0 16px;background:var(--surface);padding:6px;border-radius:99px;box-shadow:var(--shadow);width:max-content;max-width:100%;overflow:auto}
+.dtabs button{border:0;background:none;padding:8px 20px;border-radius:99px;cursor:pointer;font:700 16px var(--font);color:var(--mute)}
+.dtabs button[aria-current="true"]{background:var(--brand);color:var(--brand-ink)}
+.lhead{display:flex;gap:18px;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden}
+.lhead::before{content:"";position:absolute;left:0;right:0;top:0;height:8px;background:radial-gradient(circle at 8px 0,var(--rani) 7px,transparent 8px) 0 0/16px 8px repeat-x}
+.lhead h2{margin-top:6px}
+.src{background:var(--bg);border-radius:16px;padding:12px 16px;margin:10px 0}
+.src q{display:block;color:var(--mute);font-style:italic;margin:4px 0}
+a{color:var(--brand);font-weight:700}
+details summary{cursor:pointer;color:var(--mute);font-size:14.5px;margin:4px 0}
+ul.plain{margin:6px 0;padding-left:20px}
+.styles{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin:10px 0 14px}
+.style{border:2px solid var(--line);border-radius:16px;padding:12px;cursor:pointer;background:var(--surface);transition:border-color .2s,background .2s,transform .15s}
+.style:hover{transform:translateY(-2px)}.style[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.style b{display:block;font:700 16px var(--font)}.style span{font-size:13.5px;color:var(--mute)}
+label.f{display:block;font-size:14px;font-weight:700;color:var(--mute);margin:14px 0 4px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;align-items:center}
+
+/* find leads */
+.cities{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 18px}
+.city{border:2px solid var(--line);background:var(--surface);border-radius:18px;padding:10px 20px;font:700 17px var(--font);cursor:pointer;transition:all .2s}
+.city[aria-pressed="true"]{background:var(--haldi);border-color:var(--haldi-i);color:var(--haldi-i);transform:translateY(-2px)}
+.sizes{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:10px 0 18px}
+.size{border:2px solid var(--line);background:var(--surface);border-radius:18px;padding:14px;cursor:pointer;text-align:left}
+.size[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}.size b{display:block;font:700 18px var(--font)}.size span{font-size:14px;color:var(--mute);display:block}
+.stages{display:grid;gap:10px;margin:14px 0}
+.stage{display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:14px;background:var(--bg);transition:background .4s}
+.stage i{width:26px;height:26px;border-radius:50%;border:3px solid var(--line);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:14px;flex:none}
+.stage.done{background:var(--tota)}.stage.done i{background:var(--tota-i);border-color:var(--tota-i);color:#fff}
+.stage.now i{border-color:var(--brand);border-top-color:transparent;animation:spin 1s linear infinite}
+pre.log{background:var(--bg);border-radius:12px;padding:10px 14px;font:12.5px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;max-height:200px;overflow:auto;margin:0}
+
+/* funnel + tables */
+.fun{display:grid;gap:10px;margin-top:10px}.fun .r{display:grid;grid-template-columns:170px 1fr 70px;gap:10px;align-items:center}
+@media(max-width:620px){.fun .r{grid-template-columns:120px 1fr 50px;font-size:14px}}
+.fun .track{height:26px;background:var(--bg);border-radius:99px;overflow:hidden}.fun .track i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--brand),#8F8EE6);transition:width .9s cubic-bezier(.645,.045,.355,1)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:15px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}th{color:var(--mute);font:700 14px var(--font)}
+dialog{border:0;border-radius:24px;background:var(--surface);color:var(--ink);max-width:580px;width:92%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow-x:hidden}
+dialog::backdrop{background:rgba(30,30,60,.45)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="brand">
+    <svg class="rosette" viewBox="0 0 100 100" aria-hidden="true"><g transform="translate(50 50)"><ellipse cx="0" cy="-26" rx="9" ry="22" fill="#F9D6E4"/><ellipse cx="0" cy="-26" rx="9" ry="22" fill="#FCEBB0" transform="rotate(45)"/><ellipse cx="0" cy="-26" rx="9" ry="22" fill="#F9D6E4" transform="rotate(90)"/><ellipse cx="0" cy="-26" rx="9" ry="22" fill="#FCEBB0" transform="rotate(135)"/><ellipse cx="0" cy="-26" rx="9" ry="22" fill="#F9D6E4" transform="rotate(180)"/><ellipse cx="0" cy="-26" rx="9" ry="22" fill="#FCEBB0" transform="rotate(225)"/><ellipse cx="0" cy="-26" rx="9" ry="22" fill="#F9D6E4" transform="rotate(270)"/><ellipse cx="0" cy="-26" rx="9" ry="22" fill="#FCEBB0" transform="rotate(315)"/><circle r="11" fill="#F3B8A8"/><circle r="4" fill="#FFFDF5"/></g></svg>
+    <div>InfinityBox<small>Lead desk</small></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-t="home" aria-current="true">Home</button><button data-t="leads">Leads</button><button data-t="find">Find leads</button><button data-t="inbound">Website enquiries</button><button data-t="outbox">Outbox</button>
+  </nav>
+</header>
+<div class="trim"></div>
+
+<main>
+<section class="view on" id="v-home">
+  <div class="hello"><h1>Good to see you</h1><div class="muted">Here is what is waiting for you today.</div></div>
+  <div class="grid3" style="margin-bottom:18px">
+    <button class="stat" style="background:var(--haldi);color:var(--haldi-i)" data-go="leads"><b id="sLeads">-</b><span>leads ready to review</span></button>
+    <button class="stat" style="background:var(--mor);color:var(--mor-i)" data-go="inbound"><b id="sIn">-</b><span>enquiries from the website</span></button>
+    <button class="stat" style="background:var(--rani);color:var(--rani-i)" data-go="outbox"><b id="sOut">-</b><span>emails recorded in the outbox</span></button>
+  </div>
+  <div class="card"><h3>How this works</h3>
+    <div class="steps">
+      <div class="stepc"><div class="n">1</div><b>Find leads</b><div class="muted small">Pick a city. The desk searches the news and public pages for companies about to need us.</div></div>
+      <div class="stepc"><div class="n">2</div><b>Review</b><div class="muted small">Every lead shows why it is a lead, a score you can understand, and the sources.</div></div>
+      <div class="stepc"><div class="n">3</div><b>Write</b><div class="muted small">Pick a style. The AI writes a draft for that company. You edit every word.</div></div>
+      <div class="stepc"><div class="n">4</div><b>Record</b><div class="muted small">Record the email in the outbox, then open it in Gmail and press send yourself.</div></div>
+    </div>
+    <div class="actions"><button class="btn" data-go="leads">Review leads</button><button class="btn soft" data-go="find">Find leads for a city</button></div>
+  </div>
+  <div class="card quota"><h3>Free credits left</h3><div class="muted small">The desk stops by itself before these run out.</div><div id="quota"><div class="empty">Checking...</div></div></div>
+</section>
+
+<section class="view" id="v-leads">
+  <div class="split">
+    <div class="listcol">
+      <label class="f" for="ds" style="margin-top:0">Lead list</label><select id="ds"></select>
+      <input id="q" type="text" placeholder="Search a company..." aria-label="Search companies" style="margin-top:10px">
+      <div class="chips" id="segs"></div>
+      <div class="row small muted" style="margin:0 2px 8px"><span id="count"></span><select id="sort" style="width:auto;padding:2px 10px"><option value="score">Best score first</option><option value="new">Newest first</option></select></div>
+      <div id="list"></div>
+    </div>
+    <div id="detail"><div class="card empty">Pick a company on the left. You will see why it is a lead, who to contact, and you can write an email.</div></div>
+  </div>
+</section>
+
+<section class="view" id="v-find">
+  <div class="card" style="max-width:820px">
+    <h2>Find new leads</h2><p class="muted">Choose a city and how much to look at. The desk does the rest and shows its progress. You can keep using the other tabs meanwhile.</p>
+    <label class="f">1. City</label><div class="cities" id="cities"></div>
+    <label class="f">2. How much?</label><div class="sizes" id="sizes"></div>
+    <div class="actions"><button class="btn" id="go">Find leads</button><span class="muted small" id="goNote"></span></div>
+  </div>
+  <div class="card" id="jobcard" style="max-width:820px;display:none"></div>
+</section>
+
+<section class="view" id="v-inbound">
+  <div class="card"><h2>How the public page is doing</h2><p class="muted">Anonymous counts only: no cookies, no names. Each bar is the number of different visitors who got that far.</p><div class="fun" id="funnel"></div><div id="campaigns"></div></div>
+  <div class="card"><h2>Enquiries from the website</h2><p class="muted">People who used the calculator and asked to be contacted. Each one is routed to a team by what they told us they are. <a href="/site/" target="_blank" rel="noopener">Open the public page</a></p><div class="tablewrap" id="inbound"></div></div>
+</section>
+
+<section class="view" id="v-outbox">
+  <div class="card"><h2>Outbox</h2><p class="muted">Nothing here was emailed by this app: sending is a placeholder until real email is connected. "Record in outbox" keeps a copy, and you can open it in Gmail and press send yourself.</p><div class="tablewrap" id="outbox"></div></div>
+</section>
+</main>
+<dialog id="dlg"></dialog>
+
+<script>
+const $ = (s, r = document) => r.querySelector(s);
+function h(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) { if (k === 'class') e.className = v; else if (k.startsWith('on')) e.addEventListener(k.slice(2), v); else if (k.startsWith('aria-')) e.setAttribute(k, String(!!v)); else if (v === true) e.setAttribute(k, ''); else if (v !== false && v != null) e.setAttribute(k, v); }
+  for (const c of kids.flat()) if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(c));
+  return e;
+}
+async function api(path, body) {
+  const r = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
+  const j = await r.json().catch(() => ({ error: 'Unexpected reply from the app.' }));
+  if (!r.ok) throw Object.assign(new Error(j.error || 'Something went wrong'), { problems: j.problems || [] });
+  return j;
+}
+const S = { ds: null, leads: [], seg: 'all', q: '', sort: 'score', cur: null, dtab: 'about', styles: [], facts: [], draft: {}, city: null, size: 'quick', poll: null };
+const SEG = { corporate: 'Company', institution: 'College / hospital / government', caterer: 'Caterer', fitout: 'Fit-out / design firm' };
+const SEGTAG = { corporate: 'mor', institution: 'tota', caterer: 'haldi', fitout: 'rani' };
+const TIER = { tier1: ['Likely decision maker', 'tota'], tier2: ['Runs it day to day', 'mor'], tier3: ['Gatekeeper: ask for an introduction', 'haldi'], generic: ['General mailbox', 'haldi'], office: ['Relevant office, no contact listed', 'haldi'], none: ['Probably not the right person', 'sindoor'] };
+const TYPE = { new_campus: 'New campus or office', lease: 'New lease', cafeteria_revamp: 'Cafeteria / canteen work', tender: 'Tender', caterer_renewal: 'Caterer contract', esg_plastic: 'Plastic / sustainability', facilities_hiring: 'Facilities hiring' };
+const QUEUE_LABEL = { warewashing: 'Warewashing team', 'kitchen design': 'Kitchen design team', partner: 'Partnerships' };
+const cityName = c => c === 'Bangalore' ? 'Bengaluru' : c;
+
+/* ---------- navigation ---------- */
+function show(t) {
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + t));
+  document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.t === t));
+  if (t === 'home') loadHome(); if (t === 'inbound') loadInbound(); if (t === 'outbox') loadOutbox(); if (t === 'find') loadFind();
+  window.scrollTo({ top: 0 });
+}
+document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => show(b.dataset.t));
+document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => show(b.dataset.go));
+
+/* ---------- home ---------- */
+async function loadHome() {
+  const [ob, inb] = await Promise.all([api('/api/outbox'), api('/api/inbound')]);
+  $('#sOut').textContent = ob.length; $('#sIn').textContent = inb.length; $('#sLeads').textContent = S.leads.length || '-';
+  const box = $('#quota');
+  try {
+    const q = await api('/api/quota');
+    box.replaceChildren(...Object.values(q).map(x => x.error ? h('div', { class: 'q muted small' }, x.label + ': could not check right now') :
+      h('div', { class: 'q' }, h('div', { class: 'lab' }, h('span', {}, x.label), h('span', {}, x.left.toLocaleString('en-IN') + ' of ' + x.total.toLocaleString('en-IN'))),
+        h('div', { class: 'bar2' }, h('i', { style: 'width:' + Math.max(2, Math.min(100, x.left / x.total * 100)) + '%' })), h('div', { class: 'muted small' }, x.note))));
+  } catch (e) { box.replaceChildren(h('div', { class: 'empty' }, 'Could not check balances.')); }
+}
+
+/* ---------- leads: list ---------- */
+async function initLeads() {
+  const [ds, st] = await Promise.all([api('/api/datasets'), api('/api/styles')]);
+  S.styles = st.styles; S.facts = st.facts;
+  const sel = $('#ds'); sel.replaceChildren(...ds.map(d => h('option', { value: d.id }, d.label)));
+  sel.onchange = () => loadLeads(sel.value);
+  $('#q').oninput = e => { S.q = e.target.value.toLowerCase(); renderList(); };
+  $('#sort').onchange = e => { S.sort = e.target.value; renderList(); };
+  if (ds.length) await loadLeads(ds[0].id);
+  else $('#list').replaceChildren(h('div', { class: 'empty' }, 'No lead lists yet. Open "Find leads" to make one.'));
+}
+async function loadLeads(ds) {
+  S.ds = ds; S.cur = null; $('#ds').value = ds;
+  S.leads = await api('/api/leads?dataset=' + ds);
+  const segs = ['all', ...new Set(S.leads.map(l => l.segment))];
+  if (!segs.includes(S.seg)) S.seg = 'all';
+  $('#segs').replaceChildren(...segs.map(s => h('button', { class: 'chip', 'aria-pressed': S.seg === s, onclick: () => { S.seg = s; [...$('#segs').children].forEach((b, i) => b.setAttribute('aria-pressed', segs[i] === s)); renderList(); } }, s === 'all' ? 'All' : SEG[s])));
+  renderList(); $('#sLeads').textContent = S.leads.length;
+  $('#detail').replaceChildren(h('div', { class: 'card empty' }, 'Pick a company on the left. You will see why it is a lead, who to contact, and you can write an email.'));
+}
+const newest = l => (l.sources[0] || {}).date || '';
+function renderList() {
+  let ls = S.leads.filter(l => (S.seg === 'all' || l.segment === S.seg) && l.company.toLowerCase().includes(S.q));
+  ls = [...ls].sort((a, b) => S.sort === 'new' ? newest(b).localeCompare(newest(a)) : b.score.total - a.score.total);
+  $('#count').textContent = ls.length + ' leads';
+  $('#list').replaceChildren(...ls.map(l => h('button', { class: 'lead', 'aria-current': S.cur === l.id, onclick: () => openLead(l.id) },
+    h('div', { class: 'ring', style: '--p:' + l.score.total, 'data-v': Math.round(l.score.total), title: 'Score out of 100' }),
+    h('div', {}, h('b', {}, l.company), h('span', { class: 'tag ' + SEGTAG[l.segment] }, SEG[l.segment]), h('div', { class: 'muted small' }, l.city + ' · ' + l.triggers.map(t => TYPE[t] || t).join(', ')), newest(l) ? h('div', { class: 'muted small' }, 'Event: ' + newest(l)) : null))));
+}
+
+/* ---------- leads: detail ---------- */
+function openLead(id, tab) {
+  S.cur = id; S.dtab = tab || 'about'; renderList(); drawDetail();
+  if (window.innerWidth < 960) $('#detail').scrollIntoView({ behavior: 'smooth' });
+}
+function drawDetail() {
+  const l = S.leads.find(x => x.id === S.cur); if (!l) return;
+  const tabs = [['about', 'About this lead'], ['contacts', 'Who to contact'], ['email', 'Write the email']];
+  const body = S.dtab === 'about' ? aboutPane(l) : S.dtab === 'contacts' ? contactsPane(l) : emailPane(l);
+  $('#detail').replaceChildren(
+    h('div', { class: 'card lhead' }, h('div', { class: 'ring big', style: '--p:' + l.score.total, 'data-v': Math.round(l.score.total) }),
+      h('div', { style: 'flex:1;min-width:220px' }, h('h2', {}, l.company), h('span', { class: 'tag ' + SEGTAG[l.segment] }, SEG[l.segment]), h('span', { class: 'tag' }, l.city),
+        h('p', { style: 'margin:6px 0 0' }, h('b', {}, 'Why this is a lead: '), l.why_now))),
+    h('div', { class: 'dtabs' }, tabs.map(([k, t]) => h('button', { 'aria-current': S.dtab === k, onclick: () => { S.dtab = k; drawDetail(); } }, t))), body);
+  if (S.dtab === 'email') loadSaved(l);
+}
+function bar(label, p, hint) {
+  return h('div', { style: 'margin:12px 0' }, h('div', { class: 'row' }, h('b', {}, label), h('b', {}, p.score + ' of ' + p.max)), h('div', { class: 'bar2' }, h('i', { style: 'width:' + Math.min(100, p.score / p.max * 100) + '%' })), h('div', { class: 'muted small' }, hint));
+}
+function aboutPane(l) {
+  const s = l.score, parts = (ps, f) => h('ul', { class: 'plain' }, ps.map(p => h('li', {}, h('b', {}, '+' + p.pts), ' ', f(p))));
+  return h('div', {},
+    h('div', { class: 'card' }, h('h3', {}, 'How the score is made'), h('p', { class: 'muted small' }, 'Fixed rules calculate this, not the AI. Three parts add up to 100.'),
+      bar('Fit', s.fit, 'Are they the kind of organisation we sell to?'), h('details', {}, h('summary', {}, 'See the points'), parts(s.fit.parts, p => `${p.label}: ${p.note}`)),
+      bar('Trigger', s.trigger, 'Is something happening right now? Older events count for less.'),
+      h('details', {}, h('summary', {}, 'See the points'), s.trigger.parts.length ? parts(s.trigger.parts, p => `${p.label} on ${p.date} (${p.age_days} days ago). Worth ${p.weight} when brand new, halves every ${p.half_life} days.`) : h('div', { class: 'muted small' }, 'No trigger recorded.')),
+      bar('Reach', s.reach, 'Do we know who to write to?'), h('details', {}, h('summary', {}, 'See the points'), parts(s.reach.parts, p => `${p.label}: ${p.note}`)),
+      s.tips.length ? h('div', { class: 'note ok' }, h('b', {}, 'To raise this score: '), h('ul', { class: 'plain' }, s.tips.map(t => h('li', {}, t)))) : null),
+    h('div', { class: 'card' }, h('h3', {}, 'Where this came from'), h('p', { class: 'muted small' }, 'Every lead is backed by a real source. The quote is copied exactly from it.'),
+      l.sources.map(s => h('div', { class: 'src' }, h('span', { class: 'tag haldi' }, TYPE[s.type] || s.type), h('span', { class: 'muted small' }, s.date), h('div', {}, h('b', {}, s.headline)), h('q', {}, '“' + s.quote + '”'),
+        h('a', { href: s.url, target: '_blank', rel: 'noopener noreferrer' }, 'Open the source ↗')))),
+    l.buyer_logic ? h('div', { class: 'card' }, h('h3', {}, 'Who usually decides'), h('p', {}, l.buyer_logic)) : null,
+    h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => { S.dtab = 'contacts'; drawDetail(); } }, 'Next: who to contact')));
+}
+function contactsPane(l) {
+  const links = [l.linkedin_company && h('a', { href: l.linkedin_company, target: '_blank', rel: 'noopener noreferrer' }, 'Company on LinkedIn ↗'), l.website && h('a', { href: 'https://' + l.website, target: '_blank', rel: 'noopener noreferrer' }, l.website + ' ↗')].filter(Boolean);
+  return h('div', {}, h('div', { class: 'card' }, h('h3', {}, 'Who to contact'),
+    l.contacts.length ? l.contacts.map(c => { const t = TIER[c.tier] || ['', '']; return h('div', { class: 'src' }, h('b', {}, c.name || '(no name listed)'), c.title ? ' · ' + c.title : '', h('div', {}, h('span', { class: 'tag ' + t[1] }, t[0])),
+      c.why ? h('div', { class: 'muted small' }, c.why) : null,
+      c.email ? h('div', {}, 'Email: ', h('b', {}, c.email), ' ', h('span', { class: 'muted small' }, '(' + (c.email_status || 'from source') + ')')) : h('div', { class: 'muted small' }, 'No email found. We never guess emails.'),
+      c.linkedin ? h('a', { href: c.linkedin, target: '_blank', rel: 'noopener noreferrer' }, 'LinkedIn profile ↗') : null); })
+      : h('div', { class: 'note warn' }, 'No contact found yet. Use the LinkedIn search below to find the right person.'),
+    l.search_links.length ? h('div', {}, h('div', { class: 'muted small' }, 'Search LinkedIn yourself (opens a search; nothing is scraped):'), l.search_links.map(x => h('div', {}, h('a', { href: x.url, target: '_blank', rel: 'noopener noreferrer' }, x.role + ' ↗')))) : null,
+    links.length ? h('div', { style: 'margin-top:10px' }, links.map((a, i) => [i ? ' · ' : '', a])) : null),
+    h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => { S.dtab = 'email'; drawDetail(); } }, 'Next: write the email')));
+}
+function emailPane(l) {
+  const mine = S.styles.filter(s => s.for.includes(l.segment));
+  const dr = S.draft[l.id] = S.draft[l.id] || { style: mine.some(s => s.id === l.recommended_style) ? l.recommended_style : mine[0].id, contact: Math.max(0, l.contacts.findIndex(c => c.relevance >= 0.6)) };
+  if (!l.contacts.length) dr.contact = -1;
+  const grid = h('div', { class: 'styles' });
+  mine.forEach(s => grid.append(h('div', { class: 'style', role: 'button', tabindex: 0, 'aria-pressed': dr.style === s.id,
+    onclick: () => { dr.style = s.id; [...grid.children].forEach((c, i) => c.setAttribute('aria-pressed', mine[i].id === s.id)); } },
+    h('b', {}, s.name, s.id === l.recommended_style ? h('span', { class: 'tag tota', style: 'margin-left:6px' }, 'Suggested') : null), h('span', {}, s.best_when))));
+  const who = h('select', { id: 'who', onchange: e => dr.contact = +e.target.value }, [h('option', { value: -1 }, 'No specific person'), ...l.contacts.map((c, i) => h('option', { value: i }, (c.name || '(no name)') + ' · ' + (c.title || '').slice(0, 40)))]);
+  who.value = dr.contact;
+  return h('div', { class: 'card' }, h('h3', {}, 'Write the email'),
+    h('p', { class: 'muted small' }, 'The AI writes a first draft for this company, using only facts we have approved about InfinityBox. You can change every word before anything is saved.'),
+    h('label', { class: 'f' }, '1. Pick a style'), grid, h('label', { class: 'f', for: 'who' }, '2. Who is it for?'), who,
+    h('label', { class: 'f', for: 'notes' }, '3. Anything to add? (optional)'), h('input', { id: 'notes', type: 'text', placeholder: 'e.g. mention we met at an event' }),
+    h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'gen', onclick: () => generate(l) }, 'Write a draft')), h('div', { id: 'draftout' }),
+    h('details', { style: 'margin-top:14px' }, h('summary', {}, 'What the AI is allowed to say about InfinityBox'), h('ul', { class: 'plain' }, S.facts.map(f => h('li', {}, f)))));
+}
+async function loadSaved(l) {
+  try { const sv = await api(`/api/saved?dataset=${S.ds}&lead_id=${encodeURIComponent(l.id)}`); if (sv.body && S.cur === l.id) showDraft(l, sv, 'Loaded your saved draft from ' + sv.saved_at.replace('T', ' ') + '.'); } catch (e) {}
+}
+async function generate(l) {
+  const dr = S.draft[l.id], btn = $('#gen'), out = $('#draftout');
+  btn.disabled = true; btn.replaceChildren(h('span', { class: 'spin' }), 'Writing...'); out.replaceChildren();
+  try { showDraft(l, await api('/api/draft', { dataset: S.ds, lead_id: l.id, style: dr.style, contact: dr.contact, notes: $('#notes').value }), null); }
+  catch (e) { out.replaceChildren(h('div', { class: 'note bad' }, e.message)); }
+  btn.disabled = false; btn.replaceChildren('Write a new draft');
+}
+let timer;
+function showDraft(l, r, info) {
+  const out = $('#draftout'), dr = S.draft[l.id];
+  if (!out) return;
+  const subj = h('input', { type: 'text', id: 'subj', value: r.subject }), body = h('textarea', { id: 'body', rows: 14 }); body.value = r.body;
+  const status = h('div', { id: 'status' }), send = h('button', { class: 'btn', id: 'sendbtn', onclick: () => sendDialog(l) }, 'Send (placeholder)...');
+  const check = async () => {
+    try {
+      const c = await api('/api/check', { dataset: S.ds, lead_id: l.id, subject: subj.value, body: body.value, notes: $('#notes').value });
+      status.replaceChildren(h('div', { class: 'muted small' }, c.words + ' words'), c.problems.length ? h('div', { class: 'note bad' }, h('b', {}, 'Please check: '), h('ul', { class: 'plain' }, c.problems.map(p => h('li', {}, p)))) : h('div', { class: 'note ok' }, 'Looks good: no unsupported claims or numbers found.'));
+      send.disabled = c.problems.length > 0;
+    } catch (e) { status.replaceChildren(h('div', { class: 'note warn' }, e.message)); }
+  };
+  const later = () => { clearTimeout(timer); timer = setTimeout(check, 350); };
+  subj.oninput = later; body.oninput = later;
+  out.replaceChildren(info ? h('div', { class: 'note ok' }, info) : null, h('label', { class: 'f' }, 'Subject'), subj, h('label', { class: 'f' }, 'Message (edit as you like)'), body, status,
+    h('div', { class: 'actions' }, send,
+      h('button', { class: 'btn soft', onclick: async () => { await api('/api/save', { dataset: S.ds, lead_id: l.id, subject: subj.value, body: body.value, style: dr.style }); status.prepend(h('div', { class: 'note ok' }, 'Draft saved.')); } }, 'Save draft'),
+      h('button', { class: 'btn line', onclick: async e => { await navigator.clipboard.writeText(subj.value + '\n\n' + body.value); e.target.textContent = 'Copied'; setTimeout(() => e.target.textContent = 'Copy', 1500); } }, 'Copy')));
+  check();
+}
+function sendDialog(l) {
+  const dr = S.draft[l.id], c = l.contacts[dr.contact], dlg = $('#dlg'), to = h('input', { type: 'text', id: 'to', value: (c && c.email) || '', placeholder: 'recipient@company.com (optional)' }), res = h('div');
+  dlg.replaceChildren(h('h3', { style: 'margin-top:0' }, 'Record this email'),
+    h('div', { class: 'note warn' }, 'Sending is a temporary placeholder: real email is not connected yet, so nothing is emailed from this app. It records the message in the Outbox, and you can open it in Gmail and press send yourself.'),
+    h('label', { class: 'f' }, 'To'), to, h('label', { class: 'f' }, 'Subject'), h('div', {}, h('b', {}, $('#subj').value)),
+    h('label', { class: 'f' }, 'Message'), h('pre', { class: 'log' }, $('#body').value), res,
+    h('div', { class: 'actions' }, h('button', { class: 'btn', id: 'rec', onclick: async () => {
+      try { const r = await api('/api/send', { dataset: S.ds, lead_id: l.id, to: to.value, subject: $('#subj').value, body: $('#body').value, notes: $('#notes').value });
+        res.replaceChildren(h('div', { class: 'note ok' }, 'Recorded in the Outbox. ', h('a', { href: r.gmail_url, target: '_blank', rel: 'noopener noreferrer' }, 'Open in Gmail to send it yourself ↗'))); $('#rec').disabled = true; }
+      catch (e) { res.replaceChildren(h('div', { class: 'note bad' }, e.message, h('ul', { class: 'plain' }, e.problems.map(p => h('li', {}, p))))); }
+    } }, 'Record in outbox'), h('button', { class: 'btn line', onclick: () => dlg.close() }, 'Close')));
+  dlg.showModal();
+}
+
+/* ---------- find leads ---------- */
+async function loadFind() {
+  const o = await api('/api/run-options'), sizeKeys = Object.keys(o.sizes);
+  if (!S.city) S.city = o.cities[0];
+  $('#cities').replaceChildren(...o.cities.map(c => h('button', { class: 'city', 'aria-pressed': S.city === c, onclick: () => { S.city = c; [...$('#cities').children].forEach((b, i) => b.setAttribute('aria-pressed', o.cities[i] === c)); } }, cityName(c))));
+  $('#sizes').replaceChildren(...sizeKeys.map(k => h('button', { class: 'size', 'aria-pressed': S.size === k, onclick: () => { S.size = k; [...$('#sizes').children].forEach((b, i) => b.setAttribute('aria-pressed', sizeKeys[i] === k)); } },
+    h('b', {}, o.sizes[k].label), h('span', {}, o.sizes[k].minutes), h('span', {}, o.sizes[k].cost))));
+  $('#go').onclick = startRun; refreshJob();
+}
+async function startRun() {
+  $('#go').disabled = true; $('#goNote').textContent = '';
+  try { await api('/api/run', { city: S.city, size: S.size }); refreshJob(); } catch (e) { $('#goNote').textContent = e.message; $('#go').disabled = false; }
+}
+async function refreshJob() {
+  clearTimeout(S.poll);
+  const j = await api('/api/job'), card = $('#jobcard');
+  if (j.state === 'idle') { card.style.display = 'none'; $('#go').disabled = false; return; }
+  card.style.display = ''; const running = j.state === 'running'; $('#go').disabled = running;
+  const firstOpen = j.stages.findIndex(s => !s.done), mins = Math.floor(j.elapsed / 60), secs = j.elapsed % 60;
+  card.replaceChildren(h('h3', {}, (running ? 'Working on ' : j.state === 'done' ? 'Finished: ' : 'Stopped: ') + cityName(j.city)),
+    h('div', { class: 'muted small' }, 'Time so far: ' + mins + 'm ' + secs + 's'),
+    h('div', { class: 'stages' }, j.stages.map((s, i) => h('div', { class: 'stage' + (s.done ? ' done' : running && i === firstOpen ? ' now' : '') }, h('i', {}, s.done ? '✓' : ''), s.label))),
+    j.state === 'done' ? h('div', { class: 'note ok' }, 'The new lead list is ready. ', h('button', { class: 'btn', onclick: async () => { await initLeads(); await loadLeads(j.dataset); show('leads'); } }, 'Open the list')) : null,
+    j.state === 'failed' ? h('div', { class: 'note bad' }, 'The run stopped before finishing. Open the details below, then try again or pick the Quick look size.') : null,
+    h('details', {}, h('summary', {}, 'Technical details'), h('pre', { class: 'log' }, j.tail.join('\n'))));
+  if (running) S.poll = setTimeout(refreshJob, 2500);
+}
+
+/* ---------- website enquiries + outbox ---------- */
+async function loadInbound() {
+  const [f, o] = await Promise.all([api('/api/funnel'), api('/api/inbound')]);
+  const max = Math.max(1, ...f.overall.map(s => s.visitors));
+  $('#funnel').replaceChildren(...f.overall.map(s => h('div', { class: 'r' }, h('span', {}, s.label), h('div', { class: 'track' }, h('i', { style: 'width:' + (s.visitors / max * 100) + '%' })), h('b', {}, s.visitors))));
+  $('#campaigns').replaceChildren(f.campaigns.length ? h('div', {}, h('h3', { style: 'margin-top:18px' }, 'By outreach batch'), h('p', { class: 'muted small' }, 'From the utm_campaign in each email link.'),
+    h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Batch', 'Visited', 'Saw a result', 'Sent an enquiry'].map(x => h('th', {}, x)))), h('tbody', {}, f.campaigns.map(c => h('tr', {}, h('td', {}, c.campaign), h('td', {}, c.steps[0].visitors), h('td', {}, c.steps[3].visitors), h('td', {}, c.steps[5].visitors))))))) : h('p', { class: 'muted small', style: 'margin-top:14px' }, 'No outreach batches seen yet. Add ?utm_campaign=batch1 to the links in your emails.'));
+  const parse = r => { try { return JSON.parse(r.inputs_json); } catch (e) { return {}; } };
+  $('#inbound').replaceChildren(o.length ? h('table', {}, h('thead', {}, h('tr', {}, ['When', 'Company', 'Who', 'City', 'They are', 'Routed to', 'Meals/day', 'Their estimate / month'].map(x => h('th', {}, x)))),
+    h('tbody', {}, o.map(r => { const p = parse(r), c = p.calc || {}; return h('tr', {}, h('td', {}, r.ts.replace('T', ' ')), h('td', {}, r.company), h('td', {}, (c.name || '') + (c.name ? ' · ' : '') + r.role, h('div', { class: 'muted small' }, p.contact || '')),
+      h('td', {}, r.city), h('td', {}, SEG[r.segment] || r.segment), h('td', {}, h('span', { class: 'tag tota' }, QUEUE_LABEL[r.queue] || r.queue)), h('td', {}, String(r.meals)), h('td', {}, c.totalRs ? 'Rs ' + c.totalRs.toLocaleString('en-IN') : '')); })))
+    : h('div', { class: 'empty' }, 'No enquiries yet. Fill in the form on the public page and it will appear here.'));
+}
+async function loadOutbox() {
+  const o = await api('/api/outbox');
+  $('#outbox').replaceChildren(o.length ? h('table', {}, h('thead', {}, h('tr', {}, ['When', 'Company', 'To', 'Subject', 'Status'].map(x => h('th', {}, x)))),
+    h('tbody', {}, o.map(r => h('tr', {}, h('td', {}, r.ts.replace('T', ' ')), h('td', {}, r.company), h('td', {}, r.to || '(not set)'), h('td', {}, r.subject), h('td', {}, h('span', { class: 'tag haldi' }, r.status || 'Recorded')))))) : h('div', { class: 'empty' }, 'Nothing recorded yet.'));
+}
+initLeads().then(loadHome);
+</script>
+</body>
+</html>

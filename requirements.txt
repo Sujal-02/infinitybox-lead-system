@@ -1,0 +1,11 @@
+python-dotenv
+pydantic>=2
+gspread>=6
+feedparser
+requests
+apify-client
+firecrawl-py
+google-genai
+pyyaml
+pytest
+openpyxl

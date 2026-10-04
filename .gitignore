@@ -1,0 +1,15 @@
+.env
+cache/
+creds.json
+__pycache__/
+.pytest_cache/
+.venv/
+app_data/
+data/
+data_*/
+workbook_*.xlsx
+*.log
+.venv/
+LEADS_*.md
+inspo/
+.env

@@ -1,0 +1,65 @@
+# Outreach playbook. Emails are ASSEMBLED from the lines below; the LLM never writes free text. It may only
+#   (1) write a short `event_phrase` that restates the trigger (checked against the evidence), and
+#   (2) choose line ids from this file (checked against the segment).
+# So an email can only say about InfinityBox what this file says. EDIT THIS FILE to add real claims, numbers, case studies
+# and approved phrasing. The lines marked [brief] come from the project brief; everything else is deliberately empty.
+# Nothing here is ever sent: drafts are for a human to review and edit.
+
+facts:
+  offer: "InfinityBox provides offsite and onsite warewashing for cafeterias"          # [brief]
+  kitchen_design: "InfinityBox also designs commercial kitchens, including the dish-wash area"   # [brief]
+  caterer_benefits: "for the caterer: no capex, less dishwashing labour, lower cost per meal"    # [brief]
+  dishwashing: "InfinityBox runs on-site and off-site dishwashing, from its own centralised washing facilities and from units inside client premises"   # getinfinitybox.com
+  kitchens: "InfinityBox supports commercial kitchens end to end, from layout design to equipment, serviceware and smallware supply"                 # getinfinitybox.com
+  verified_claims: []        # add only claims you can prove, e.g. "Serves N meals a day for <named client>". Empty = none used.
+
+forbidden_words: [IoT, NABH, closed-loop, zero-waste, zero waste, guarantee, guaranteed, certified, AI-powered, "ISO ", percent, "%", save, savings]
+
+# One opening line. {company} and {event_phrase} are the only slots; event_phrase must restate the trigger from the evidence.
+opening: "Saw that {company} {event_phrase}."
+
+# Value lines: what InfinityBox does, in approved words. `for` limits the segments a line may be used with.
+value_lines:
+  warewash_core:
+    for: [corporate, institution, caterer, fitout]
+    text: "InfinityBox provides offsite and onsite warewashing for cafeterias, so a cafeteria can serve on reusable ware instead of single-use items."
+  kitchen_design:
+    for: [corporate, institution, fitout, caterer]
+    text: "InfinityBox also designs commercial kitchens, including the dish-wash area."
+  warewash_and_design:
+    for: [corporate, institution, fitout]
+    text: "InfinityBox provides warewashing and commercial kitchen design, including the dish-wash area."
+  caterer_partner:
+    for: [caterer]
+    text: "InfinityBox provides offsite and onsite warewashing, so caterers can offer reusable ware without carrying the equipment or the dishwashing labour themselves."
+  fitout_partner:
+    for: [fitout]
+    text: "InfinityBox designs commercial kitchens, including the dish-wash area, and can work alongside a fit-out team."
+
+# Conditional lines: phrased as "if", because we do not know the facts. Pick at most one.
+conditions:
+  caterer_forward:
+    for: [corporate, institution]
+    text: "If your cafeteria is run by a caterer, I can send a short note you can forward to them: no capex, less dishwashing labour, lower cost per meal."
+  planning_stage:
+    for: [corporate, institution, fitout]
+    text: "If the cafeteria or kitchen is still being planned, it may be useful to talk before the layout is fixed."
+  hostel_mess:
+    for: [institution]
+    text: "If you run a hostel mess or canteen, the same warewashing can serve it."
+  none:
+    for: [corporate, institution, caterer, fitout]
+    text: ""
+
+# One soft ask.
+ctas:
+  call_15: "Would a 15-minute call be useful?"
+  cost_sheet: "Would you like a one-page cost-per-meal sheet?"
+
+subjects:
+  corporate: "Cafeteria warewashing for {company}"
+  institution: "Canteen and mess warewashing for {company}"
+  caterer: "Warewashing partnership with {company}"
+  fitout: "Kitchen design and warewashing for {company}"
+
+max_words: 90

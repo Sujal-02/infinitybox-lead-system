@@ -1,0 +1,73 @@
+# Who to approach, by kind of organisation. InfinityBox sells cafeteria/kitchen warewashing and kitchen design, so the
+# right person owns the cafeteria, mess, kitchen, facilities or the purchase of those services.
+#   tier1   = owns the decision or budget          (base relevance 0.9)  -> primary target
+#   tier2   = runs it day to day / specifies it    (0.7)                 -> secondary target
+#   tier3   = gatekeeper or signatory, NOT the buyer (0.4)               -> only to be routed ("please forward to ...")
+#   exclude = never relevant (finance, academics, engineers ...) -> relevance 0
+# A phrase matches when all its words appear in the title (word-prefix match, so "facility" = "facilities").
+# `search_terms` guide the targeted site search when the homepage links do not lead to the right office.
+kinds:
+  corporate:
+    tier1: [head of facilities, facilities head, vp facilities, workplace experience, head of admin, admin head, head administration,
+            director admin, head of real estate, real estate head, head corporate services, head of workplace, head of food services]
+    tier2: [corporate real estate, real estate, workplace services, workplace operations, facilities and administration, facilities management,
+            facility manager, facilities manager, workplace manager, admin manager, administration manager, cafeteria manager,
+            food services manager, procurement head, head of procurement, procurement manager, category manager, sustainability head,
+            esg head, head of sustainability, project manager fit-out]
+    tier3: [hr head, head of hr, chro, cfo, coo, site head, office head, operations head, country head, managing director, country manager]
+    exclude: [software, engineer, developer, data, analyst, finance, accounts, legal, marketing, sales, recruiter, talent, designer, tester, consultant]
+    search_terms: facilities admin workplace procurement contact
+  manufacturing:
+    tier1: [head of admin, admin head, plant admin, head hr and admin, head of facilities, facilities head, plant facilities, ehs head, head ehs, welfare officer]
+    tier2: [canteen manager, admin manager, facilities manager, procurement manager, purchase manager, hr manager, ehs manager, sustainability manager, stores manager]
+    tier3: [plant head, factory manager, general manager works, works manager, hr head, site head]
+    exclude: [production, quality, maintenance, operator, supervisor, software, engineer, developer, finance, accounts, legal, marketing, sales, design]
+    search_terms: canteen admin welfare plant purchase contact
+  education:
+    tier1: [chief rector, rector, chief warden, dean student welfare, dean students, director student welfare, director student affairs,
+            estate officer, estate manager, director of estate, hostel superintendent, mess committee, canteen committee, hostel committee]
+    tier2: [warden, hostel manager, mess manager, mess secretary, canteen manager, canteen contractor, purchase officer, stores officer,
+            store officer, procurement officer, purchase committee, assistant estate officer, hostel office, tender cell]
+    tier3: [registrar, deputy registrar, vice chancellor, pro vice chancellor, director administration, finance officer, principal]
+    exclude: [professor, lecturer, hod, head of department, research, scholar, examination, admission, placement, library, webmaster, journal, academic, faculty, lab]
+    search_terms: estate hostel mess canteen purchase stores student welfare contact
+  hospital:
+    tier1: [hospital administrator, head of operations, director operations, chief dietitian, head dietetics, head of dietary, dietary head,
+            head of facilities, facilities head, head support services, head of hospitality, general manager operations]
+    tier2: [dietitian, dietician, kitchen manager, food services manager, canteen manager, purchase manager, stores manager, housekeeping manager,
+            facility manager, facilities manager, procurement manager, administrative officer]
+    tier3: [medical superintendent, dean, medical director, ceo, director, matron, deputy director]
+    exclude: [doctor, surgeon, physician, nurse, resident, radiolog, patholog, anaesthe, consultant, intern, technician, pharmacist]
+    search_terms: dietary kitchen canteen purchase stores administration contact
+  government:
+    tier1: [executive engineer, estate officer, welfare officer, administrative officer, chief administrative officer, deputy director administration,
+            head purchase, controller of stores, canteen officer, superintendent]
+    tier2: [purchase officer, stores officer, procurement officer, tender cell, section officer, assistant engineer civil, junior engineer civil, canteen manager]
+    tier3: [secretary, commissioner, director general, collector, deputy secretary, joint director]
+    exclude: [finance, accounts, audit, legal, it, software, press, public relations, recruitment]
+    search_terms: tender purchase stores estate canteen welfare contact
+  caterer:
+    tier1: [operations head, head of operations, regional operations, procurement head, head of procurement, business head, head of food services, city head]
+    tier2: [account manager, unit manager, site manager, cluster manager, area manager, culinary head, purchase manager, operations manager]
+    tier3: [ceo, founder, managing director, director, owner]
+    exclude: [hr, finance, accounts, marketing, sales, recruiter, software, legal]
+    search_terms: operations procurement contact
+  fitout:
+    tier1: [project director, head of design, head mep, procurement head, head of procurement, head of projects, business head]
+    tier2: [project manager, design lead, estimator, procurement manager, kitchen consultant, mep manager, senior project manager]
+    tier3: [director, founder, ceo, managing director]
+    exclude: [hr, finance, accounts, marketing, sales, recruiter, software, legal]
+    search_terms: projects design procurement contact
+
+# What a trigger makes more relevant: a title containing one of these words gets +0.1 for that trigger.
+trigger_boost:
+  new_campus: [project, fit-out, real estate, facilities, workplace, design, construction, civil, mep]
+  lease: [project, fit-out, real estate, facilities, workplace]
+  tender: [procurement, purchase, stores, tender, contracts]
+  cafeteria_revamp: [facilities, admin, estate, canteen, mess, food, dietary, welfare]
+  caterer_renewal: [procurement, purchase, admin, facilities, canteen, food]
+  esg_plastic: [sustainability, esg, environment, ehs, csr]
+  facilities_hiring: [facilities, workplace, admin]
+
+senior_words: [head, director, chief, vp, vice president, dean, general manager, avp, controller, superintendent]
+junior_words: [assistant, trainee, intern, clerk, junior, associate, executive]

@@ -1,0 +1,5 @@
+# Manual fixes when the automatic match is wrong or missing. Per account id: linkedin (company page) and/or domain (website).
+tcs:
+  linkedin: https://www.linkedin.com/company/tata-consultancy-services
+savitribai-phule-pune-university:
+  domain: unipune.ac.in

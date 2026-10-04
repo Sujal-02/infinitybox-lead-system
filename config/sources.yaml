@@ -1,0 +1,310 @@
+# config/sources.yaml
+# Source registry for the InfinityBox lead workflow.
+#
+# Keys: n=name  u=url  t=trigger types it can feed  a=access  p=priority (h/m/l)
+#       v=1 means the URL was seen live while researching, v=0 means from general
+#       knowledge and NOT yet checked. x=note.
+# Access: rss | api | fetch (Firecrawl ok) | apify | manual (human clicks) | agg (third-party aggregator)
+# Triggers: new_campus, lease, cafeteria_revamp, tender, caterer_renewal,
+#           esg_plastic, facilities_hiring, growth
+#
+# Run `python -m src.run check_sources` first: HEAD/GET every url, write status to
+# a Sources tab, mark dead ones. Treat every v:0 as a lead to verify, not a fact.
+# Portal terms vary. Read robots.txt/ToS per site; if scraping is not allowed, set a: manual.
+
+# ---------------------------------------------------------------- 1. NEWS (best first feed)
+news:
+  google_news_rss:
+    # One generic feed covers most outlets. Use "site:" to target a publisher.
+    tpl: "https://news.google.com/rss/search?q={q}+when:{days}d&hl=en-IN&gl=IN&ceid=IN:en"
+    v: 0
+    x: "Free, no key. Dedupe by link. Redirect links need resolving to the real article."
+  google_alerts:
+    - {n: Google Alerts (deliver to RSS), u: "https://www.google.com/alerts", a: manual, p: m, v: 0, x: "Set up once per query, feed URL into the sheet"}
+  query_bank:   # {city} from config/cities.yaml; add tech park names per city too
+    new_campus:
+      - '"new campus" {city} office inaugurates'
+      - '"global capability centre" {city} opens OR inaugurates OR expands'
+      - 'GCC {city} "new centre" employees seats'
+      - '"sq ft" office {city} lease signs'
+      - '"campus" {city} "seats" "tech park" new building'
+    lease:
+      - 'office lease {city} "sq ft" tech company'
+      - 'pre-leasing {city} tech park'
+      - 'REIT {city} tenant "sq ft" new lease'
+    cafeteria_revamp:
+      - 'cafeteria OR canteen OR "food court" {city} corporate revamp OR launch'
+      - '"workplace experience" {city} new office cafeteria'
+      - 'office reopening {city} cafeteria'
+    caterer_renewal:
+      - 'caterer wins contract {city} corporate cafeteria'
+      - 'Sodexo OR Compass OR Aramark OR Elior {city} contract corporate'
+      - '"food services" contract {city} campus'
+    esg_plastic:
+      - '"single-use plastic" {city} corporate OR campus OR cafeteria'
+      - '"zero waste" campus {city} company'
+      - '"plastic neutral" OR "plastic free" office India company'
+      - 'BRSR "single-use plastic" target'
+      - 'EPR plastic company India campus'
+    facilities_hiring:
+      - '"facilities head" OR "head of facilities" {city} appoints'
+      - '"workplace" head appoints {city} GCC'
+    growth:
+      - '{city} company funding headcount "hiring" 1000 employees new office'
+      - 'IT company expands {city} new development centre'
+    institution:
+      - 'new hospital {city} beds inaugurated'
+      - 'university new campus {city} hostel mess'
+      - 'manufacturing plant {city} inaugurated employees canteen'
+
+  # Publishers to target with site: in Google News RSS (no per-site RSS needed).
+  outlets:
+    - {n: ET Realty, u: "realty.economictimes.indiatimes.com", t: [new_campus, lease], p: h, v: 0}
+    - {n: ET CIO (GCC news), u: "cio.economictimes.indiatimes.com", t: [new_campus, growth], p: h, v: 0}
+    - {n: ET HRWorld (office/workplace), u: "hr.economictimes.indiatimes.com", t: [facilities_hiring, cafeteria_revamp], p: m, v: 0}
+    - {n: ET HealthWorld, u: "health.economictimes.indiatimes.com", t: [growth], p: m, v: 0, x: "hospital openings"}
+    - {n: ET HospitalityWorld, u: "hospitality.economictimes.indiatimes.com", t: [caterer_renewal], p: l, v: 0}
+    - {n: Economic Times, u: "economictimes.indiatimes.com", t: [new_campus, esg_plastic], p: h, v: 0}
+    - {n: Business Standard, u: "business-standard.com", t: [new_campus, esg_plastic], p: m, v: 0}
+    - {n: Mint, u: "livemint.com", t: [new_campus, growth], p: m, v: 0}
+    - {n: The Hindu BusinessLine, u: "thehindubusinessline.com", t: [new_campus, lease], p: m, v: 0}
+    - {n: Financial Express, u: "financialexpress.com", t: [new_campus, lease], p: m, v: 0}
+    - {n: Moneycontrol, u: "moneycontrol.com", t: [new_campus, growth], p: m, v: 0}
+    - {n: Hindustan Times, u: "hindustantimes.com", t: [new_campus], p: m, v: 0, x: "NCR and Pune coverage"}
+    - {n: Times of India city pages, u: "timesofindia.indiatimes.com", t: [new_campus], p: m, v: 0}
+    - {n: Deccan Herald, u: "deccanherald.com", t: [new_campus], p: m, v: 0, x: "Bangalore"}
+    - {n: The Hindu, u: "thehindu.com", t: [new_campus], p: m, v: 0, x: "Bangalore, Hyderabad"}
+    - {n: Telangana Today, u: "telanganatoday.com", t: [new_campus], p: m, v: 0, x: "Hyderabad"}
+    - {n: The Hans India, u: "thehansindia.com", t: [new_campus], p: l, v: 0, x: "Hyderabad"}
+    - {n: Pune Mirror / Pune Times Mirror, u: "punemirror.com", t: [new_campus], p: l, v: 0}
+    - {n: Inc42, u: "inc42.com", t: [growth], p: m, v: 0}
+    - {n: Entrackr, u: "entrackr.com", t: [growth], p: m, v: 1, x: "funding and filings"}
+    - {n: YourStory, u: "yourstory.com", t: [growth], p: l, v: 1}
+    - {n: Track2Realty, u: "track2realty.com", t: [lease, new_campus], p: m, v: 0}
+    - {n: Hotelier India, u: "hotelierindia.com", t: [caterer_renewal], p: l, v: 0}
+    - {n: Restaurant India, u: "restaurantindia.in", t: [caterer_renewal], p: l, v: 0}
+    - {n: Franchise India, u: "franchiseindia.com", t: [growth], p: l, v: 0}
+    - {n: Packaging South Asia, u: "packagingsouthasia.com", t: [esg_plastic], p: l, v: 1, x: "also where InfinityBox is covered"}
+    - {n: WhatPackaging, u: "whatpackaging.co.in", t: [esg_plastic], p: l, v: 1}
+    - {n: Waste & Recycling Mag, u: "wasterecyclingmag.com", t: [esg_plastic], p: l, v: 1}
+    - {n: PIB (govt press releases), u: "pib.gov.in", t: [esg_plastic], p: l, v: 0}
+
+# ---------------------------------------------------------------- 2. TENDERS
+tenders:
+  keywords: [canteen, cafeteria, catering services, mess, "dish washing", dishwashing, housekeeping,
+             "kitchen equipment", "commercial kitchen", "hospital kitchen", "dietary services",
+             crockery, "food court", "pantry", "utensil"]
+  portals:
+    - {n: GeM (bids), u: "https://bidplus.gem.gov.in/all-bids", t: [tender], a: fetch, p: h, v: 0, x: "May need captcha/JS; if blocked, use aggregators or manual"}
+    - {n: GeM home, u: "https://gem.gov.in", t: [tender], a: manual, p: m, v: 0}
+    - {n: CPPP (central), u: "https://eprocure.gov.in/eprocure/app", t: [tender], a: manual, p: h, v: 1, x: "Search has captcha; do not bypass"}
+    - {n: Karnataka KPPP, u: "https://kppp.karnataka.gov.in/", t: [tender], a: fetch, p: h, v: 1, x: "Bangalore"}
+    - {n: Telangana eProc, u: "https://tender.telangana.gov.in/", t: [tender], a: fetch, p: h, v: 1, x: "Hyderabad"}
+    - {n: MahaTenders, u: "https://mahatenders.gov.in/nicgep/app", t: [tender], a: fetch, p: h, v: 1, x: "Pune"}
+    - {n: Delhi govt procurement, u: "https://govtprocurement.delhi.gov.in", t: [tender], a: fetch, p: h, v: 0, x: "NCR"}
+    - {n: Haryana eTenders, u: "https://etenders.hry.gov.in", t: [tender], a: fetch, p: m, v: 0, x: "Gurugram / NCR"}
+    - {n: UP eTender, u: "https://etender.up.nic.in", t: [tender], a: fetch, p: m, v: 0, x: "Noida / Greater Noida"}
+    - {n: CPWD, u: "https://eprocure.gov.in", t: [tender], a: manual, p: l, v: 0, x: "Central buildings, mostly via CPPP"}
+    - {n: IREPS (railways), u: "https://www.ireps.gov.in", t: [tender], a: manual, p: l, v: 0, x: "Catering/housekeeping at stations; low fit"}
+  aggregators:   # Mirror the portals, no captcha, but check each site's terms before scraping
+    - {n: Tender18, u: "https://www.tender18.com/all-india-tenders/department-tenders/etender-tenders", t: [tender], a: agg, p: m, v: 1}
+    - {n: InfraLens BidEasy, u: "https://tenders.infralens.in", t: [tender], a: agg, p: m, v: 1, x: "Lists the portals it mirrors and closing dates"}
+    - {n: TenderTiger, u: "https://www.tendertiger.com", t: [tender], a: agg, p: l, v: 0}
+    - {n: Tender247, u: "https://www.tender247.com", t: [tender], a: agg, p: l, v: 0}
+    - {n: TenderDetail, u: "https://www.tenderdetail.com", t: [tender], a: agg, p: l, v: 0}
+  private_rfps:
+    - {n: PSU / bank / large-institution procurement pages, a: manual, p: l, x: "Search '{org} tender canteen' on each org's own site"}
+
+# ---------------------------------------------------------------- 3. JOBS (facilities hiring = new site / new budget)
+jobs:
+  keywords:
+    facilities: ["facility manager", "facilities manager", "head of facilities", "workplace services", "workplace experience", "workplace operations", "admin manager", "administration head", "real estate and facilities", "integrated facility management"]
+    food: ["cafeteria manager", "food services manager", "F&B manager", "food and beverage manager corporate", "catering manager", "unit manager canteen", "dietary manager", "kitchen manager"]
+    esg: ["sustainability manager", "ESG manager", "sustainability lead", "environment health safety manager"]
+    buying: ["procurement manager facilities", "category manager facility", "head of real estate", "project head fit-out", "fit-out manager", "interior project manager"]
+  boards:
+    - {n: LinkedIn Jobs, a: apify, actor: "worldunboxer/rapid-linkedin-scraper", p: h, v: 0, x: "allowlisted actor; test on 5 records first"}
+    - {n: Naukri, u: "https://www.naukri.com", a: manual, p: m, v: 0, x: "Strict ToS; manual search links or Apify only if the actor is allowlisted"}
+    - {n: Indeed India, u: "https://in.indeed.com", a: manual, p: m, v: 0}
+    - {n: Foundit, u: "https://www.foundit.in", a: manual, p: l, v: 0}
+    - {n: Shine, u: "https://www.shine.com", a: manual, p: l, v: 0}
+    - {n: Glassdoor India, u: "https://www.glassdoor.co.in", a: manual, p: l, v: 0}
+    - {n: Instahyre, u: "https://www.instahyre.com", a: manual, p: l, v: 0}
+    - {n: Wellfound, u: "https://wellfound.com", a: manual, p: l, v: 0}
+  ats_public_apis:   # Official public job-board endpoints; use these for the company career pages. Cheap and clean.
+    - {n: Greenhouse, u: "https://boards-api.greenhouse.io/v1/boards/{token}/jobs", a: api, p: h, v: 0}
+    - {n: Lever, u: "https://api.lever.co/v0/postings/{company}?mode=json", a: api, p: h, v: 0}
+    - {n: Ashby, u: "https://api.ashbyhq.com/posting-api/job-board/{org}", a: api, p: m, v: 0}
+    - {n: SmartRecruiters, u: "https://api.smartrecruiters.com/v1/companies/{id}/postings", a: api, p: m, v: 0}
+    - {n: Workday, u: "https://{tenant}.wd{n}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs", a: api, p: h, v: 0, x: "POST with JSON body; most large GCCs use it. Find tenant from the careers URL"}
+    - {n: Company careers pages (Firecrawl), a: fetch, p: h, x: "Fallback when no ATS endpoint is known"}
+
+# ---------------------------------------------------------------- 4. ESG / PLASTIC / COMPLIANCE
+esg:
+  - {n: NSE corporate filings (BRSR), u: "https://www.nseindia.com/companies-listing/corporate-filings-announcements", t: [esg_plastic], a: manual, p: h, v: 0, x: "NSE blocks bots. Download BRSR PDFs by hand or from company IR pages, then parse"}
+  - {n: BSE corporate filings, u: "https://www.bseindia.com/corporates/ann.html", t: [esg_plastic, lease], a: fetch, p: h, v: 0, x: "Also catches expansion announcements"}
+  - {n: Company IR / sustainability pages, a: fetch, t: [esg_plastic], p: h, x: "Annual report + BRSR PDF; search for 'single-use plastic', 'water', 'cafeteria', 'waste'"}
+  - {n: SEBI BRSR framework, u: "https://www.sebi.gov.in", t: [esg_plastic], a: manual, p: l, v: 0, x: "Context: top 1000 listed companies must file BRSR"}
+  - {n: Nifty 500 constituents (seed list), u: "https://www.niftyindices.com", t: [esg_plastic], a: manual, p: h, v: 0, x: "Seed account list; BRSR filers"}
+  - {n: CPCB EPR plastic portal, u: "https://eprplastic.cpcb.gov.in", t: [esg_plastic], a: manual, p: l, v: 0}
+  - {n: CPCB, u: "https://cpcb.nic.in", t: [esg_plastic], a: manual, p: l, v: 0, x: "Plastic waste rules, notices"}
+  - {n: State pollution control boards (KSPCB, TSPCB, MPCB, DPCC), a: manual, p: l, x: "Single-use plastic enforcement notices; find current URLs"}
+  - {n: SBTi target dashboard, u: "https://sciencebasedtargets.org/target-dashboard", t: [esg_plastic], a: manual, p: m, v: 0, x: "Indian companies with climate targets = ESG pressure"}
+  - {n: CDP, u: "https://www.cdp.net", t: [esg_plastic], a: manual, p: l, v: 0}
+  - {n: UN Global Compact India, u: "https://www.unglobalcompact.org", t: [esg_plastic], a: manual, p: l, v: 0}
+  - {n: India Plastics Pact, u: "https://indiaplasticspact.org", t: [esg_plastic], a: manual, p: m, v: 0, x: "Member companies are pre-sold on plastic reduction"}
+  - {n: FSSAI Eat Right Campus, u: "https://eatrightindia.gov.in", t: [cafeteria_revamp], a: manual, p: m, v: 0, x: "Certified campuses care about cafeteria hygiene"}
+  - {n: FSSAI FoSCoS (licence search), u: "https://foscos.fssai.gov.in", t: [caterer_renewal], a: manual, p: m, v: 0, x: "Find registered caterers; check portal terms"}
+
+# ---------------------------------------------------------------- 5. REAL ESTATE / NEW BUILDINGS (new office = kitchen + cafeteria)
+realestate:
+  consultants:    # Quarterly office-market reports name tenants, new supply and absorption per city
+    - {n: CBRE India, u: "https://www.cbre.co.in", p: h, v: 0}
+    - {n: JLL India, u: "https://www.jll.co.in", p: h, v: 0}
+    - {n: Colliers India, u: "https://www.colliers.com/en-in", p: h, v: 0}
+    - {n: Cushman & Wakefield India, u: "https://www.cushmanwakefield.com/en/india", p: h, v: 0}
+    - {n: Knight Frank India, u: "https://www.knightfrank.co.in", p: h, v: 0}
+    - {n: Anarock, u: "https://www.anarock.com", p: m, v: 0}
+    - {n: Savills India, u: "https://www.savills.in", p: m, v: 0}
+    - {n: Vestian, u: "https://www.vestian.in", p: m, v: 0}
+  reits:          # Investor decks list tenants and buildings nearing completion
+    - {n: Embassy Office Parks REIT, u: "https://www.embassyofficeparks.com", p: h, v: 0, x: "Bangalore, Pune, NCR"}
+    - {n: Mindspace REIT, u: "https://www.mindspacereit.com", p: h, v: 0, x: "Hyderabad, Pune, Mumbai"}
+    - {n: Brookfield India REIT, u: "https://www.brookfieldindiareit.com", p: h, v: 0, x: "NCR, Mumbai"}
+    - {n: Knowledge Realty Trust, a: manual, p: m, v: 0, x: "Find current IR site; Hyderabad-heavy"}
+  developers:     # Tech-park pages, tenant lists, "coming soon" blocks
+    - {n: Embassy, u: "https://www.embassygroup.com", p: m, v: 0}
+    - {n: Prestige, u: "https://www.prestigeconstructions.com", p: m, v: 0}
+    - {n: RMZ, u: "https://www.rmzcorp.com", p: h, v: 0, x: "Bangalore, Hyderabad, Pune"}
+    - {n: Bagmane, u: "https://www.bagmanegroup.com", p: m, v: 0, x: "Bangalore"}
+    - {n: Brigade, u: "https://www.brigadegroup.com", p: m, v: 0}
+    - {n: Salarpuria Sattva, u: "https://www.salarpuriasattva.com", p: m, v: 0}
+    - {n: K Raheja Corp, u: "https://www.kraheja.com", p: m, v: 0, x: "Hyderabad, Pune"}
+    - {n: My Home Group, u: "https://www.myhomeconstructions.com", p: m, v: 0, x: "Hyderabad"}
+    - {n: Panchshil Realty, u: "https://www.panchshil.com", p: m, v: 0, x: "Pune"}
+    - {n: Kolte-Patil, u: "https://www.koltepatil.com", p: l, v: 0, x: "Pune"}
+    - {n: Magarpatta City, u: "https://www.magarpatta.com", p: m, v: 0, x: "Pune"}
+    - {n: DLF, u: "https://www.dlf.in", p: h, v: 0, x: "NCR (Gurugram, Noida)"}
+    - {n: Candor TechSpace, u: "https://www.candortechspace.com", p: m, v: 0, x: "NCR, Pune, Kolkata"}
+    - {n: Phoenix Mills (commercial), u: "https://www.thephoenixmills.com", p: l, v: 0}
+  rera:           # Registered commercial projects with possession dates
+    - {n: K-RERA (Karnataka), u: "https://rera.karnataka.gov.in", p: m, v: 0}
+    - {n: TS-RERA (Telangana), u: "https://rera.telangana.gov.in", p: m, v: 0}
+    - {n: MahaRERA (Maharashtra), u: "https://maharera.maharashtra.gov.in", p: m, v: 0}
+    - {n: Haryana RERA, u: "https://haryanarera.gov.in", p: m, v: 0}
+    - {n: UP-RERA, u: "https://www.up-rera.in", p: m, v: 0}
+  green_buildings: # New LEED/IGBC/WELL registrations = new or refit office buildings with ESG intent
+    - {n: IGBC, u: "https://igbc.in", p: m, v: 0}
+    - {n: GRIHA, u: "https://www.grihaindia.org", p: l, v: 0}
+    - {n: LEED project directory, u: "https://www.usgbc.org/projects", p: m, v: 0}
+    - {n: WELL certified projects, u: "https://www.wellcertified.com", p: l, v: 0}
+  govt_it:
+    - {n: STPI, u: "https://stpi.in", p: l, v: 0}
+    - {n: SEZ India, u: "https://sezindia.nic.in", p: l, v: 0}
+    - {n: Karnataka IT/BT dept, u: "https://itbt.karnataka.gov.in", p: m, v: 0}
+    - {n: Telangana ITE&C, u: "https://it.telangana.gov.in", p: m, v: 0}
+    - {n: Noida / Greater Noida / YEIDA authorities, a: manual, p: l, x: "Allotments of institutional/IT plots"}
+  coworking:      # Large operators opening centres; low priority, pantries are small
+    - {n: Awfis, u: "https://www.awfis.com", p: l, v: 0}
+    - {n: Smartworks, u: "https://www.smartworksoffice.com", p: l, v: 0}
+    - {n: WeWork India, u: "https://wework.co.in", p: l, v: 0}
+    - {n: IndiQube, u: "https://indiqube.com", p: l, v: 0}
+
+# ---------------------------------------------------------------- 6. SEED ACCOUNTS (lists to start from)
+seeds:
+  gcc:
+    - {n: NASSCOM, u: "https://nasscom.in", p: h, v: 0, x: "GCC reports and city coverage"}
+    - {n: Zinnov, u: "https://zinnov.com", p: h, v: 0, x: "GCC landscape, city-wise lists"}
+    - {n: ANSR, u: "https://ansrsource.com", p: m, v: 0, x: "GCC setup advisor; announces new centres. Verify domain"}
+    - {n: Tracxn GCC / sector lists, u: "https://tracxn.com", p: m, v: 1, x: "Company profiles; ToS limits scraping"}
+    - {n: CB Insights, u: "https://www.cbinsights.com", p: l, v: 1}
+  categories:
+    - tech / IT services, BFSI, consulting, pharma, GCCs of global firms
+    - hospitals (NABH list), universities (NIRF list), manufacturing plants, large hostels
+  hospitals_unis:
+    - {n: NABH accredited hospitals, u: "https://www.nabh.co", t: [growth], p: m, v: 0}
+    - {n: NIRF rankings (university list), u: "https://www.nirfindia.org", t: [growth], p: l, v: 0}
+    - {n: AICTE, u: "https://www.aicte-india.org", t: [growth], p: l, v: 0}
+    - {n: UGC, u: "https://www.ugc.gov.in", t: [growth], p: l, v: 0}
+  company_data:
+    - {n: MCA (company master data), u: "https://www.mca.gov.in", a: manual, p: m, v: 0, x: "Official; some docs paid"}
+    - {n: Tofler, u: "https://www.tofler.in", a: manual, p: m, v: 0}
+    - {n: ZaubaCorp, u: "https://www.zaubacorp.com", a: manual, p: m, v: 0}
+    - {n: Entrackr (filings-based funding news), u: "https://entrackr.com", p: m, v: 1}
+    - {n: Venture Intelligence, u: "https://news.ventureintelligence.com", p: l, v: 1}
+
+# ---------------------------------------------------------------- 7. CATERERS, FM FIRMS, FIT-OUT FIRMS (also channel partners)
+partners:
+  caterers_fm:    # Use their client logos / case studies / news to map corporate -> caterer
+    - {n: Sodexo India, u: "https://in.sodexo.com", p: h, v: 1}
+    - {n: HungerBox, u: "https://www.hungerbox.com", p: h, v: 1, x: "Corporate cafeteria tech platform; early InfinityBox partner"}
+    - {n: Compass Group India, a: manual, p: h, v: 0, x: "Find current site"}
+    - {n: Aramark India, a: manual, p: m, v: 0}
+    - {n: Elior India, a: manual, p: m, v: 0}
+    - {n: ISS Facility Services India, u: "https://in.issworld.com", p: m, v: 0}
+    - {n: Quess Corp (IFM), u: "https://www.quesscorp.com", p: m, v: 0}
+    - {n: Regional/mid caterers, a: manual, p: m, x: "Via IndiaMART/Justdial/FoSCoS/Google Maps; they hold smaller corporate contracts"}
+  fitout_pm:
+    - {n: Space Matrix, u: "https://www.spacematrix.com", p: m, v: 0}
+    - {n: JLL Project & Development, u: "https://www.jll.co.in", p: m, v: 0}
+    - {n: CBRE Project Management, u: "https://www.cbre.co.in", p: m, v: 0}
+    - {n: Colliers Project Mgmt, u: "https://www.colliers.com/en-in", p: m, v: 0}
+    - {n: Cushman & Wakefield PDS, u: "https://www.cushmanwakefield.com/en/india", p: m, v: 0}
+    - {n: Regional fit-out contractors, a: manual, p: m, x: "Each announces project wins and can refer kitchen work"}
+  competitors:    # Their client logos and case studies show who already buys. Treat as seed accounts
+    - {n: CauliBox, a: manual, p: m, v: 0, x: "Find current site; India reusable packaging peer"}
+    - {n: Commercial dishwashing / kitchen-equipment vendors, a: manual, p: m, x: "Their reference lists = corporate cafeterias"}
+
+# ---------------------------------------------------------------- 8. NICHE DIRECTORIES (cafes, caterers, cloud kitchens)
+directories:
+  - {n: Google Maps (via Apify Google Maps actor, if allowlisted), a: apify, p: h, v: 0, x: "Queries like 'corporate catering {city}', 'cafeteria contractor {city}', 'cloud kitchen {area}'"}
+  - {n: IndiaMART, u: "https://www.indiamart.com", a: manual, p: m, v: 0, x: "Catering / canteen contractors"}
+  - {n: TradeIndia, u: "https://www.tradeindia.com", a: manual, p: l, v: 0}
+  - {n: Justdial, u: "https://www.justdial.com", a: manual, p: m, v: 0}
+  - {n: Sulekha, u: "https://www.sulekha.com", a: manual, p: l, v: 0}
+  - {n: Swiggy / Zomato listings, a: manual, p: m, x: "Volume signal for delivery-heavy outlets; ToS restricts scraping"}
+  - {n: NRAI, u: "https://nrai.org", a: manual, p: l, v: 0, x: "Member lists, India Food Service reports"}
+  - {n: FHRAI, u: "https://www.fhrai.com", a: manual, p: l, v: 0, x: "Hotels/hospitality"}
+  - {n: Trade-show exhibitor/visitor lists (food service, hospitality, FM), a: manual, p: m, x: "Search current-year shows per city"}
+
+# ---------------------------------------------------------------- 9. PEOPLE (roles to find per account; names from public pages)
+people:
+  public_name_sources:
+    - "Annual report / BRSR sign-off (sustainability head, CFO, admin leadership)"
+    - "Press releases and event speaker pages"
+    - "Company 'about' and 'leadership' pages"
+    - "Apify people search (allowlisted, no cookies), top N accounts only"
+    - "Pre-filled LinkedIn search link for a human (no scraping)"
+  email:
+    - {n: Hunter (domain search + verifier), u: "https://hunter.io", a: api, p: h, v: 0, x: "Email pattern + verification before any draft is used"}
+  roles:
+    corporate: [Head of Facilities, Workplace Experience Head, Admin Head, Real Estate Head, Sustainability/ESG Lead, Procurement Head]
+    caterer: [City/Regional Operations Head, Procurement Head, Business Head]
+    fitout: [Project Head, Fit-out Manager, Facilities Head, Procurement Head]
+    institution: [Estate Officer, Registrar/Admin, Hospital Operations Head, Dietary Head]
+
+# ---------------------------------------------------------------- 10. INBOUND (distribution and calculator inputs)
+inbound:
+  seo_tools:
+    - {n: Google Search Console, u: "https://search.google.com/search-console", p: h, v: 0}
+    - {n: Google Trends, u: "https://trends.google.com", p: m, v: 0}
+    - {n: Google Keyword Planner, u: "https://ads.google.com/home/tools/keyword-planner", p: m, v: 0}
+    - {n: "'People also ask' on target queries", a: manual, p: m, x: "Use for SEO page topics"}
+  query_ideas: ["cafeteria disposables cost per meal", "BRSR single-use plastic cafeteria", "outsourced dishwashing corporate",
+                "central warewashing", "cafeteria hygiene audit checklist", "cafeteria water usage per meal",
+                "steel vs disposable plates office canteen", "caterer contract renewal checklist", "kitchen design for office cafeteria"]
+  calculator_assumption_sources:   # Cite these on the page for every default value
+    - {n: FSSAI (hygiene schedules, Eat Right), u: "https://www.fssai.gov.in", v: 0}
+    - {n: CPCB plastic waste data, u: "https://cpcb.nic.in", v: 0}
+    - {n: BRSR / BRSR Core water intensity guidance, u: "https://www.sebi.gov.in", v: 0}
+    - {n: "Own company claims (use as 'InfinityBox reports'), not as fact", x: "e.g. 40-60% lower water/energy; mark as vendor claim"}
+  communities: ["IFMA India chapters", "LinkedIn facility-management and sustainability groups", "Workplace/GCC leader events per city"]
+  lead_routing: {corporate: warewashing, institution: warewashing, fitout: kitchen_design, caterer: partner}
+
+# ---------------------------------------------------------------- Rules for the workflow
+rules:
+  - Never bypass a captcha or login wall. If blocked, set a: manual and move on.
+  - Respect robots.txt and each site's terms; set a polite delay and a User-Agent with contact info.
+  - Every signal row keeps source_url + verbatim evidence.
+  - Prefer official portals/APIs over aggregators, and aggregators over scraping news sites directly.
+  - Log per-source yield and precision after each run; demote or drop weak sources.

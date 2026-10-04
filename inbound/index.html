@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reuse OK Please: what does single-use cost your cafeteria? | InfinityBox</title>
+<meta name="description" content="Work out what single-use plates, cups and boxes cost your cafeteria each month, in one minute. Free estimate from InfinityBox.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;700;800&family=Yatra+One&display=swap" rel="stylesheet">
+<style>
+:root{--neel:#26235C;--haldi:#F7B500;--sindoor:#D63D27;--mor:#0B7A8A;--tota:#3FAE3A;--rani:#D7266F;--chalk:#FFFDF5;--steel:#C3CBD3;--steeld:#7F8C99;--steell:#E9EEF2;--kraft:#E9D3A8;
+  --ease:cubic-bezier(.645,.045,.355,1);--r:18px;--line:3px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--haldi);color:var(--neel);font:400 17px/1.5 "Baloo 2",system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3{margin:0}
+.sign{font-family:"Yatra One","Baloo 2",serif;font-weight:400}
+h2{font-weight:800;font-size:clamp(28px,4.2vw,44px);line-height:1.1}
+p{margin:0 0 12px;max-width:68ch}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--neel);outline-offset:3px;box-shadow:0 0 0 6px var(--haldi)}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+.trim{display:block}
+.bunting{height:20px}
+
+/* top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;max-width:1100px;margin:0 auto}
+.brand{font-weight:800;font-size:22px;text-decoration:none;display:flex;align-items:center;gap:8px}
+.brand svg{width:34px;height:34px;animation:spin 14s linear infinite}
+.top nav{display:flex;gap:6px;align-items:center}
+.top nav a{text-decoration:none;font-weight:700;padding:6px 12px;border-radius:99px}
+.top nav a:hover{background:var(--chalk)}
+@media(max-width:640px){.top nav a:not(.btn){display:none}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:var(--line) solid var(--neel);border-radius:99px;padding:11px 22px;font:800 17px "Baloo 2",sans-serif;
+  cursor:pointer;text-decoration:none;background:var(--chalk);color:var(--neel);box-shadow:0 4px 0 var(--neel);transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--neel)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--neel)}
+.btn.primary{background:var(--neel);color:var(--chalk);box-shadow:0 4px 0 #0f0d33}
+.btn.red{background:var(--sindoor);color:var(--chalk)}
+.btn.small{padding:6px 16px;font-size:15px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+
+/* hero */
+.hero{position:relative;padding:20px 0 0}
+.hero .wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:20px;align-items:center}
+@media(max-width:860px){.hero .wrap{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(46px,8vw,92px);line-height:.98;margin:6px 0 14px}
+.hero .lede{font-size:clamp(19px,2.3vw,24px);font-weight:500;line-height:1.35;max-width:30ch}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px;margin:22px 0 14px}
+.reports{font-size:15px}
+.reports a{font-weight:700}
+.stage{position:relative;padding:8px 0 0}
+.road{height:16px;margin-top:-6px;background:repeating-linear-gradient(90deg,var(--neel) 0 34px,transparent 34px 60px);background-size:60px 4px;background-repeat:repeat-x;background-position:0 6px;animation:road 1s linear infinite;opacity:.9}
+.float{position:absolute;width:64px;height:64px;animation:bob2 3.2s ease-in-out infinite alternate}
+.float.a{left:-4px;top:6px}.float.b{right:8px;top:-6px;animation-delay:-1.2s;width:52px;height:52px}.float.c{right:34%;top:-20px;animation-delay:-2s;width:44px;height:44px}
+.truck{width:100%;max-width:560px;display:block;margin:0 auto;overflow:visible}
+.truck.in{animation:drive 1.3s var(--ease) both}
+.truck .wheel{transform-box:view-box;animation:spin .7s linear infinite}
+.truck.parked .wheel{animation:none}
+.truck .body{animation:bob .45s ease-in-out infinite alternate}
+.truck.parked .body{animation:none}
+.truck.out{animation:out .9s var(--ease) both}
+.truck .pic{opacity:0;transform:scale(0);transform-box:fill-box;transform-origin:center;transition:opacity .3s,transform .4s var(--ease)}
+.truck .pic.on{opacity:1;transform:scale(1)}
+@keyframes drive{from{transform:translateX(-120%)}to{transform:none}}
+@keyframes out{to{transform:translateX(130%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes bob{to{transform:translateY(-2px)}}
+@keyframes bob2{to{transform:translateY(-12px) rotate(8deg)}}
+@keyframes road{to{background-position:-60px 6px}}
+
+/* cards */
+.card{position:relative;background:var(--chalk);border:var(--line) solid var(--neel);border-radius:var(--r);box-shadow:7px 7px 0 var(--neel);overflow:hidden}
+.card .in{padding:26px 24px 30px}
+section{padding:54px 0 0}
+.eyebrow{font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:13px;margin-bottom:6px}
+
+/* the loop */
+.loop{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px}
+@media(max-width:900px){.loop{grid-template-columns:repeat(2,1fr)}}@media(max-width:520px){.loop{grid-template-columns:1fr}}
+.step{background:var(--chalk);border:var(--line) solid var(--neel);border-radius:var(--r);padding:16px 16px 18px;position:relative}
+.step .n{position:absolute;top:-14px;left:14px;background:var(--sindoor);color:var(--chalk);border:var(--line) solid var(--neel);border-radius:99px;font-weight:800;width:34px;height:34px;display:grid;place-items:center}
+.step svg{width:76px;height:76px;display:block;margin:6px 0 4px}
+.step b{display:block;font-size:19px;line-height:1.2;margin-bottom:4px}
+.step span{font-size:15.5px;line-height:1.4;display:block}
+.note-line{margin-top:16px;font-weight:700}
+
+/* calculator */
+#calc .card{max-width:640px;margin:22px auto 0}
+.pills{display:flex;gap:8px;margin-bottom:18px}
+.pill{flex:1;text-align:center;border:var(--line) solid var(--neel);border-radius:99px;padding:4px 8px;font-weight:800;font-size:14px;background:var(--chalk);opacity:.5}
+.pill.on{background:var(--neel);color:var(--chalk);opacity:1}.pill.done{background:var(--tota);opacity:1}
+.q{font-weight:800;font-size:clamp(23px,3.4vw,30px);line-height:1.15;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{border:var(--line) solid var(--neel);border-radius:99px;padding:6px 16px;font:700 16px "Baloo 2",sans-serif;background:var(--chalk);cursor:pointer;color:var(--neel)}
+.chip[aria-pressed="true"]{background:var(--haldi)}
+input[type=range]{width:100%;accent-color:var(--sindoor);height:34px}
+.big{display:flex;align-items:baseline;gap:8px;font-weight:800}
+.big input{font:800 38px "Baloo 2";width:6.2ch;border:0;border-bottom:var(--line) solid var(--neel);background:transparent;color:var(--neel);padding:0}
+.big span{font-size:18px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 4px}
+@media(max-width:520px){.fields{grid-template-columns:1fr}}
+label.f{display:block;font-weight:700;font-size:15px;margin-bottom:4px}
+select,input[type=text],input[type=email],input[type=number]{width:100%;height:48px;border:2px solid var(--neel);border-radius:12px;padding:0 12px;font:500 17px "Baloo 2",sans-serif;background:var(--chalk);color:var(--neel)}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px;align-items:center}
+.back{background:none;border:0;font:700 16px "Baloo 2";text-decoration:underline;cursor:pointer;color:var(--neel);padding:8px}
+
+/* items */
+.rows{display:grid;gap:12px}
+.item{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;border:var(--line) solid var(--neel);border-radius:14px;padding:10px 12px;background:var(--chalk);transition:background .2s}
+.item.has{background:#FFF3C4}
+.item svg{width:60px;height:60px}
+.item b{display:block;font-size:18px;line-height:1.15}
+.item small{display:flex;align-items:center;gap:4px;font-size:14px}
+.item small input{width:64px;height:30px;border-radius:8px;font-size:15px;padding:0 6px;text-align:center}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:46px;height:46px;border-radius:50%;border:var(--line) solid var(--neel);background:var(--haldi);font:800 26px/1 "Baloo 2";cursor:pointer;color:var(--neel);box-shadow:0 3px 0 var(--neel)}
+.stepper button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--neel)}
+.stepper output{min-width:30px;text-align:center;font:800 26px "Baloo 2"}
+.permeal{margin-top:12px;font-weight:700}
+
+/* result */
+.toggle{display:inline-flex;border:var(--line) solid var(--neel);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.toggle button{border:0;background:var(--chalk);font:800 15px "Baloo 2";padding:5px 18px;cursor:pointer;color:var(--neel)}
+.toggle button[aria-pressed="true"]{background:var(--neel);color:var(--chalk)}
+.ring{width:min(100%,330px);margin:0 auto;display:block}
+.ring circle.seg{transition:stroke-dasharray .7s var(--ease),opacity .25s}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}
+@media(max-width:420px){.legend{grid-template-columns:1fr}}
+.legend button{display:flex;align-items:center;gap:8px;border:2px solid var(--neel);border-radius:12px;background:var(--chalk);padding:6px 10px;font:700 15px "Baloo 2";cursor:pointer;color:var(--neel);text-align:left}
+.legend button[aria-pressed="true"]{background:var(--haldi)}
+.legend i{width:16px;height:16px;border-radius:50%;border:2px solid var(--neel);flex:none}
+.legend em{margin-left:auto;font-style:normal;font-weight:800}
+.fact{font-weight:700;margin:12px 0 2px}
+.fine{font-size:13.5px;line-height:1.4;opacity:.85}
+.claims{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px}
+.claims span{border:2px solid var(--neel);border-radius:99px;padding:2px 12px;font-weight:700;font-size:14.5px;background:#E4F5E3}
+
+/* tailgate */
+#talk .gate{max-width:440px;margin:26px auto 0;position:relative}
+.gate svg.shape{display:block;width:100%;height:auto}
+.gate .face{position:absolute;inset:0;padding:78px 26px 40px;color:var(--chalk);display:flex;flex-direction:column}
+.gate .rosette{position:absolute;left:50%;top:6px;transform:translateX(-50%);width:54px;height:54px;animation:spin 18s linear infinite}
+.gate h2{font-family:"Yatra One","Baloo 2",serif;font-weight:400;color:var(--haldi);font-size:34px;text-align:center}
+.gate .amount{font:800 clamp(34px,9vw,48px) "Baloo 2";text-align:center;line-height:1.05;margin:4px 0 0}
+.gate .sub{text-align:center;font-size:15px;margin-bottom:12px}
+.gate .btn{width:100%;margin-top:10px;box-shadow:none}
+.gate .btn.ghost{background:transparent;color:var(--chalk);border-color:var(--chalk)}
+.gate .btn.gold{background:var(--haldi);color:var(--neel)}
+.gate form{display:none;margin-top:12px}
+.gate.open form{display:block}
+.gate.open .asks{display:none}
+.gate label.f{color:var(--chalk);margin-top:10px}
+.gate select,.gate input{border-color:var(--chalk)}
+.gate .consent{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;font-size:14.5px}
+.gate .consent input{width:22px;height:22px;flex:none;margin-top:2px;accent-color:var(--haldi)}
+.err{background:var(--sindoor);color:var(--chalk);border-radius:10px;padding:6px 12px;margin-top:10px;font-weight:700;font-size:14.5px}
+.hp{position:absolute;left:-9999px;opacity:0}
+.thanks{display:none;text-align:center;padding-top:6px}
+.gate.sent .thanks{display:block}.gate.sent .asks,.gate.sent form,.gate.sent .head{display:none}
+.thanks .big{font:800 30px "Baloo 2";margin-bottom:6px;display:block}
+.route{margin-top:12px;border:2px dashed var(--haldi);border-radius:12px;padding:8px 12px;font-size:15px}
+
+/* audience + faq */
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:22px}
+@media(max-width:860px){.three{grid-template-columns:1fr}}
+.aud{background:var(--chalk);border:var(--line) solid var(--neel);border-radius:var(--r);overflow:hidden}
+.aud .in{padding:16px 18px 20px}.aud h3{font-weight:800;font-size:21px;margin-bottom:6px}
+.aud ul{margin:6px 0 0;padding-left:18px}.aud li{margin:2px 0}
+details.faq{background:var(--chalk);border:var(--line) solid var(--neel);border-radius:14px;margin:10px 0;padding:0 16px}
+details.faq summary{cursor:pointer;font-weight:800;font-size:19px;padding:14px 0;list-style:none;display:flex;justify-content:space-between;gap:12px}
+details.faq summary::after{content:"+";font-size:26px;line-height:1}
+details.faq[open] summary::after{content:"\2212"}
+details.faq p{padding-bottom:14px}
+.assump{margin-top:30px;background:rgba(255,253,245,.55);border:2px dashed var(--neel);border-radius:14px;padding:14px 18px;font-size:14.5px}
+footer{padding:36px 20px 40px;text-align:center;font-weight:700}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.reveal.on{opacity:1;transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}.truck .pic{opacity:1;transform:none}
+}
+
+/* dials */
+.pane.inR{animation:inR .42s var(--ease) both}.pane.inL{animation:inL .42s var(--ease) both}
+.pane.outL{animation:outL .22s ease-in both}.pane.outR{animation:outR .22s ease-in both}
+@keyframes inR{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes inL{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+@keyframes outL{to{opacity:0;transform:translateX(-36px)}}@keyframes outR{to{opacity:0;transform:translateX(36px)}}
+.dialwrap{display:grid;place-items:center}
+.dial{width:min(100%,320px);margin:0 auto;border-radius:50%;outline:none;touch-action:none;-webkit-tap-highlight-color:transparent}
+.dial:focus-visible{box-shadow:0 0 0 4px var(--haldi),0 0 0 7px var(--neel)}
+.dialsvg{width:100%;height:auto;display:block;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.dial.drag .dialsvg{cursor:grabbing}
+.dial .pulse{transform-box:fill-box;transform-origin:center;animation:pulse 2s infinite}
+.dial.used .pulse,.dial.drag .pulse{animation:none;opacity:0}
+.dial .chev{opacity:0;transition:opacity .2s}.dial.drag .chev{opacity:1}
+.dial .knob{filter:drop-shadow(0 3px 0 rgba(38,35,92,.35))}
+@keyframes pulse{0%{opacity:0;transform:scale(1)}25%{opacity:1}90%{opacity:0;transform:scale(1.5)}100%{opacity:0}}
+.chips.center{justify-content:center}
+.hint{text-align:center;font-size:14.5px;opacity:.8;margin:2px auto 14px}
+.grp{margin-top:12px}.lab{font-weight:800;font-size:15px;margin-bottom:6px}
+.chip{transition:transform .15s var(--ease),background .2s}.chip:active{transform:scale(.94)}
+.chip[aria-pressed="true"]{box-shadow:0 3px 0 var(--neel);transform:translateY(-2px)}
+.car{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:6px}
+.viewport{overflow:hidden;border-radius:12px}
+.track{display:flex;transition:transform .5s var(--ease);will-change:transform}
+.slide{flex:0 0 100%;display:flex;flex-direction:column;align-items:center;padding:4px 0 2px}
+.arrow{width:44px;height:44px;border-radius:50%;border:var(--line) solid var(--neel);background:var(--haldi);font:800 28px/1 "Baloo 2";cursor:pointer;color:var(--neel);box-shadow:0 3px 0 var(--neel);transition:transform .12s,opacity .2s}
+.arrow:active{transform:translateY(2px);box-shadow:0 1px 0 var(--neel)}.arrow[disabled]{opacity:.3;cursor:default}
+.dots{display:flex;gap:8px;justify-content:center;margin:6px 0}
+.dots i{width:10px;height:10px;border-radius:50%;border:2px solid var(--neel);background:var(--chalk);transition:background .25s,transform .25s}
+.dots i.on{background:var(--neel);transform:scale(1.25)}
+.pricebtn{margin-top:6px;background:none;border:2px dashed var(--neel);border-radius:99px;padding:3px 14px;font:700 14.5px "Baloo 2";cursor:pointer;color:var(--neel)}
+.pricebtn input{width:62px;height:28px;border-radius:8px;font-size:15px;padding:0 6px;text-align:center;margin:0 4px}
+.minis{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:6px 0}
+.mini{display:flex;align-items:center;gap:4px;border:2px solid var(--neel);border-radius:99px;padding:2px 12px 2px 6px;font:800 16px "Baloo 2";background:var(--chalk);cursor:pointer;color:var(--neel);transition:background .25s,transform .2s}
+.mini svg{width:26px;height:26px}.mini.has{background:#FFF3C4}.mini[aria-current="true"]{transform:translateY(-2px);box-shadow:0 3px 0 var(--neel)}
+.permeal{text-align:center}
+</style>
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+<defs>
+<pattern id="p-jhalar" width="16" height="10" patternUnits="userSpaceOnUse"><rect width="16" height="10" fill="#F7B500"/><path d="M0 0A8 8 0 0 0 16 0Z" fill="#D7266F"/><circle cx="8" cy="3.5" r="2" fill="#FFFDF5"/></pattern><pattern id="p-chevron" width="20" height="12" patternUnits="userSpaceOnUse"><rect width="20" height="12" fill="#0B7A8A"/><path d="M0 10L10 2L20 10" fill="none" stroke="#F7B500" stroke-width="3"/></pattern><pattern id="p-bunting" width="48" height="20" patternUnits="userSpaceOnUse"><path d="M0 0H24L12 18Z" fill="#D63D27"/><path d="M24 0H48L36 18Z" fill="#3FAE3A"/></pattern>
+</defs>
+<symbol id="i-paper-plate" viewBox="0 0 100 100"><path d="M50 8 Q55.3 3.3 59.3 9.1 Q65.5 5.6 68.2 12.2 Q75 10.2 76.2 17.2 Q83.2 16.8 82.8 23.8 Q89.8 25 87.8 31.8 Q94.4 34.5 90.9 40.7 Q96.7 44.7 92 50 Q96.7 55.3 90.9 59.3 Q94.4 65.5 87.8 68.2 Q89.8 75 82.8 76.2 Q83.2 83.2 76.2 82.8 Q75 89.8 68.2 87.8 Q65.5 94.4 59.3 90.9 Q55.3 96.7 50 92 Q44.7 96.7 40.7 90.9 Q34.5 94.4 31.8 87.8 Q25 89.8 23.8 82.8 Q16.8 83.2 17.2 76.2 Q10.2 75 12.2 68.2 Q5.6 65.5 9.1 59.3 Q3.3 55.3 8 50 Q3.3 44.7 9.1 40.7 Q5.6 34.5 12.2 31.8 Q10.2 25 17.2 23.8 Q16.8 16.8 23.8 17.2 Q25 10.2 31.8 12.2 Q34.5 5.6 40.7 9.1 Q44.7 3.3 50 8Z" fill="#E9D3A8" stroke="#26235C" stroke-width="2.5" stroke-linejoin="round"/><circle cx="50" cy="50" r="28" fill="none" stroke="#26235C" stroke-width="1.5" stroke-dasharray="3 4"/></symbol>
+<symbol id="i-plastic-cup" viewBox="0 0 100 100"><path d="M26 16H74L67 90H33Z" fill="#EAF6FB" stroke="#26235C" stroke-width="2.5" stroke-linejoin="round"/><rect x="22" y="9" width="56" height="9" rx="3" fill="#FFFFFF" stroke="#26235C" stroke-width="2.5"/><path d="M40 28L42 80M60 28L58 80" stroke="#26235C" stroke-width="1.5" opacity=".35"/></symbol>
+<symbol id="i-plastic-spoon" viewBox="0 0 100 100"><ellipse cx="50" cy="27" rx="13" ry="18" fill="#FFFFFF" stroke="#26235C" stroke-width="2.5"/><rect x="46.5" y="44" width="7" height="48" rx="3.5" fill="#FFFFFF" stroke="#26235C" stroke-width="2.5"/></symbol>
+<symbol id="i-takeaway-box" viewBox="0 0 100 100"><rect x="14" y="30" width="72" height="12" rx="3" fill="#FFFFFF" stroke="#26235C" stroke-width="2.5"/><path d="M18 42H82L76 80H24Z" fill="#F1F1EC" stroke="#26235C" stroke-width="2.5" stroke-linejoin="round"/></symbol>
+<symbol id="i-steel-thali" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#C3CBD3" stroke="#7F8C99" stroke-width="2"/><circle cx="50" cy="50" r="33" fill="#E9EEF2" stroke="#7F8C99" stroke-width="1.5"/><path d="M27 34A28 28 0 0 1 52 22" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" fill="none" opacity=".9"/></symbol>
+<symbol id="i-steel-katori" viewBox="0 0 100 100"><path d="M10 40Q12 82 50 84Q88 82 90 40Z" fill="#C3CBD3" stroke="#7F8C99" stroke-width="2" stroke-linejoin="round"/><ellipse cx="50" cy="40" rx="40" ry="11" fill="#E9EEF2" stroke="#7F8C99" stroke-width="2"/><path d="M22 52Q26 70 40 76" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" fill="none" opacity=".9"/></symbol>
+<symbol id="i-steel-tumbler" viewBox="0 0 100 100"><path d="M27 13H73L67 89Q50 94 33 89Z" fill="#C3CBD3" stroke="#7F8C99" stroke-width="2" stroke-linejoin="round"/><ellipse cx="50" cy="13" rx="23" ry="5" fill="#E9EEF2" stroke="#7F8C99" stroke-width="2"/><path d="M29 30H71M33 78H67" stroke="#7F8C99" stroke-width="1.5"/><path d="M36 22L40 80" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" opacity=".9"/></symbol>
+<symbol id="i-crate" viewBox="0 0 100 100"><ellipse cx="34" cy="28" rx="18" ry="5" fill="#E9EEF2" stroke="#7F8C99" stroke-width="1.5"/><ellipse cx="62" cy="26" rx="18" ry="5" fill="#E9EEF2" stroke="#7F8C99" stroke-width="1.5"/><rect x="8" y="28" width="84" height="58" rx="8" fill="#0B7A8A" stroke="#26235C" stroke-width="2.5"/><rect x="38" y="35" width="24" height="7" rx="3.5" fill="#26235C"/><rect x="18" y="52" width="18" height="8" rx="4" fill="#FFFDF5" opacity=".45"/><rect x="41" y="52" width="18" height="8" rx="4" fill="#FFFDF5" opacity=".45"/><rect x="64" y="52" width="18" height="8" rx="4" fill="#FFFDF5" opacity=".45"/><rect x="18" y="66" width="18" height="8" rx="4" fill="#FFFDF5" opacity=".45"/><rect x="41" y="66" width="18" height="8" rx="4" fill="#FFFDF5" opacity=".45"/><rect x="64" y="66" width="18" height="8" rx="4" fill="#FFFDF5" opacity=".45"/></symbol>
+<symbol id="i-bin" viewBox="0 0 100 100"><path d="M24 30H76L70 90H30Z" fill="#D63D27" stroke="#26235C" stroke-width="2.5" stroke-linejoin="round"/><rect x="17" y="21" width="66" height="10" rx="4" fill="#D63D27" stroke="#26235C" stroke-width="2.5"/><rect x="42" y="13" width="16" height="8" rx="3" fill="none" stroke="#26235C" stroke-width="2.5"/><path d="M40 42L42 80M50 42V80M60 42L58 80" stroke="#26235C" stroke-width="2" opacity=".45"/></symbol>
+<symbol id="i-compost" viewBox="0 0 100 100"><path d="M22 34H78L72 90H28Z" fill="#3FAE3A" stroke="#26235C" stroke-width="2.5" stroke-linejoin="round"/><rect x="16" y="25" width="68" height="10" rx="4" fill="#3FAE3A" stroke="#26235C" stroke-width="2.5"/><path d="M50 78C38 70 38 56 50 46C62 56 62 70 50 78Z" fill="#FFFDF5" opacity=".8"/></symbol>
+<symbol id="m-rosette" viewBox="0 0 100 100"><ellipse cx="50" cy="26" rx="9" ry="22" fill="#F7B500" stroke="#26235C" stroke-width="1.5" transform="rotate(0 50 50)"/><ellipse cx="50" cy="26" rx="9" ry="22" fill="#D7266F" stroke="#26235C" stroke-width="1.5" transform="rotate(45 50 50)"/><ellipse cx="50" cy="26" rx="9" ry="22" fill="#F7B500" stroke="#26235C" stroke-width="1.5" transform="rotate(90 50 50)"/><ellipse cx="50" cy="26" rx="9" ry="22" fill="#D7266F" stroke="#26235C" stroke-width="1.5" transform="rotate(135 50 50)"/><ellipse cx="50" cy="26" rx="9" ry="22" fill="#F7B500" stroke="#26235C" stroke-width="1.5" transform="rotate(180 50 50)"/><ellipse cx="50" cy="26" rx="9" ry="22" fill="#D7266F" stroke="#26235C" stroke-width="1.5" transform="rotate(225 50 50)"/><ellipse cx="50" cy="26" rx="9" ry="22" fill="#F7B500" stroke="#26235C" stroke-width="1.5" transform="rotate(270 50 50)"/><ellipse cx="50" cy="26" rx="9" ry="22" fill="#D7266F" stroke="#26235C" stroke-width="1.5" transform="rotate(315 50 50)"/><circle cx="50" cy="50" r="11" fill="#D63D27" stroke="#26235C" stroke-width="1.5"/><circle cx="50" cy="50" r="4" fill="#FFFDF5"/></symbol>
+<symbol id="truck" viewBox="0 0 320 170"><rect x="20" y="128" width="284" height="8" fill="#26235C"/><rect x="110" y="40" width="190" height="88" rx="4" fill="#F7B500" stroke="#26235C" stroke-width="3"/><rect x="120" y="56" width="50" height="50" rx="6" fill="#0B7A8A" stroke="#26235C" stroke-width="2.5"/><circle cx="145" cy="81" r="12" fill="#FFFDF5" stroke="#26235C" stroke-width="2"/><rect x="180" y="56" width="50" height="50" rx="6" fill="#D7266F" stroke="#26235C" stroke-width="2.5"/><circle cx="205" cy="81" r="12" fill="#FFFDF5" stroke="#26235C" stroke-width="2"/><rect x="240" y="56" width="50" height="50" rx="6" fill="#3FAE3A" stroke="#26235C" stroke-width="2.5"/><circle cx="265" cy="81" r="12" fill="#FFFDF5" stroke="#26235C" stroke-width="2"/><rect x="110" y="40" width="190" height="10" fill="url(#p-jhalar)"/><rect x="113" y="110" width="184" height="12" fill="url(#p-chevron)" stroke="#26235C" stroke-width="1.5"/><path d="M20 128V78Q22 64 34 60L58 54H106V128Z" fill="#D63D27" stroke="#26235C" stroke-width="3" stroke-linejoin="round"/><path d="M34 66L58 60H94V90H30Z" fill="#BFE6EE" stroke="#26235C" stroke-width="2.5" stroke-linejoin="round"/><path d="M56 54Q62 30 81 25Q100 30 106 54Z" fill="#D7266F" stroke="#26235C" stroke-width="3" stroke-linejoin="round"/><circle cx="70" cy="46" r="3" fill="#FFFDF5" stroke="#26235C" stroke-width="1"/><circle cx="81" cy="38" r="3" fill="#FFFDF5" stroke="#26235C" stroke-width="1"/><circle cx="92" cy="46" r="3" fill="#FFFDF5" stroke="#26235C" stroke-width="1"/><rect x="64" y="96" width="34" height="5" rx="2.5" fill="#26235C"/><rect x="12" y="122" width="100" height="10" rx="3" fill="#C3CBD3" stroke="#26235C" stroke-width="2"/><rect x="300" y="126" width="14" height="28" rx="2" fill="#D63D27" stroke="#26235C" stroke-width="2"/><circle cx="307" cy="140" r="4" fill="#F7B500"/><circle cx="66" cy="142" r="22" fill="#26235C"/><circle cx="66" cy="142" r="15" fill="#FFFDF5"/><ellipse cx="66" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(0 66 142)"/><ellipse cx="66" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(45 66 142)"/><ellipse cx="66" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(90 66 142)"/><ellipse cx="66" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(135 66 142)"/><ellipse cx="66" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(180 66 142)"/><ellipse cx="66" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(225 66 142)"/><ellipse cx="66" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(270 66 142)"/><ellipse cx="66" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(315 66 142)"/><circle cx="66" cy="142" r="4.4" fill="#D63D27" stroke="#26235C" stroke-width="0.6"/><circle cx="66" cy="142" r="1.6" fill="#FFFDF5"/><circle cx="236" cy="142" r="22" fill="#26235C"/><circle cx="236" cy="142" r="15" fill="#FFFDF5"/><ellipse cx="236" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(0 236 142)"/><ellipse cx="236" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(45 236 142)"/><ellipse cx="236" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(90 236 142)"/><ellipse cx="236" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(135 236 142)"/><ellipse cx="236" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(180 236 142)"/><ellipse cx="236" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(225 236 142)"/><ellipse cx="236" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(270 236 142)"/><ellipse cx="236" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(315 236 142)"/><circle cx="236" cy="142" r="4.4" fill="#D63D27" stroke="#26235C" stroke-width="0.6"/><circle cx="236" cy="142" r="1.6" fill="#FFFDF5"/><circle cx="278" cy="142" r="22" fill="#26235C"/><circle cx="278" cy="142" r="15" fill="#FFFDF5"/><ellipse cx="278" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(0 278 142)"/><ellipse cx="278" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(45 278 142)"/><ellipse cx="278" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(90 278 142)"/><ellipse cx="278" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(135 278 142)"/><ellipse cx="278" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(180 278 142)"/><ellipse cx="278" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(225 278 142)"/><ellipse cx="278" cy="132.4" rx="3.6" ry="8.8" fill="#F7B500" stroke="#26235C" stroke-width="0.6" transform="rotate(270 278 142)"/><ellipse cx="278" cy="132.4" rx="3.6" ry="8.8" fill="#D7266F" stroke="#26235C" stroke-width="0.6" transform="rotate(315 278 142)"/><circle cx="278" cy="142" r="4.4" fill="#D63D27" stroke="#26235C" stroke-width="0.6"/><circle cx="278" cy="142" r="1.6" fill="#FFFDF5"/></symbol>
+</svg>
+<svg class="trim bunting" width="100%" height="20" aria-hidden="true"><rect width="100%" height="20" fill="url(#p-bunting)"/></svg>
+
+<header class="top">
+  <a class="brand" href="#top"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#m-rosette"/></svg>InfinityBox</a>
+  <nav><a href="#how">How it works</a><a href="#calc">Calculator</a><a class="btn small" href="#talk">Talk to us</a></nav>
+</header>
+
+<main id="top">
+<section class="hero" style="padding-top:8px">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">For cafeterias across India</div>
+      <h1 class="sign">Reuse OK Please</h1>
+      <p class="lede">What does single-use serviceware cost your cafeteria every month? Find out in one minute.</p>
+      <div class="cta"><a class="btn primary" href="#calc" id="start">Work it out in 1 minute</a><a class="btn" href="#how">How does it work?</a></div>
+      <p class="reports">InfinityBox reports <b>40% less single-use waste</b> on average across its deployments. <a href="https://getinfinitybox.com" target="_blank" rel="noopener">Source: getinfinitybox.com</a></p>
+    </div>
+    <div class="stage" aria-hidden="true">
+      <svg class="float a" viewBox="0 0 100 100"><use href="#i-steel-thali"/></svg>
+      <svg class="float b" viewBox="0 0 100 100"><use href="#i-steel-katori"/></svg>
+      <svg class="float c" viewBox="0 0 100 100"><use href="#i-steel-tumbler"/></svg>
+      <svg class="truck in" id="heroTruck" viewBox="0 0 320 170"></svg>
+      <div class="road"></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="eyebrow">The loop</div>
+    <h2>Steel goes out. Steel comes back. Nothing goes in the bin.</h2>
+    <div class="loop">
+      <div class="step reveal"><span class="n">1</span><svg viewBox="0 0 100 100"><use href="#i-steel-thali"/></svg><b>Clean steel arrives</b><span>Thalis, katoris and tumblers replace paper plates, plastic cups and boxes.</span></div>
+      <div class="step reveal"><span class="n">2</span><svg viewBox="0 0 100 100"><use href="#i-crate"/></svg><b>Used ware is collected</b><span>After service, crates of used crockery and containers are picked up.</span></div>
+      <div class="step reveal"><span class="n">3</span><svg viewBox="0 0 100 100"><use href="#i-steel-katori"/></svg><b>Washed properly</b><span>At a central facility, or by a team running dishwashing on your premises.</span></div>
+      <div class="step reveal"><span class="n">4</span><svg viewBox="0 0 100 100"><use href="#i-steel-tumbler"/></svg><b>Back again, clean</b><span>Returned ready for the next meal. The loop repeats every day.</span></div>
+    </div>
+    <p class="note-line">Building or redoing a cafeteria or kitchen? InfinityBox also designs, builds and equips commercial kitchens.</p>
+  </div>
+</section>
+
+<section id="calc">
+  <div class="wrap">
+    <div class="eyebrow" style="text-align:center">Free estimate</div>
+    <h2 style="text-align:center">What does single-use cost you?</h2>
+    <div class="card">
+      <svg class="trim" width="100%" height="10" aria-hidden="true"><rect width="100%" height="10" fill="url(#p-jhalar)"/></svg>
+      <div class="in">
+        <div class="pills" aria-hidden="true"><div class="pill on" data-p="1">1 Meals</div><div class="pill" data-p="2">2 Items</div><div class="pill" data-p="3">3 Result</div></div>
+
+        <div class="pane" data-step="1">
+          <div class="q">How many meals does your cafeteria serve a day?</div>
+          <div class="dialwrap" id="mealsDial"></div>
+          <div class="chips center" id="mealChips" role="group" aria-label="Quick picks"></div>
+          <p class="hint">Drag the knob around the dial, tap a quick pick, or use the arrow keys.</p>
+          <div class="grp"><div class="lab">Working days a month</div><div class="chips" id="dayChips" role="group" aria-label="Working days a month"></div></div>
+          <div class="grp"><div class="lab">City</div><div class="chips" id="cityChips" role="group" aria-label="City"></div></div>
+          <div class="nav"><span></span><button class="btn primary" id="to2">Next</button></div>
+        </div>
+
+        <div class="pane" data-step="2" hidden>
+          <div class="q">What single-use items go out with each meal?</div>
+          <div class="car">
+            <button class="arrow" id="prevI" aria-label="Previous item">&#8249;</button>
+            <div class="viewport"><div class="track" id="track"></div></div>
+            <button class="arrow" id="nextI" aria-label="Next item">&#8250;</button>
+          </div>
+          <div class="dots" id="dots" aria-hidden="true"></div>
+          <p class="hint">Turn the dial for how many go out with each meal.</p>
+          <div class="minis" id="minis"></div>
+          <div class="permeal" id="perMeal" aria-live="polite"></div>
+          <div class="nav"><button class="back" id="back1">Back</button><button class="btn red" id="to3" disabled>See my result</button></div>
+        </div>
+
+        <div class="pane" data-step="3" hidden>
+          <div class="toggle" role="group" aria-label="Show by"><button id="mUnits" aria-pressed="true">Items</button><button id="mRs" aria-pressed="false">Rupees</button></div>
+          <svg class="ring" id="ring" viewBox="0 0 320 320" role="img" aria-label="Share of each single-use item"></svg>
+          <div class="legend" id="legend"></div>
+          <svg class="truck" id="resTruck" viewBox="0 0 320 170" aria-hidden="true" style="max-width:360px;margin-top:6px"></svg>
+          <p class="fact" id="binFact"></p>
+          <div class="claims" aria-label="InfinityBox reported averages"><span>30% less water</span><span>25% less electricity</span><span>40% less single-use waste</span></div>
+          <p class="fine">InfinityBox reports these as averages across its deployments, not a promise for your site. <a href="https://getinfinitybox.com" target="_blank" rel="noopener">getinfinitybox.com</a></p>
+          <div class="nav"><button class="back" id="back2">Back</button><a class="btn primary" href="#talk" id="toTalk">Talk to InfinityBox</a></div>
+        </div>
+      </div>
+      <svg class="trim" width="100%" height="12" aria-hidden="true"><rect width="100%" height="12" fill="url(#p-chevron)"/></svg>
+    </div>
+    <div class="assump" id="assump"></div>
+  </div>
+</section>
+
+<section id="talk">
+  <div class="wrap">
+    <h2 style="text-align:center">Want the real number for your site?</h2>
+    <p style="text-align:center;margin:8px auto 0">The estimate above uses placeholder prices. A free site assessment uses your real ones.</p>
+    <div class="gate" id="gate">
+      <svg class="shape" viewBox="0 0 360 420" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70Q0 50 20 50H118Q180 0 242 50H340Q360 50 360 70V400Q360 420 340 420H20Q0 420 0 400Z" fill="#26235C"/><rect x="0" y="60" width="360" height="10" fill="url(#p-jhalar)"/><rect x="0" y="404" width="360" height="12" fill="url(#p-chevron)"/></svg>
+      <svg class="rosette" viewBox="0 0 100 100" aria-hidden="true"><use href="#m-rosette"/></svg>
+      <div class="face">
+        <div class="head">
+          <h2>Reuse OK Please</h2>
+          <div class="sub" id="gateLead">Your cafeteria spends about</div>
+          <div class="amount" id="gateAmt">Rs 0</div>
+          <div class="sub">a month on single-use serviceware (estimate)</div>
+        </div>
+        <div class="asks">
+          <button class="btn gold" id="openForm">Get a free site assessment</button>
+          <a class="btn ghost" id="mailCaterer" href="#">Send this to my caterer</a>
+        </div>
+        <form id="lead" novalidate>
+          <div class="hp"><label>Website <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+          <label class="f" for="fName">Your name</label><input id="fName" type="text" autocomplete="name" required>
+          <label class="f" for="fEmail">Work email</label><input id="fEmail" type="email" autocomplete="email" required>
+          <label class="f" for="fCompany">Company</label><input id="fCompany" type="text" autocomplete="organization" required>
+          <label class="f" for="fRole">Your role</label><input id="fRole" type="text" placeholder="e.g. Head of Admin">
+          <label class="f" for="fCity">City</label><select id="fCity"></select>
+          <label class="f" for="fSeg">I am...</label>
+          <select id="fSeg"><option value="corporate">A company with a cafeteria</option><option value="caterer">A caterer or food-service operator</option>
+            <option value="fitout">Building or redoing an office or kitchen</option><option value="institution">A hospital, college or campus</option></select>
+          <label class="consent"><input type="checkbox" id="fConsent"><span>InfinityBox may contact me about this estimate.</span></label>
+          <div id="formErr" class="err" hidden></div>
+          <button class="btn gold" type="submit" id="send">Send</button>
+        </form>
+        <div class="thanks"><span class="big sign" style="color:var(--haldi)">Sent.</span><p id="promise" style="margin:0 auto"></p><div class="route" id="route"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="eyebrow">Who it is for</div>
+    <h2>Built for the people who run big food operations</h2>
+    <div class="three">
+      <div class="aud reveal"><svg class="trim" width="100%" height="10" aria-hidden="true"><rect width="100%" height="10" fill="url(#p-jhalar)"/></svg><div class="in"><h3>Corporate campuses</h3><p>Tech, banking, consulting and GCC cafeterias.</p><ul><li>Hygiene and reliability</li><li>Cost</li><li>ESG targets</li><li>Removing single-use plastic</li></ul></div></div>
+      <div class="aud reveal"><svg class="trim" width="100%" height="10" aria-hidden="true"><rect width="100%" height="10" fill="url(#p-jhalar)"/></svg><div class="in"><h3>Caterers and food-service operators</h3><p>Running those cafeterias for their clients.</p><ul><li>Cost per meal</li><li>Labour and space</li><li>Service levels</li></ul></div></div>
+      <div class="aud reveal"><svg class="trim" width="100%" height="10" aria-hidden="true"><rect width="100%" height="10" fill="url(#p-jhalar)"/></svg><div class="in"><h3>New offices and kitchens</h3><p>Building or redoing an office or a kitchen.</p><ul><li>One vendor from design to handover</li><li>Timelines</li><li>Quality</li></ul></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap" style="max-width:820px">
+    <div class="eyebrow">Questions</div>
+    <h2 style="margin-bottom:14px">Good to know</h2>
+    <details class="faq"><summary>What is outsourced warewashing?</summary><p>Instead of buying disposables or washing in your own kitchen, used crockery is collected, washed by a specialist and returned. InfinityBox does this at central facilities, or runs dishwashing inside your premises.</p></details>
+    <details class="faq"><summary>Where does InfinityBox work?</summary><p>Mumbai, Chennai, Bangalore, NCR, Pune and Hyderabad.</p></details>
+    <details class="faq"><summary>How exact is this estimate?</summary><p>It is a quick estimate from your answers and placeholder prices that you can edit. A free site assessment gives a real figure.</p></details>
+    <details class="faq"><summary>What happens to my details?</summary><p>They are used only to reply about your enquiry. We do not ask for more than the form shows.</p></details>
+  </div>
+</section>
+</main>
+
+<footer>
+  <svg class="trim" width="100%" height="12" aria-hidden="true" style="margin-bottom:18px"><rect width="100%" height="12" fill="url(#p-chevron)"/></svg>
+  InfinityBox: hygiene and kitchen infrastructure for cafeterias. <a href="https://getinfinitybox.com" target="_blank" rel="noopener">getinfinitybox.com</a>
+  <div class="fine" style="margin-top:8px;font-weight:400">We count anonymous visits and clicks (no cookies, no personal data) to see whether this page helps.</div>
+</footer>
+
+<script src="calc.js"></script>
+<script>
+/* ===== settings you can change ===== */
+var IB = {
+  APPS_SCRIPT_URL: "",            // paste the deployed Google Apps Script web app URL to send leads to a Google Sheet
+  promise: "Someone from InfinityBox will reply within 1 working day.",
+  cities: ["Bengaluru", "Hyderabad", "Pune", "NCR", "Mumbai", "Chennai", "Other"],
+  dayOptions: [20, 22, 24, 26, 30],
+  quick: [250, 500, 1000, 2500, 5000]
+};
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var C = window.IBCalc, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var S = { meals: 1000, days: 22, city: "Bengaluru", counts: { plate: 1, cup: 1, cut: 1, box: 0 }, costs: {}, mode: 'units', active: null, step: 1 };
+var qs = new URLSearchParams(location.search);
+
+/* ---------- anonymous funnel events: no cookies, no personal data, skipped if Do Not Track is on ---------- */
+var SID = (function () { try { var k = sessionStorage.getItem('ib_sid'); if (!k) { k = Math.random().toString(36).slice(2, 10) + Date.now().toString(36); sessionStorage.setItem('ib_sid', k); } return k; } catch (e) { return Math.random().toString(36).slice(2, 10); } })();
+var sentEv = {};
+function track(name) {
+  if (!name || sentEv[name] || navigator.doNotTrack === '1') return;
+  sentEv[name] = 1;
+  var url = IB.APPS_SCRIPT_URL || (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? '/api/event' : '');
+  if (!url) return;
+  var body = JSON.stringify({ type: 'event', event: name, sid: SID, ts: new Date().toISOString(), path: location.pathname, ref: document.referrer ? new URL(document.referrer).hostname : '',
+    utm_source: qs.get('utm_source') || '', utm_medium: qs.get('utm_medium') || '', utm_campaign: qs.get('utm_campaign') || '' });
+  try { if (!(navigator.sendBeacon && !IB.APPS_SCRIPT_URL && navigator.sendBeacon(url, new Blob([body], { type: 'text/plain' })))) fetch(url, { method: 'POST', mode: IB.APPS_SCRIPT_URL ? 'no-cors' : 'same-origin', headers: { 'Content-Type': 'text/plain' }, body: body, keepalive: true }); } catch (e) {}
+}
+track('view');
+$('#calc .card').addEventListener('pointerdown', function () { track('calc_start'); }, { once: true });
+$('#start').addEventListener('click', function () { track('calc_start'); });
+
+/* ---------- truck (built from the sprite so the wheels can turn) ---------- */
+function buildTruck(svg, withPics) {
+  svg.innerHTML = '<g class="body">' + $('#truck').innerHTML + '</g>';
+  [66, 236, 278].forEach(function (cx) {
+    var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'wheel'); g.style.transformOrigin = cx + 'px 142px';
+    [].slice.call(svg.querySelectorAll('circle,ellipse')).filter(function (e) { return +e.getAttribute('cx') === cx && (+e.getAttribute('cy') === 142 || +e.getAttribute('cy') === 132.4); })
+      .forEach(function (e) { g.appendChild(e); });
+    svg.querySelector('.body').appendChild(g);
+  });
+  if (withPics) [120, 180, 240].forEach(function (x, i) {
+    var u = document.createElementNS('http://www.w3.org/2000/svg', 'use'); u.setAttribute('class', 'pic'); u.setAttribute('id', 'pic' + i);
+    u.setAttribute('x', x + 7); u.setAttribute('y', 63); u.setAttribute('width', 36); u.setAttribute('height', 36); svg.querySelector('.body').appendChild(u);
+  });
+}
+buildTruck($('#heroTruck'), false);
+setTimeout(function () { $('#heroTruck').classList.add('parked'); }, reduce ? 0 : 1500);
+buildTruck($('#resTruck'), true);
+
+/* ---------- smooth motion helpers ---------- */
+var SVGNS = 'http://www.w3.org/2000/svg', CIRC = 2 * Math.PI * 130, SWEEP = 300;
+function el(tag, attrs, parent) { var e = document.createElementNS(SVGNS, tag); for (var k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+function tween(from, to, ms, step, done) {
+  if (reduce || from === to) { step(to); if (done) done(); return { stop: function () {} }; }
+  var t0 = performance.now(), id = 0, dead = false;
+  (function f(t) { if (dead) return; var p = Math.min(1, (t - t0) / ms); step(from + (to - from) * easeOut(p)); if (p < 1) id = requestAnimationFrame(f); else if (done) done(); })(t0);
+  return { stop: function () { dead = true; cancelAnimationFrame(id); } };
+}
+function buzz() { if (navigator.vibrate) try { navigator.vibrate(6); } catch (e) {} }
+
+/* ---------- the radial dial (SVG 320 x 320, 0 at 12 o'clock, clockwise, 300 degree sweep) ----------
+   o: {color, icon, caption, sub(v), labels:[{angle,text}], toValue(angle), toAngle(v), value, big, fmt(v), knobText(v), step(v,dir), min, max, label, onChange(v)} */
+function Dial(o) {
+  var root = document.createElement('div'); root.className = 'dial'; root.tabIndex = 0; root.setAttribute('role', 'slider');
+  root.setAttribute('aria-label', o.label); root.setAttribute('aria-valuemin', o.min); root.setAttribute('aria-valuemax', o.max);
+  var svg = el('svg', { viewBox: '0 0 320 320', 'class': 'dialsvg' }); root.appendChild(svg);
+  el('circle', { cx: 160, cy: 160, r: 150, fill: '#FFFDF5', stroke: '#26235C', 'stroke-width': 3 }, svg);
+  el('circle', { cx: 160, cy: 160, r: 130, fill: 'none', stroke: '#F7B500', 'stroke-width': 40, opacity: .35 }, svg);
+  var arc = el('circle', { cx: 160, cy: 160, r: 130, fill: 'none', stroke: o.color, 'stroke-width': 40, 'stroke-linecap': 'round', transform: 'rotate(-90 160 160)' }, svg);
+  var labs = o.labels.map(function (L) {
+    var a = L.angle * Math.PI / 180, t = el('text', { x: 160 + 130 * Math.sin(a), y: 160 - 130 * Math.cos(a) + 5, 'text-anchor': 'middle', 'font-family': 'Baloo 2,Arial', 'font-weight': 700, 'font-size': L.text.length > 3 ? 13 : 15, fill: '#26235C', style: 'pointer-events:none' }, svg);
+    t.textContent = L.text; return { a: L.angle, t: t };
+  });
+  el('circle', { cx: 160, cy: 160, r: 104, fill: '#26235C', opacity: .12 }, svg);
+  el('circle', { cx: 160, cy: 160, r: 100, fill: '#C3CBD3', stroke: '#7F8C99', 'stroke-width': 2 }, svg);
+  el('circle', { cx: 160, cy: 160, r: 86, fill: '#E9EEF2' }, svg);
+  var font = { 'text-anchor': 'middle', 'font-family': 'Baloo 2,Arial', fill: '#26235C', style: 'pointer-events:none' };
+  var bigT = null, capT, subT;
+  if (o.big) {
+    bigT = el('text', Object.assign({ x: 160, y: 168, 'font-weight': 800, 'font-size': 42 }, font), svg);
+    capT = el('text', Object.assign({ x: 160, y: 192, 'font-size': 14, 'font-weight': 700 }, font), svg); capT.textContent = o.caption;
+    subT = null;
+  } else {
+    el('use', { href: '#' + o.icon, x: 120, y: 94, width: 80, height: 80, style: 'pointer-events:none' }, svg);
+    capT = el('text', Object.assign({ x: 160, y: 196, 'font-size': 15, 'font-weight': 700 }, font), svg); capT.textContent = o.caption;
+    subT = el('text', Object.assign({ x: 160, y: 214, 'font-size': 13 }, font), svg);
+  }
+  var pulse = el('circle', { r: 26, fill: 'none', stroke: o.color, 'stroke-width': 3, 'class': 'pulse' }, svg);
+  var chevL = el('circle', { r: 9, fill: '#FFFDF5', stroke: '#26235C', 'stroke-width': 1.5, 'class': 'chev' }, svg), chevR = el('circle', { r: 9, fill: '#FFFDF5', stroke: '#26235C', 'stroke-width': 1.5, 'class': 'chev' }, svg);
+  var knob = el('g', { 'class': 'knob', style: 'pointer-events:none' }, svg);
+  var kc = el('circle', { r: 26, fill: '#FFFDF5', stroke: o.color, 'stroke-width': 6 }, knob);
+  var kt = el('text', { 'text-anchor': 'middle', 'font-family': 'Baloo 2,Arial', 'font-weight': 800, 'font-size': 20, fill: '#26235C' }, knob);
+  var angle = o.toAngle(o.value), value = o.value, anim = null, dragging = false;
+
+  function pos(a, r) { var t = a * Math.PI / 180; return [160 + r * Math.sin(t), 160 - r * Math.cos(t)]; }
+  function draw(a) {
+    arc.setAttribute('stroke-dasharray', (a / 360 * CIRC) + ' ' + CIRC);
+    var k = pos(a, 130); kc.setAttribute('cx', k[0]); kc.setAttribute('cy', k[1]); kt.setAttribute('x', k[0]); kt.setAttribute('y', k[1] + 7);
+    pulse.setAttribute('cx', k[0]); pulse.setAttribute('cy', k[1]);
+    var l = pos(a - 24, 130), r = pos(a + 24, 130); chevL.setAttribute('cx', l[0]); chevL.setAttribute('cy', l[1]); chevR.setAttribute('cx', r[0]); chevR.setAttribute('cy', r[1]);
+    labs.forEach(function (L) { L.t.setAttribute('fill', L.a <= a - 4 ? '#FFFDF5' : '#26235C'); });
+  }
+  function text(v) {
+    kt.textContent = o.knobText(v);
+    if (bigT) bigT.textContent = o.fmt(v); else subT.textContent = o.sub(v);
+    root.setAttribute('aria-valuenow', v); root.setAttribute('aria-valuetext', o.fmt(v) + ' ' + o.caption);
+    labs.forEach(function (L) { /* keep label colours in sync */ });
+  }
+  function commit(v) { if (v !== value) { value = v; text(v); buzz(); if (o.onChange) o.onChange(v); } }
+  function glide(v) {
+    if (anim) anim.stop();
+    var to = o.toAngle(v); anim = tween(angle, to, 380, function (a) { angle = a; draw(a); });
+  }
+  function set(v, animate) { v = Math.min(o.max, Math.max(o.min, v)); if (animate === false) { if (anim) anim.stop(); angle = o.toAngle(v); draw(angle); value = v; text(v); } else { glide(v); commit(v); } }
+  function move(e) {
+    var r = svg.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * 320 - 160, y = (e.clientY - r.top) / r.height * 320 - 160;
+    var a = Math.atan2(x, -y) * 180 / Math.PI; if (a < 0) a += 360;
+    if (a > SWEEP) a = angle > SWEEP / 2 ? SWEEP : 0;          // the seam: never wrap from the top of the range to the bottom
+    angle = a; draw(a); commit(o.toValue(a));
+  }
+  svg.addEventListener('pointerdown', function (e) {
+    var r = svg.getBoundingClientRect(), dx = (e.clientX - r.left) / r.width * 320 - 160, dy = (e.clientY - r.top) / r.height * 320 - 160, d = Math.sqrt(dx * dx + dy * dy);
+    if (d < 62) return;                                          // the steel hub is not a handle
+    if (anim) anim.stop(); dragging = true; root.classList.add('drag', 'used'); try { svg.setPointerCapture(e.pointerId); } catch (_) {} root.focus({ preventScroll: true }); move(e); e.preventDefault();
+  });
+  svg.addEventListener('pointermove', function (e) { if (dragging) move(e); });
+  function end() { if (!dragging) return; dragging = false; root.classList.remove('drag'); glide(value); }
+  svg.addEventListener('pointerup', end); svg.addEventListener('pointercancel', end);
+  root.addEventListener('keydown', function (e) {
+    var k = e.key, v = value;
+    if (k === 'ArrowRight' || k === 'ArrowUp') v = o.step(value, 1); else if (k === 'ArrowLeft' || k === 'ArrowDown') v = o.step(value, -1);
+    else if (k === 'Home') v = o.min; else if (k === 'End') v = o.max; else return;
+    e.preventDefault(); root.classList.add('used'); set(v);
+  });
+  draw(angle); text(value);
+  return { root: root, set: set, get: function () { return value; } };
+}
+
+/* ---------- step 1: meals dial (log scale: 100 to 20,000) ---------- */
+function niceMeals(raw) { var v = raw < 1000 ? Math.round(raw / 50) * 50 : raw < 5000 ? Math.round(raw / 100) * 100 : Math.round(raw / 500) * 500; return Math.min(20000, Math.max(100, v)); }
+var mealAngle = function (v) { return SWEEP * Math.log(v / 100) / Math.log(200); };
+var short = function (v) { return v >= 1000 ? (v / 1000).toFixed(v % 1000 ? 1 : 0).replace('.0', '') + 'K' : String(v); };
+if (qs.get('m')) S.meals = niceMeals(+qs.get('m') || 1000);
+var mealsDial = Dial({
+  color: '#D63D27', big: true, caption: 'meals a day', label: 'Meals served per day', min: 100, max: 20000, value: S.meals,
+  labels: [100, 250, 500, 1000, 2500, 5000, 10000, 20000].map(function (v) { return { angle: mealAngle(v), text: short(v) }; }),
+  toValue: function (a) { return niceMeals(100 * Math.pow(200, a / SWEEP)); }, toAngle: function (v) { return mealAngle(Math.min(20000, Math.max(100, v))); },
+  fmt: C.nf, knobText: short, step: function (v, d) { var st = v < 1000 || (v === 1000 && d < 0) ? 50 : v < 5000 || (v === 5000 && d < 0) ? 100 : 500; return niceMeals(v + d * st); },
+  onChange: function (v) { S.meals = v; chipsOn(); }
+});
+$('#mealsDial').append(mealsDial.root);
+function chipsOn() { [].forEach.call($('#mealChips').children, function (b) { b.setAttribute('aria-pressed', +b.dataset.v === S.meals); }); }
+IB.quick.forEach(function (n) { var b = document.createElement('button'); b.className = 'chip'; b.dataset.v = n; b.textContent = C.nf(n); b.onclick = function () { mealsDial.root.classList.add('used'); mealsDial.set(n); }; $('#mealChips').append(b); });
+chipsOn();
+function chipGroup(box, values, get, set, label) {
+  values.forEach(function (v) { var b = document.createElement('button'); b.className = 'chip'; b.textContent = label ? label(v) : v; b.dataset.v = v;
+    b.onclick = function () { set(v); sync(); }; box.append(b); });
+  function sync() { [].forEach.call(box.children, function (b) { b.setAttribute('aria-pressed', b.dataset.v == get()); }); }
+  sync(); return sync;
+}
+chipGroup($('#dayChips'), IB.dayOptions, function () { return S.days; }, function (v) { S.days = +v; });
+var syncCity = chipGroup($('#cityChips'), IB.cities, function () { return S.city; }, function (v) { S.city = v; $('#fCity').value = v; });
+IB.cities.forEach(function (c) { $('#fCity').append(new Option(c, c)); });
+if (qs.get('city') && IB.cities.indexOf(qs.get('city')) > -1) { S.city = qs.get('city'); syncCity(); }
+$('#fCity').value = S.city;
+
+/* ---------- step 2: one dial per item in a carousel ---------- */
+var itemDials = [], cur = 0;
+function totalPerMeal() { return C.ITEMS.reduce(function (a, i) { return a + (S.counts[i.id] || 0); }, 0); }
+function perMeal() {
+  var n = totalPerMeal();
+  $('#perMeal').innerHTML = n ? 'That is <b>' + n + '</b> single-use item' + (n > 1 ? 's' : '') + ' with every meal.' : 'Turn a dial up to at least 1 to continue.';
+  $('#to3').disabled = !n;
+  [].forEach.call($('#minis').children, function (m, i) { var it = C.ITEMS[i]; m.classList.toggle('has', S.counts[it.id] > 0); m.querySelector('b').textContent = S.counts[it.id] || 0; });
+}
+function showItem(i) {
+  cur = Math.max(0, Math.min(C.ITEMS.length - 1, i));
+  $('#track').style.transform = 'translateX(-' + cur * 100 + '%)';
+  [].forEach.call($('#dots').children, function (d, k) { d.classList.toggle('on', k === cur); });
+  [].forEach.call($('#minis').children, function (m, k) { m.setAttribute('aria-current', k === cur); });
+  $('#prevI').disabled = cur === 0; $('#nextI').disabled = cur === C.ITEMS.length - 1;
+}
+C.ITEMS.forEach(function (it, i) {
+  var slide = document.createElement('div'); slide.className = 'slide'; slide.setAttribute('aria-hidden', 'false');
+  var d = Dial({
+    color: it.color, icon: it.icon, caption: it.name, label: it.name + ' per meal', min: 0, max: 5, value: S.counts[it.id] || 0,
+    sub: function (v) { return v + ' per meal'; }, fmt: String, knobText: String, step: function (v, dir) { return Math.max(0, Math.min(5, v + dir)); },
+    labels: [0, 1, 2, 3, 4, 5].map(function (v) { return { angle: v * 60, text: String(v) }; }),
+    toValue: function (a) { return Math.max(0, Math.min(5, Math.round(a / 60))); }, toAngle: function (v) { return v * 60; },
+    onChange: function (v) { S.counts[it.id] = v; perMeal(); }
+  });
+  itemDials.push(d); slide.append(d.root);
+  var pb = document.createElement('button'); pb.className = 'pricebtn'; pb.type = 'button';
+  var showPrice = function () { pb.textContent = 'Rs ' + (S.costs[it.id] != null && S.costs[it.id] !== '' ? S.costs[it.id] : it.costRs) + ' each · change'; };
+  showPrice();
+  pb.onclick = function () {
+    pb.innerHTML = 'Rs <input type="number" min="0" step="0.5" aria-label="Price of one ' + it.name.toLowerCase() + ' in rupees"> each';
+    var inp = pb.querySelector('input'); inp.value = S.costs[it.id] != null && S.costs[it.id] !== '' ? S.costs[it.id] : it.costRs; inp.focus(); inp.select();
+    inp.oninput = function () { S.costs[it.id] = inp.value; }; inp.onclick = function (e) { e.stopPropagation(); }; inp.onblur = showPrice; inp.onkeydown = function (e) { if (e.key === 'Enter') inp.blur(); };
+  };
+  slide.append(pb); $('#track').append(slide);
+  var dot = document.createElement('i'); $('#dots').append(dot);
+  var mini = document.createElement('button'); mini.type = 'button'; mini.className = 'mini'; mini.setAttribute('aria-label', 'Go to ' + it.name);
+  mini.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true"><use href="#' + it.icon + '"/></svg><b>' + (S.counts[it.id] || 0) + '</b>'; mini.onclick = function () { showItem(i); }; $('#minis').append(mini);
+});
+$('#prevI').onclick = function () { showItem(cur - 1); }; $('#nextI').onclick = function () { showItem(cur + 1); };
+showItem(0); perMeal();
+if (qs.get('c')) $('#fCompany').value = qs.get('c');
+if (qs.get('s')) $('#fSeg').value = qs.get('s');
+
+/* ---------- step 3: result ---------- */
+var R = null;
+function countUp(el, to, fmt) {
+  if (reduce) { el.textContent = fmt(to); return; }
+  var t0 = performance.now(), from = 0;
+  (function f(t) { var p = Math.min(1, (t - t0) / 700), e = 1 - Math.pow(1 - p, 3); el.textContent = fmt(from + (to - from) * e); if (p < 1) requestAnimationFrame(f); })(t0);
+}
+var ringBuilt = false, segEls = {}, lastCenter = 0, tw = null;
+function ring() {
+  var sh = C.shares(R, S.mode), svg = $('#ring');
+  if (!ringBuilt) {
+    svg.innerHTML = '<circle cx="160" cy="160" r="150" fill="#FFFDF5" stroke="#26235C" stroke-width="3"/>';
+    sh.forEach(function (s) { var c = el('circle', { 'class': 'seg', cx: 160, cy: 160, r: 130, fill: 'none', stroke: s.color, 'stroke-width': 40 }, svg); c.style.strokeDasharray = '0 ' + CIRC; segEls[s.id] = c; });
+    svg.insertAdjacentHTML('beforeend', '<circle cx="160" cy="160" r="100" fill="#FFFDF5" stroke="#26235C" stroke-width="2"/><text id="cNum" x="160" y="158" text-anchor="middle" font-family="Baloo 2,Arial" font-weight="800" font-size="40" fill="#26235C"></text>' +
+      '<text id="cLab" x="160" y="184" text-anchor="middle" font-family="Baloo 2,Arial" font-size="14" fill="#26235C"></text>');
+    ringBuilt = true;
+  }
+  var gap = (4 / 360) * CIRC, start = 0;
+  sh.forEach(function (s) {
+    var len = Math.max(0, s.frac * CIRC - (s.frac > 0 ? gap : 0)), c = segEls[s.id], rot = -90 + start * 360 + (s.frac > 0 ? 2 : 0);
+    c.setAttribute('transform', 'rotate(' + rot + ' 160 160)'); c.style.opacity = S.active && S.active !== s.id ? .3 : 1;
+    requestAnimationFrame(function () { c.style.strokeDasharray = len + ' ' + (CIRC - len); });   // the CSS transition draws the segment in
+    start += s.frac;
+  });
+  var part = S.active && R.parts.filter(function (p) { return p.id === S.active; })[0];
+  var val = part ? (S.mode === 'rs' ? part.rs : part.units) : (S.mode === 'rs' ? R.rs : R.units), fmt = S.mode === 'rs' ? C.inr : C.nf;
+  if (tw) tw.stop(); var from = lastCenter; tw = tween(from, val, 700, function (v) { $('#cNum').textContent = fmt(v); }); lastCenter = val;
+  $('#cLab').textContent = (part ? part.name.toLowerCase() + ' ' : 'single-use ') + (S.mode === 'rs' ? 'a month' : 'items a month');
+  $('#legend').innerHTML = '';
+  R.parts.forEach(function (p) {
+    if (!p.units) return;
+    var b = document.createElement('button'); b.setAttribute('aria-pressed', S.active === p.id);
+    b.innerHTML = '<i style="background:' + p.color + '"></i>' + p.name + '<em>' + (S.mode === 'rs' ? C.inr(p.rs) : C.nf(p.units)) + '</em>';
+    b.onclick = function () { S.active = S.active === p.id ? null : p.id; ring(); };
+    $('#legend').append(b);
+  });
+}
+function result() {
+  R = C.compute({ meals: S.meals, days: S.days, counts: S.counts, costs: S.costs });
+  S.active = null; ring();
+  var top = R.parts.filter(function (p) { return p.units; }).sort(function (a, b) { return b.units - a.units; }).slice(0, 3);
+  [0, 1, 2].forEach(function (i) { var u = $('#pic' + i); u.classList.remove('on'); if (top[i]) { u.setAttribute('href', '#' + top[i].icon); setTimeout(function () { u.classList.add('on'); }, reduce ? 0 : 400 + i * 150); } });
+  $('#binFact').textContent = 'That is about ' + C.nf(Math.max(1, R.bins)) + ' full ' + C.BIN_LITRES + ' litre bins of waste a month.*';
+  $('#gateAmt').textContent = C.inr(R.rs);
+  $('#mailCaterer').href = 'mailto:?subject=' + encodeURIComponent('Single-use serviceware at our cafeteria: about ' + C.inr(R.rs) + ' a month') +
+    '&body=' + encodeURIComponent('A quick estimate for our cafeteria: ' + C.nf(S.meals) + ' meals a day, ' + S.days + ' days a month, about ' + C.nf(R.units) + ' single-use items and ' + C.inr(R.rs) +
+      ' a month (placeholder prices).\n\nWorth a look: InfinityBox washes and returns steel serviceware for cafeterias.\nhttps://getinfinitybox.com');
+  document.dispatchEvent(new CustomEvent('ib:result', { detail: { meals: S.meals, days: S.days, units: R.units, rs: R.rs } }));
+}
+$('#mUnits').onclick = function () { S.mode = 'units'; $('#mUnits').setAttribute('aria-pressed', true); $('#mRs').setAttribute('aria-pressed', false); ring(); };
+$('#mRs').onclick = function () { S.mode = 'rs'; $('#mRs').setAttribute('aria-pressed', true); $('#mUnits').setAttribute('aria-pressed', false); ring(); };
+
+/* ---------- wizard ---------- */
+function go(n) {
+  if (n === S.step) return;
+  var from = document.querySelector('[data-step="' + S.step + '"]'), to = document.querySelector('[data-step="' + n + '"]'), dir = n > S.step ? 1 : -1;
+  S.step = n;
+  [].forEach.call(document.querySelectorAll('.pill'), function (p) { var k = +p.dataset.p; p.className = 'pill' + (k === n ? ' on' : k < n ? ' done' : ''); });
+  track(n === 2 ? 'items' : n === 3 ? 'result' : '');
+  var show = function () { to.hidden = false; to.className = 'pane ' + (dir > 0 ? 'inR' : 'inL'); if (n === 3) { lastCenter = 0; result(); } };
+  if (reduce) { from.hidden = true; show(); } else { from.className = 'pane ' + (dir > 0 ? 'outL' : 'outR'); setTimeout(function () { from.hidden = true; from.className = 'pane'; show(); }, 210); }
+  $('#calc .card').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+}
+$('#to2').onclick = function () { go(2); }; $('#back1').onclick = function () { go(1); };
+$('#to3').onclick = function () { go(3); }; $('#back2').onclick = function () { go(2); };
+$('#assump').innerHTML = '<b>Our assumptions (estimates):</b> placeholder prices of Rs ' + C.ITEMS.map(function (i) { return i.costRs + ' per ' + i.name.toLowerCase().replace(/s$/, ''); }).join(', ') +
+  ' (you can edit them in step 2). *Bins assume about ' + C.ITEMS.map(function (i) { return i.litres + ' L per ' + i.name.toLowerCase().replace(/s$/, ''); }).join(', ') + ' and 120 L bins. The reported 30%, 25% and 40% figures are InfinityBox averages, not calculated here.';
+
+/* ---------- lead capture ---------- */
+var shownAt = Date.now();
+$('#openForm').onclick = function () { track('form_open'); $('#gate').classList.add('open'); shownAt = Date.now(); $('#fName').focus(); };
+$('#promise').textContent = IB.promise;
+function endpoint() { return IB.APPS_SCRIPT_URL || (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? '/api/lead' : ''); }
+$('#lead').addEventListener('submit', function (ev) {
+  ev.preventDefault();
+  var err = $('#formErr'), v = function (id) { return $(id).value.trim(); };
+  var bad = !v('#fName') ? 'Please add your name.' : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v('#fEmail')) ? 'Please add a valid work email.' : !v('#fCompany') ? 'Please add your company.' :
+    !$('#fConsent').checked ? 'Please tick the box so we can reply.' : (Date.now() - shownAt < 3000 ? 'One moment, then press Send again.' : '');
+  if (bad) { err.textContent = bad; err.hidden = false; return; }
+  err.hidden = true;
+  if (!R) R = C.compute({ meals: S.meals, days: S.days, counts: S.counts, costs: S.costs });
+  var payload = {
+    company: v('#fCompany'), role: v('#fRole'), city: $('#fCity').value, segment: $('#fSeg').value, contact: v('#fEmail'), seats: 0, meals: S.meals, setup: 'single-use',
+    website: $('#lead [name=website]').value,
+    inputs: { name: v('#fName'), days: S.days, items: S.counts, totalItems: Math.round(R.units), totalRs: Math.round(R.rs), estimate: true, variant: 'truck-v1', ref: document.referrer,
+      utm: { source: qs.get('utm_source') || '', medium: qs.get('utm_medium') || '', campaign: qs.get('utm_campaign') || '' } }
+  };
+  var queue = C.queueFor(payload.segment), done = function (stored) {
+    var team = { warewashing: 'our warewashing team', 'kitchen design': 'our kitchen design team', partner: 'our partnerships team' }[queue];
+    $('#route').textContent = stored ? 'Your enquiry went to ' + team + '.' : 'Preview mode: nothing was stored. It would go to ' + team + '.';
+    $('#gate').classList.add('sent'); $('#gate').classList.remove('open');
+    if (!reduce) { $('#resTruck').classList.add('out'); }
+    track('lead'); document.dispatchEvent(new CustomEvent('ib:lead', { detail: payload }));
+  };
+  var url = endpoint();
+  if (!url) return done(false);
+  fetch(url, { method: 'POST', mode: IB.APPS_SCRIPT_URL ? 'no-cors' : 'same-origin', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
+    .then(function (r) { done(IB.APPS_SCRIPT_URL ? true : r.ok); }).catch(function () { done(false); });
+});
+
+/* ---------- scroll reveal ---------- */
+var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }); }, { threshold: .15 }) : null;
+[].forEach.call(document.querySelectorAll('.reveal'), function (el, i) { el.style.transitionDelay = (i % 4) * 90 + 'ms'; io ? io.observe(el) : el.classList.add('on'); });
+</script>
+</body>
+</html>

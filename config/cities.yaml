@@ -1,0 +1,75 @@
+# city -> news queries, tech parks, keywords. {city} is substituted in queries.
+Bangalore:
+  tech_parks: [Manyata Tech Park, Embassy Tech Village, Bagmane Tech Park, RMZ Ecospace, Whitefield ITPL, Electronic City]
+  queries:
+    - "{city} new office campus"
+    - "{city} office lease sq ft"
+    - "{city} cafeteria food court tender"
+    - "{city} GCC new centre"
+  web_queries:
+    - "{city} cafeteria housekeeping dish washing tender"
+    - "{city} facilities manager hiring office cafeteria"
+    - "{city} corporate campus food court caterer contract"
+  keywords: [campus, lease, sq ft, cafeteria, food court, GCC, seats, tender]
+Hyderabad:
+  tech_parks: [HITEC City, Gachibowli, Financial District, Raidurg, Kondapur]
+  queries:
+    - "{city} new office campus"
+    - "{city} office lease sq ft"
+    - "{city} cafeteria food court tender"
+    - "{city} GCC new centre"
+  web_queries:
+    - "{city} cafeteria housekeeping dish washing tender"
+    - "{city} facilities manager hiring office cafeteria"
+    - "{city} corporate campus food court caterer contract"
+  keywords: [campus, lease, sq ft, cafeteria, food court, GCC, seats, tender]
+Pune:
+  tech_parks: [Hinjewadi, Magarpatta, Kharadi EON, Baner, Talawade]
+  queries:
+    - "{city} new office campus"
+    - "{city} office lease sq ft"
+    - "{city} cafeteria food court tender"
+    - "{city} GCC new centre"
+  web_queries:
+    - "{city} cafeteria housekeeping dish washing tender"
+    - "{city} facilities manager hiring office cafeteria"
+    - "{city} corporate campus food court caterer contract"
+  keywords: [campus, lease, sq ft, cafeteria, food court, GCC, seats, tender]
+NCR:
+  tech_parks: [Gurugram Cyber City, Noida Sector 62, Noida Sector 126, Golf Course Road, Manesar]
+  queries:
+    - "Gurugram Noida new office campus"
+    - "Gurugram Noida office lease sq ft"
+    - "Gurugram Noida cafeteria food court tender"
+    - "Gurugram Noida GCC new centre"
+  web_queries:
+    - "Gurugram Noida cafeteria housekeeping dish washing tender"
+    - "Gurugram Noida facilities manager hiring office cafeteria"
+    - "Gurugram Noida corporate campus food court caterer contract"
+  keywords: [campus, lease, sq ft, cafeteria, food court, GCC, seats, tender]
+Mumbai:
+  tech_parks: [BKC, Airoli, Powai, Goregaon, Navi Mumbai, Thane, Andheri SEEPZ]
+  queries:
+    - "{city} new office campus"
+    - "{city} office lease sq ft"
+    - "{city} cafeteria food court tender"
+    - "{city} GCC new centre"
+    - "Airoli OR Powai OR BKC OR Goregaon OR Thane office lease sq ft"
+  web_queries:
+    - "{city} cafeteria housekeeping dish washing tender"
+    - "{city} facilities manager hiring office cafeteria"
+    - "{city} corporate campus food court caterer contract"
+  keywords: [campus, lease, sq ft, cafeteria, food court, GCC, seats, tender]
+Chennai:
+  tech_parks: [OMR, Siruseri, Guindy, Taramani, Ambattur, Manapakkam]
+  queries:
+    - "{city} new office campus"
+    - "{city} office lease sq ft"
+    - "{city} cafeteria food court tender"
+    - "{city} GCC new centre"
+    - "OMR OR Siruseri OR Guindy OR Taramani new campus OR office"
+  web_queries:
+    - "{city} cafeteria housekeeping dish washing tender"
+    - "{city} facilities manager hiring office cafeteria"
+    - "{city} corporate campus food court caterer contract"
+  keywords: [campus, lease, sq ft, cafeteria, food court, GCC, seats, tender]

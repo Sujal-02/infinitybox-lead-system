@@ -1,0 +1,79 @@
+# Email styles offered in the app. The LLM WRITES the email, guided by the style's `structure`, and is bound by config/playbook.yaml:
+# it may only state the facts listed there about InfinityBox, must avoid the forbidden words, and may only quote numbers that
+# appear in the lead's evidence. The user edits the result before anything is saved or "sent" (the prototype never emails anyone).
+# Add or edit styles freely: `for` = segments it suits, `triggers` = events it fits best (used for the "recommended" badge).
+
+greeting: "Hi {first_name},"                       # used only when the contact's name is known
+signoff: "Regards,\n[Your name]\nInfinityBox"      # placeholder the user fills in
+max_words: 110                                     # whole email, including greeting and sign-off
+
+styles:
+  trigger_first:
+    name: "Short and direct"
+    for: [corporate, institution, caterer, fitout]
+    triggers: []
+    best_when: "A good default for most leads."
+    structure: "Sentence 1 states the trigger using only words and numbers from the evidence. Sentence 2 says in plain words what InfinityBox does. Sentence 3 is one soft ask (a short call or a one-page cost sheet). Three sentences in total."
+
+  planning_stage:
+    name: "Before the layout is fixed"
+    for: [corporate, institution, fitout]
+    triggers: [new_campus, lease]
+    best_when: "A new campus, a new office or a big lease: the cafeteria and dish-wash area are probably still being planned."
+    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox designs commercial kitchens including the dish-wash area and provides warewashing. Sentence 3 is phrased as an if: 'If the cafeteria or kitchen is still being planned, it may help to talk before the layout is fixed.' Then one soft ask."
+
+  caterer_forward:
+    name: "Forwardable to your caterer"
+    for: [corporate, institution]
+    triggers: []
+    best_when: "The company probably has a caterer: give the reader something they can forward to the caterer."
+    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox provides warewashing. Sentence 3 is phrased as an if: 'If your cafeteria is run by a caterer, I can send a short note you can forward to them: no capex, less dishwashing labour, lower cost per meal.' Then one soft ask."
+
+  sustainability:
+    name: "Reusable instead of single-use"
+    for: [corporate, institution, caterer]
+    triggers: [esg_plastic]
+    best_when: "The lead has a plastic, waste or sustainability angle in the evidence."
+    structure: "Sentence 1 states the sustainability trigger from the evidence. Sentence 2 says InfinityBox provides warewashing so a cafeteria can serve on reusable ware instead of single-use items. Do not state any numbers about savings or waste. Then one soft ask."
+
+  tender_response:
+    name: "Reply to a tender"
+    for: [corporate, institution]
+    triggers: [tender]
+    best_when: "The trigger is a published tender or bid."
+    structure: "Sentence 1 refers to the tender using only words from the evidence. Sentence 2 says what InfinityBox provides. Sentence 3 asks, as a question, whether there is a way to be considered or whom to speak to. Do not claim eligibility, registration or past tenders."
+
+  hostel_mess:
+    name: "Hostel, mess and canteen"
+    for: [institution]
+    triggers: [cafeteria_revamp, new_campus]
+    best_when: "A college, hospital or hostel with a mess or canteen."
+    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox provides warewashing that can serve a hostel mess or canteen. Sentence 3 is phrased as an if about whether they run a hostel mess or canteen. Then one soft ask."
+
+  caterer_partner:
+    name: "For caterers (partnership)"
+    for: [caterer]
+    triggers: [caterer_renewal]
+    best_when: "The lead is a caterer or food-service operator: pitch a partnership, not a purchase."
+    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox provides offsite and onsite warewashing so a caterer can offer reusable ware without carrying the equipment or the dishwashing labour. Then one soft ask about exploring a partnership."
+
+  fitout_partner:
+    name: "For fit-out and design firms"
+    for: [fitout]
+    triggers: []
+    best_when: "An interior or fit-out firm that can bring us into cafeteria projects."
+    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox designs commercial kitchens including the dish-wash area and can work alongside a fit-out team. Then one soft ask about upcoming cafeteria or pantry projects, phrased as a question."
+
+  gatekeeper_intro:
+    name: "Ask for an introduction"
+    for: [corporate, institution, caterer, fitout]
+    triggers: []
+    best_when: "The contact is a gatekeeper (e.g. a registrar or an MD) or nobody relevant was found."
+    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says in one line what InfinityBox does. Sentence 3 politely asks who looks after the cafeteria, canteen or facilities, and whether they could be pointed to that person. Do not pitch further."
+
+  two_liner:
+    name: "Very short question"
+    for: [corporate, institution, caterer, fitout]
+    triggers: []
+    best_when: "A busy reader. Two sentences only."
+    structure: "Exactly two sentences. Sentence 1 states the trigger from the evidence and says InfinityBox provides warewashing and kitchen design. Sentence 2 is a question asking whether a short call would be useful."

@@ -1,0 +1,21 @@
+# AI Log
+
+Every AI mistake and how it was caught. Append, never rewrite.
+
+| Date | Phase | Mistake | How caught | Fix |
+|---|---|---|---|---|
+| 2026-10-02 | 1 | `cache.py` created the cache dir without `parents=True` | `test_cache_hits_disk` failed with FileNotFoundError | `mkdir(parents=True, exist_ok=True)` |
+| 2026-10-02 | 2 | Test fixture of a fabricated LLM "evidence" is kept on purpose (Northwind 5,000-seat campus) | n/a, a regression guard, not a bug | `test_end_to_end_dry_run` asserts it is rejected |
+| 2026-10-03 | 4 | Website contact extractor credited a generic `info@` to a name two blocks above it | `test_website_contacts_only_published_org_addresses` | Context now stops at a blank line |
+| 2026-10-03 | 4 | LinkedIn company / website match accepted any slug or host sharing one word (TCS -> `tcspune`, Pune University -> a Sinhgad college, Sassoon -> a yellow-fever site) | Reading the first real Apify/Firecrawl results | Slug/host must match >=60% of distinctive name words with <=1 extra token; `config/overrides.yaml` for manual pins |
+| 2026-10-03 | 4 | Role taken from the email line itself (`regis@` scored as Registrar; a finance mailbox scored 0.8) | Reading real extraction output for the university | Lines containing `@` are ignored for role; mailbox name used only as a fallback |
+| 2026-10-03 | 4 | Bare `admin` title scored 1.0 as a POC; Hunter `valid`-only rule dropped an `accept_all` address | Real Apify run; user rule change | Loose title matches capped at 0.9; emails stored exactly as Hunter returns, with status |
+| 2026-10-03 | 4 | Apify run ended SUCCEEDED with 0 items ("free user run limit exceeded"); code read it as "nobody found" and cached the empty result | Same TCS query returned 5 rows from cache but 0 fresh; read the run log | `check_run` raises on limit/failed status, empty results from failed runs are never cached, 15 poisoned cache files deleted |
+| 2026-10-03 | 4 | Re-running contacts for an account overwrote its stored people with an empty result when a source failed | TCS/Bajaj contacts vanished after `contacts --account` | `keep_known`: a rerun with no real contact keeps the old ones; restored from cache |
+| 2026-10-03 | 4 | Hierarchy v1 false positives: TCS typed "manufacturing" from "Factory Lab"; `investor.service@` as head of corporate services; "AMS Delivery Manager ... Food Service" as food services manager | Reading real `contacts` output per account | Name-led kind classification; mailbox must match all distinctive title words; order-aware title matching; regression tests |
+| 2026-10-03 | 5 | Gemini drafts asserted unsupported facts ("because corporate catering is outsourced", "dining demand will shift") and passed the automatic check | Reading the first real Gemini drafts | Prompt now forbids asserting or predicting beyond the evidence (use "if"/questions); human review of drafts stays |
+| 2026-10-03 | 4 | Apify "credits over" was misread as an account problem: the account had $5 left, but the harvestapi actor itself refuses FREE-plan users after 10 runs | Read the run log message ("Free users are limited to 10 runs") and compared with the account plan | Second allowlisted actor (`people_alt`, apimaestro) used automatically when the first is refused; refused actors are skipped for the rest of the run |
+| 2026-10-03 | 4 | New Apify adapter filtered people by city but had no alias for Bangalore/Bengaluru, which would silently drop every Bengaluru person | `test_apimaestro_headline_and_city_handling` | `LOCATIONS` aliases for Bangalore, Hyderabad, NCR |
+| 2026-10-03 | 4 | LinkedIn headline "Facility Manager at Tata Consultancy Services" scored as excluded because "Consultancy" matches the `consultant` exclusion | Reasoned from the exclude list before running, then tested | Company part of a headline is stripped before role matching |
+| 2026-10-03 | 6 | App's Pune list included Vertex Group (NCR) and Airbus (Bangalore) because the data folder mixes cities | Looking at the first screenshot of the app | Datasets carry their own city and filter by it; test added |
+| 2026-10-03 | 6 | My patch script read UTF-8 files with the Windows default encoding and crashed halfway, leaving the page half-updated | Traceback, then grep for the expected strings | Re-applied with explicit utf-8; checked every edit actually landed |

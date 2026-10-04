@@ -1,0 +1,13 @@
+fit:      # max 40
+  segment_match: 15   # segment is one of the four
+  city_match: 5       # city is configured
+  size: 15            # scaled by size_est up to size_cap seats
+  size_cap: 2000
+  cafeteria: 5        # cafeteria / caterer evidence present
+trigger_cap: 45
+reach:    # max 15
+  named_person: 6     # a named tier1/tier2 target (relevance >= 0.6)
+  gatekeeper: 2       # only a gatekeeper or generic mailbox was found
+  verified_email: 6   # Hunter says valid
+  other_email: 3      # an address Hunter/site returned but not verified (accept_all, published, ...)
+  known_caterer: 3

@@ -1,0 +1,21 @@
+# Allowlist of Apify actors. Only cookie-free / no-login actors. Anything not here is refused.
+# `verified: false` = input/output field names come from the public docs, not yet confirmed by a real run.
+# Run `python -m src.run apify_test --top 5` once APIFY_TOKEN is set, check the printed fields, then flip it.
+jobs:
+  id: TODO
+  input: {}
+people:
+  id: harvestapi/linkedin-company-employees   # companies (LinkedIn URLs) + jobTitles filter, no cookies
+  adapter: harvestapi
+  verified: true   # 2026-10-03: real run confirmed fields firstName, lastName, linkedinUrl, currentPositions[].position, location
+  max_items_per_company: 5                     # volume guard; each run is billed per profile
+  input:
+    profileScraperMode: "Short ($4 per 1k)"    # cheapest mode: no full profile, no email search
+    takePages: 1
+    companyBatchMode: one_by_one
+people_alt:                                      # used automatically when `people` is refused (free-plan run limit)
+  id: apimaestro/linkedin-company-employees-scraper-no-cookies
+  adapter: apimaestro                            # input: identifier (company URL), job_title (boolean), max_employees
+  verified: true   # 2026-10-03: real run confirmed fields fullname, headline, profile_url, location.full
+  input:
+    max_employees: 12                            # location is filtered afterwards, so ask for a few more than we keep

@@ -1,0 +1,10 @@
+# segment -> target titles. search_link is the manual LinkedIn fallback.
+search_link: "https://www.linkedin.com/search/results/people/?keywords={company}%20{title}%20{city}"
+corporate:
+  titles: [Head of Facilities, Facilities Manager, Admin Head, Workplace Experience Lead, Head of Real Estate]
+caterer:
+  titles: [Operations Head, Regional Manager, Procurement Head, Director Operations]
+fitout:
+  titles: [Project Director, Design Head, MEP Head, Procurement Manager]
+institution:
+  titles: [Administrator, Hostel Warden, Registrar, Estate Manager, Mess Manager]

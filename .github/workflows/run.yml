@@ -1,0 +1,35 @@
+name: lead-run
+on:
+  workflow_dispatch:
+    inputs:
+      city:
+        description: City
+        default: Pune
+  # schedule:                 # optional weekly run, uncomment to enable
+  #   - cron: "0 3 * * 1"
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/cache@v4   # reruns cost nothing
+        with:
+          path: cache
+          key: apicache-${{ github.run_id }}
+          restore-keys: apicache-
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q
+      - run: echo '${{ secrets.GOOGLE_CREDS_JSON }}' > creds.json
+      - run: python -m src.run all --city "${{ github.event.inputs.city || 'Pune' }}"
+        env:
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          HUNTER_API_KEY: ${{ secrets.HUNTER_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GSHEET_ID: ${{ secrets.GSHEET_ID }}
+          GOOGLE_CREDS_PATH: creds.json
+          TOP_N_PEOPLE: "2"
+          DRY_RUN: "0"

@@ -1,0 +1,228 @@
+# config/city_sources.yaml  (saved from the pasted "cities.yaml"; the code's own config/cities.yaml has a different format, so this is a separate file)
+# City-level sources and micro-markets for Bengaluru, Pune, Mumbai, Gurugram (+ Noida under NCR).
+# Pairs with sources.yaml (national sources). Same keys:
+#   n=name  u=url  a=access (rss|api|fetch|apify|manual|agg)  p=priority (h/m/l)
+#   v=1 seen live while researching, v=0 from general knowledge, NOT yet checked
+#   x=note   dev=developer/owner   seen=tenants/events named in a source I read
+# Park and tenant names are starting points. Run check_sources and verify before using as a lead.
+
+# ================================================================= SHARED (all four cities)
+shared:
+  gcc_trackers:           # Live feeds of new GCC centres and expansions, usually with city + date
+    - {n: GCC Index (weekly intel, city pages, event feed), u: "https://gccindex.in/insights", a: fetch, p: h, v: 1, x: "City pages: Bengaluru, Pune, Mumbai, NCR. CSV/PDF are paid"}
+    - {n: GCC Index blog (running announcement list), u: "https://gccindex.in/blog/gcc-india-expansion-news", a: fetch, p: h, v: 1}
+    - {n: Flexiple GCC lists (India, Bengaluru, Delhi NCR), u: "https://flexiple.com/global-capability-centers/list-of-global-capability-centers-in-india", a: fetch, p: h, v: 1, x: "Also has /list-of-global-capability-centers-in-bengaluru and -in-delhi-ncr pages"}
+    - {n: HRKatha (expansion news), u: "https://www.hrkatha.com/expansion", a: fetch, p: m, v: 1, x: "Inaugurations, often name the tech park"}
+    - {n: Ceipal new GCC roundup, u: "https://www.ceipal.com/resources/new-gccs-in-india-who-launched-whos-expanding-and-whos-coming-next-2024-2026", a: fetch, p: l, v: 1}
+    - {n: Zinnov, u: "https://zinnov.com", a: manual, p: m, v: 0}
+    - {n: NASSCOM, u: "https://nasscom.in", a: manual, p: m, v: 0}
+  lease_transaction_data: # Registration records show who leased how much, where, and rent
+    - {n: CRE Matrix, u: "https://www.crematrix.com", a: fetch, p: h, v: 1, x: "Property registration data on leases (e.g. Wipro, Airoli). Strong 'lease' trigger"}
+    - {n: The Realty Today, u: "https://therealtytoday.com", a: fetch, p: m, v: 1, x: "Republishes CRE Matrix lease stories"}
+  office_reports: ["CBRE India", "JLL India", "Colliers India", "Cushman & Wakefield India", "Knight Frank India", "Anarock", "Savills India", "Vestian"]   # URLs in sources.yaml
+  reits:
+    embassy: {u: "https://www.embassyofficeparks.com", x: "Bengaluru (Manyata, Tech Village, Golf Links, Tech Square), Pune, Mumbai, Noida", v: 0}
+    mindspace: {u: "https://www.mindspacereit.com", x: "Mumbai (Airoli, Malad), Pune (Kharadi, Yerwada), Hyderabad", v: 0}
+    brookfield: {u: "https://www.brookfieldindiareit.com", x: "Candor TechSpace (Gurugram, Noida), Powai Mumbai", v: 0}
+  ask: "REIT investor decks list top tenants per asset, leasing activity and buildings under construction. Pull each quarter."
+
+# ================================================================= BENGALURU
+bengaluru:
+  micro_markets:
+    - {n: Manyata Embassy Business Park, area: Hebbal/Nagawara (north), dev: Embassy, seen: "Rolls-Royce largest global centre (Sep 2025), Cognizant, IBM", v: 1}
+    - {n: Embassy Tech Village, area: Bellandur/ORR, dev: Embassy, seen: "The Standard GCC inaugurated here", v: 1}
+    - {n: Embassy Golf Links, area: Domlur, dev: Embassy, v: 1}
+    - {n: Embassy Tech Square, area: Kadubeesanahalli, dev: Embassy, seen: Cisco, v: 1}
+    - {n: Bagmane Tech Park, area: CV Raman Nagar, dev: Bagmane, seen: "Cisco, Oracle, Volvo", v: 1}
+    - {n: ITPL / International Tech Park Bangalore, area: Whitefield, seen: "TCS, Dell, IBM", v: 1}
+    - {n: RMZ Ecospace and Ecoworld, area: Bellandur/Sarjapur ORR, dev: RMZ, seen: "Accenture, Broadcom, Morgan Stanley", v: 1}
+    - {n: RMZ Infinity, area: Old Madras Road/Benniganahalli, dev: RMZ, v: 1}
+    - {n: Prestige Tech Park and Cessna Business Park, area: Kadubeesanahalli/ORR, dev: Prestige, seen: "Adobe, Juniper, Bosch", v: 1}
+    - {n: Sattva Global City (ex Global Village Tech Park), area: Mysore Road, dev: Salarpuria Sattva, v: 1}
+    - {n: Brigade Tech Park (Whitefield) and Brigade Magnum (Hebbal), dev: Brigade, v: 1}
+    - {n: Kirloskar Business Park, area: Hebbal, v: 1}
+    - {n: Mind Comp Tech Park / EPIP, area: Whitefield, v: 1}
+    - {n: Salarpuria Infinity, area: Bannerghatta Road, dev: Salarpuria Sattva, v: 1}
+    - {n: Divyashree Techno Park, area: Whitefield, v: 1}
+    - {n: Ozone Manay Tech Park, area: Hongasandra, v: 1}
+    - {n: AMR Tech Park, area: Hongasandra, v: 1}
+    - {n: Sigma Tech Park, area: Whitefield, v: 1}
+    - {n: Kalyani Magnum Tech Park, area: JP Nagar, v: 1}
+    - {n: IBC Knowledge Park, area: Bannerghatta Road, v: 1}
+    - {n: Electronic City (Phase 1 and 2), area: Hosur Road, x: "Large IT and manufacturing campuses; not in sources I read, verify", v: 0}
+    - {n: SAP Labs second campus, area: Devanahalli (north), seen: "41-acre site, 15,000+ seats planned", v: 1}
+  recent_events_seen:    # From GCC Index / Flexiple / press items in search results. Verify each before use
+    - {co: Woodside Energy, ev: "opens Bengaluru GCC", date: 2026-09-16, src: gccindex.in}
+    - {co: Riveron, ev: "expands with new Bengaluru office", date: 2026-09-14, src: gccindex.in}
+    - {co: Natus Sensory, ev: "opened Bengaluru GCC", date: 2026-09-01, src: gccindex.in}
+    - {co: Arctic Wolf, ev: "Bengaluru largest global R&D hub, expands again", date: 2026-09-09, src: gccindex.in}
+    - {co: ARKO, ev: "new Bengaluru GCC", date: 2026-09, src: gccindex.in}
+    - {co: Merck, ev: "campus consolidation", date: 2026-09, src: gccindex.in}
+    - {co: SolarEdge, ev: "new Bengaluru GCC", date: 2026-09, src: gccindex.in}
+    - {co: Abercrombie & Fitch, ev: "opened Bengaluru GCC", date: 2026-08, src: flexiple}
+    - {co: Festo, ev: "opened Bengaluru GCC", date: 2026-02, src: flexiple}
+    - {co: Airbus, ev: "5,000-seat Bengaluru centre opened", date: 2026, src: flexiple}
+    - {co: Alvarez & Marsal, ev: "planned Bengaluru GCC", src: flexiple}
+  govt_bodies:
+    - {n: Karnataka IT/BT dept, u: "https://itbt.karnataka.gov.in", a: manual, p: m, v: 0}
+    - {n: Karnataka Public Procurement Portal, u: "https://kppp.karnataka.gov.in/", a: fetch, p: h, v: 1}
+    - {n: KIADB (industrial areas), u: "https://kiadb.karnataka.gov.in", a: manual, p: l, v: 0}
+    - {n: Karnataka State Pollution Control Board, u: "https://kspcb.karnataka.gov.in", a: manual, p: l, v: 0}
+    - {n: Greater Bengaluru Authority / BBMP, u: "https://bbmp.gov.in", a: manual, p: l, v: 0, x: "Civic body; check current site after the 2025 restructuring"}
+    - {n: K-RERA, u: "https://rera.karnataka.gov.in", a: manual, p: m, v: 0}
+  chambers_assoc:
+    - {n: ELCIA (Electronics City industries association), u: "https://www.elcia.com", a: manual, p: l, v: 0}
+    - {n: Bengaluru Tech Summit, u: "https://www.bengalurutechsummit.com", a: manual, p: l, v: 0, x: "Exhibitor lists"}
+  local_media: ["deccanherald.com", "thehindu.com (Bengaluru)", "bangaloremirror.indiatimes.com", "bengaluru-city news on economictimes.indiatimes.com", "thenewsminute.com"]
+  institutions_seed: ["Manipal Hospitals", "Narayana Health", "Apollo (Bannerghatta)", "Fortis (Bannerghatta)", "Aster CMI", "Sakra World", "IISc campus", "Manipal/Christ/PES/RV universities"]
+  queries:
+    - '"Manyata" OR "Embassy Tech Village" OR "Bagmane" OR "ITPL" new office lease'
+    - 'Whitefield OR Bellandur OR Hebbal OR "Electronic City" new campus opens'
+    - 'Bengaluru GCC inaugurates "Karnataka" minister IT'
+    - 'Devanahalli OR Yelahanka campus new global centre'
+    - 'Bengaluru cafeteria OR canteen tech park revamp'
+
+# ================================================================= PUNE
+pune:
+  micro_markets:
+    - {n: Rajiv Gandhi Infotech Park (Hinjewadi Ph 1-3), dev: MIDC, area: Hinjewadi, v: 1}
+    - {n: Blue Ridge SEZ (Phase 2 upcoming), dev: Paranjape Schemes, area: Hinjewadi Ph 1, v: 1}
+    - {n: EON Free Zone (Phase 2 upcoming), dev: Panchshil, area: Kharadi, seen: "Citi service centre", x: "first SEZ of Pune", v: 1}
+    - {n: World Trade Center Pune, dev: Panchshil, area: Kharadi, v: 1}
+    - {n: Gera Commerzone Kharadi, area: Kharadi, x: "Mindspace REIT asset, verify", v: 0}
+    - {n: Commerzone Yerwada, area: Yerwada, x: "Mindspace REIT asset per listing; also Baner mentions, verify", v: 1}
+    - {n: Cybercity Magarpatta, dev: Magarpatta City Development, area: Hadapsar, v: 1}
+    - {n: Pune IT Park Baner, area: Baner, seen: "Sonata Software", v: 1}
+    - {n: Pinnacle Business Park Baner, area: Baner, seen: "Atos Syntel", v: 1}
+    - {n: Aundh IT Park, area: Aundh, v: 1}
+    - {n: Talawade IT Park, area: Talawade, v: 1}
+    - {n: Tech Park One / Business Bay / Panchshil parks, dev: Panchshil, area: Yerwada, x: "verify names", v: 0}
+  industrial_clusters:    # Big plants have large canteens: strong onsite-warewashing fit
+    - {n: Pimpri-Chinchwad MIDC, v: 0}
+    - {n: Chakan MIDC, v: 0}
+    - {n: Ranjangaon MIDC, v: 0}
+    - {n: Talawade, v: 0}
+    - {n: Hinjewadi industrial/IT, v: 0}
+  recent_events_seen:
+    - {co: Generac, ev: "first India GCC in Pune", date: 2026-09, src: gccindex.in}
+    - {co: Hexadex, ev: "launches GCC (Pune)", date: 2026-09-12, src: gccindex.in}
+    - {co: ArcelorMittal (AMGBT), ev: "Pune and Hyderabad hub, 1,100+ staff, target 2,000", date: 2026-02, src: savannahr}
+    - {co: MetLife, ev: "GCCs in Hyderabad and Pune, ~2 lakh sq ft", date: 2025-2026, src: savannahr}
+    - {co: BNY, ev: "Pune and Chennai", src: savannahr}
+    - {co: DAMAC Group, ev: "second India hub in Pune", date: 2025-11, src: flexiple}
+    - {co: Medtronic, ev: "Pune GCC", date: 2025, src: ceipal}
+    - {co: The Standard, ev: "Bengaluru and Pune operations", src: flexiple}
+  govt_bodies:
+    - {n: MahaTenders, u: "https://mahatenders.gov.in/nicgep/app", a: fetch, p: h, v: 1}
+    - {n: MahaRERA, u: "https://maharera.maharashtra.gov.in", a: manual, p: m, v: 0}
+    - {n: MIDC, u: "https://www.midcindia.org", a: manual, p: m, v: 0}
+    - {n: PMRDA (metropolitan development), u: "https://www.pmrda.gov.in", a: manual, p: l, v: 0}
+    - {n: Pune Municipal Corporation, u: "https://www.pmc.gov.in", a: manual, p: l, v: 0}
+    - {n: PCMC, u: "https://www.pcmcindia.gov.in", a: manual, p: l, v: 0}
+    - {n: Maharashtra Pollution Control Board, u: "https://mpcb.gov.in", a: manual, p: l, v: 0}
+  chambers_assoc:
+    - {n: MCCIA (Mahratta Chamber), u: "https://www.mcciapune.com", a: manual, p: m, v: 0, x: "Member directory of Pune industry"}
+    - {n: Hinjewadi Industries Association, a: manual, p: l, x: "find current site"}
+    - {n: Pimpri Chinchwad chamber, a: manual, p: l, x: "find current site"}
+  local_media: ["punemirror.com", "punekarnews.in", "hindustantimes.com (Pune)", "timesofindia.indiatimes.com (Pune)", "indianexpress.com (Pune)", "loksatta.com"]
+  institutions_seed: ["Ruby Hall Clinic", "Jehangir Hospital", "Sahyadri Hospitals", "Deenanath Mangeshkar Hospital", "Symbiosis campuses", "MIT-WPU", "Savitribai Phule Pune University"]
+  queries:
+    - 'Hinjewadi OR Kharadi OR Baner OR Magarpatta new campus OR office OR GCC'
+    - 'Pune manufacturing plant inaugurated employees Chakan OR Ranjangaon OR Talegaon'
+    - '"EON Free Zone" OR "World Trade Center Pune" OR "Blue Ridge" lease'
+    - 'Pune GCC opens first India centre'
+
+# ================================================================= MUMBAI
+mumbai:
+  micro_markets:
+    - {n: Bandra Kurla Complex (BKC), dev: MMRDA, x: "prime CBD, financial services and MNC HQs; Metro Line 3 SEEPZ-BKC-Colaba", v: 1}
+    - {n: BKC fringe / Kurla-Kalina, v: 1}
+    - {n: Lower Parel / Worli, x: "Kamala Mills, Peninsula Business Park etc., verify", v: 1}
+    - {n: Nariman Point / Fort, v: 1}
+    - {n: Powai (Hiranandani Business Park / Knowledge Park), v: 1}
+    - {n: "Andheri East: MIDC, SEEPZ, SEEPZ++", v: 1}
+    - {n: "Goregaon East: NESCO IT Park, Nirlon Knowledge Park, Oberoi Commerz", v: 1}
+    - {n: "Malad: Mindspace Malad IT Park", v: 1}
+    - {n: "Airoli: Mindspace Airoli East (c.6.8 msf leasable, largest in MMR), Gigaplex", dev: K Raheja / Mindspace REIT, seen: "Wipro 1.45 lakh sq ft lease; Accenture, Cognizant, IBM, Capgemini, LTIMindtree", v: 1}
+    - {n: "Ghansoli / Mahape: Reliance Corporate Park, Millennium Business Park", x: "Navi Mumbai, verify", v: 0}
+    - {n: "Navi Mumbai: Vashi, Belapur CBD, Kharghar, Juinagar, Dronagiri SEZ", x: "5 msf new supply expected", v: 1}
+    - {n: "Thane: Wagle Estate, Hiranandani Estate", x: "back-office/tech hub; Meghna One new project", v: 1}
+    - {n: Taloja / TTC industrial belt, x: "plants and large canteens, verify", v: 0}
+  recent_events_seen:
+    - {co: Wipro, ev: "leased 1.45 lakh sq ft at Mindspace Airoli, rent over Rs 61 cr", src: crematrix / therealtytoday}
+    - {co: BMS (Bristol Myers Squibb), ev: "new centre in Mumbai", date: 2026-09, src: gccindex.in}
+    - {co: University of Bristol, ev: "Mumbai Enterprise Campus approved by UGC, to start 2026", src: careers360 / PTI, x: "institution lead (hostel/cafeteria)"}
+  govt_bodies:
+    - {n: MahaTenders, u: "https://mahatenders.gov.in/nicgep/app", a: fetch, p: h, v: 1}
+    - {n: MahaRERA, u: "https://maharera.maharashtra.gov.in", a: manual, p: m, v: 0}
+    - {n: MMRDA, u: "https://mmrda.maharashtra.gov.in", a: manual, p: m, v: 0, x: "BKC allotments and tenders"}
+    - {n: CIDCO (Navi Mumbai), u: "https://cidco.maharashtra.gov.in", a: manual, p: m, v: 0}
+    - {n: BMC / MCGM tenders, u: "https://portal.mcgm.gov.in", a: manual, p: m, v: 0}
+    - {n: SEEPZ SEZ, u: "https://seepz.gov.in", a: manual, p: l, v: 0}
+    - {n: MIDC, u: "https://www.midcindia.org", a: manual, p: m, v: 0}
+    - {n: Maharashtra Pollution Control Board, u: "https://mpcb.gov.in", a: manual, p: l, v: 0}
+  chambers_assoc:
+    - {n: MCCIA/IMC/Bombay Chamber, a: manual, p: l, x: "IMC Chamber, Maharashtra Chamber of Commerce, find current sites"}
+  local_media: ["freepressjournal.in", "mid-day.com", "mumbaimirror.indiatimes.com", "hindustantimes.com (Mumbai)", "thehindubusinessline.com"]
+  institutions_seed: ["Tata Memorial", "Kokilaben Dhirubhai Ambani Hospital", "Lilavati", "Nanavati Max", "Jaslok", "IIT Bombay", "NMIMS", "Mumbai university campuses"]
+  queries:
+    - 'Airoli OR Ghansoli OR Powai OR BKC OR Goregaon OR Thane office lease sq ft'
+    - 'Navi Mumbai OR "Wagle Estate" new campus OR GCC'
+    - 'Mumbai GCC opens "BFSI" OR pharma OR consulting'
+    - 'Mumbai hospital OR university new campus opens 2026'
+
+# ================================================================= GURUGRAM (NCR)
+gurugram:
+  micro_markets:
+    - {n: DLF Cyber City (125 acres) incl. Cyber Greens, Cyber Park, Cyber Hub, dev: DLF, area: Phase 2/3, v: 1}
+    - {n: Golf Course Road, x: "finance, consulting; Sector 53-54", v: 1}
+    - {n: Golf Course Extension Road, dev: "Unitech Business Zone, Infospace and others", v: 1}
+    - {n: Udyog Vihar (Phase 1-5), x: "manufacturing, consulting; HSIIDC", v: 1}
+    - {n: Sohna Road, x: "Vatika Business Park, back-offices, e-commerce; lower rents", v: 1}
+    - {n: "NH-48 / NH-8: World Tech Park", v: 1}
+    - {n: MG Road and Sector 44, v: 1}
+    - {n: Unitech Cyber Park, area: Sector 39, v: 1}
+    - {n: Candor TechSpace (Gurugram), dev: Brookfield India REIT, v: 0}
+    - {n: Manesar (IMT Manesar), x: "auto/industrial plants, large canteens, verify", v: 0}
+  noida_greater_noida:    # NCR beyond Gurugram, include if the run city is NCR
+    - {n: "Noida Sector 62 (Logix Cyber Park, Galaxy Business Park, Stellar IT Park)", v: 1}
+    - {n: Noida Expressway (Sectors 125, 132, 135, 142), x: "Candor TechSpace Sector 135, verify", v: 0}
+    - {n: Greater Noida / Knowledge Park, v: 0}
+    - {n: Noida Phase-II and SEZ, seen: "LG R&D GCC, about Rs 1,000 cr", v: 1}
+  recent_events_seen:
+    - {co: Barclays, ev: "opened 317,000 sq ft Gurugram office, second NCR site", date: 2026-02, src: flexiple}
+    - {co: Consilio, ev: "new Gurugram centre", date: 2026-09, src: gccindex.in}
+    - {co: Alvarez & Marsal, ev: "Gurugram headcount ~700 to ~2,000 by 2028", src: flexiple}
+    - {co: Carlsberg, ev: "first GCC, Gurugram and Hyderabad", date: 2025, src: ceipal}
+    - {co: LG, ev: "R&D GCC in Noida, ~Rs 1,000 cr", src: flexiple}
+    - {co: DAMAC Group, ev: "Noida centre, Pune planned", src: ceipal}
+    - {co: Uber, ev: "India Tech and Operations Center, Gurugram", src: flexiple}
+  govt_bodies:
+    - {n: Delhi govt procurement, u: "https://govtprocurement.delhi.gov.in", a: fetch, p: h, v: 0}
+    - {n: Haryana eTenders, u: "https://etenders.hry.gov.in", a: fetch, p: h, v: 0}
+    - {n: UP eTender (Noida), u: "https://etender.up.nic.in", a: fetch, p: m, v: 0}
+    - {n: Haryana RERA, u: "https://haryanarera.gov.in", a: manual, p: m, v: 0}
+    - {n: UP-RERA (Noida), u: "https://www.up-rera.in", a: manual, p: m, v: 0}
+    - {n: HSIIDC (Haryana industrial areas), u: "https://hsiidc.org.in", a: manual, p: m, v: 0}
+    - {n: GMDA (Gurugram), u: "https://gmda.gov.in", a: manual, p: l, v: 0}
+    - {n: Haryana Town & Country Planning, u: "https://tcpharyana.gov.in", a: manual, p: l, v: 0}
+    - {n: Noida Authority, u: "https://www.noidaauthority.org", a: manual, p: l, v: 0}
+    - {n: Haryana State Pollution Control Board, a: manual, p: l, x: "find current site"}
+  chambers_assoc:
+    - {n: Gurgaon Industries Association, a: manual, p: l, x: "find current site"}
+    - {n: Manesar industrial associations, a: manual, p: l, x: "find current sites"}
+  local_media: ["hindustantimes.com (Gurugram)", "timesofindia.indiatimes.com (Gurgaon)", "millenniumpost.in", "indianexpress.com (Delhi/NCR)", "gurugramtoday/other local, verify"]
+  institutions_seed: ["Medanta", "Fortis Memorial Gurugram", "Artemis Hospital", "Max Gurgaon", "Noida: IIM Lucknow campus, Jaypee, Amity, Sharda universities", "Ashoka/Shiv Nadar universities"]
+  queries:
+    - '"Cyber City" OR "Golf Course Road" OR "Udyog Vihar" OR "Sohna Road" new office lease OR GCC'
+    - 'Gurugram GCC opens OR expands "sq ft"'
+    - 'Noida Sector 62 OR "Noida Expressway" new campus OR GCC OR R&D centre'
+    - 'Manesar OR Gurugram plant inaugurated employees canteen'
+
+# ================================================================= HOW THE WORKFLOW USES THIS FILE
+usage:
+  - "For each city, loop micro_markets: query Google News RSS with '<park name> + lease|campus|opens|cafeteria' (tpl in sources.yaml)."
+  - "Scrape the gcc_trackers weekly feeds filtered by city. Treat recent_events_seen as seed leads: confirm with a source URL + evidence snippet."
+  - "Map each company to its park, then to its caterer (client logos, press) to decide direct vs caterer-led approach."
+  - "Industrial clusters and institutions_seed are for onsite warewashing and kitchen design; give them their own segment tags."
+  - "Mark any URL that fails check_sources as dead. Never bypass a captcha/login."
