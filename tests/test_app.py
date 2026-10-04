@@ -263,3 +263,16 @@ def test_dashboard_shows_enquiries_and_visits_stored_in_the_google_sheet(monkeyp
     monkeypatch.delenv("SHEET_WEBHOOK_URL")
     server._SHEET.clear()
     assert server.inbound() == [] and server.sheet_tab("Leads") == []                           # no gateway: nothing read, nothing broken
+
+
+def test_hosted_public_page_gets_the_sheet_address(monkeypatch):
+    page = b'x APPS_SCRIPT_URL: "", y'
+    good = "https://script.google.com/macros/s/AKfycb123/exec"
+    monkeypatch.delenv("APPS_SCRIPT_URL", raising=False)
+    monkeypatch.delenv("ACCESS_CODE", raising=False)
+    monkeypatch.setenv("SHEET_WEBHOOK_URL", good)
+    assert server.inject_script_url(page) == page                                  # a local run keeps the page in local-store mode
+    monkeypatch.setenv("ACCESS_CODE", "c")
+    assert good.encode() in server.inject_script_url(page)                         # hosted: the configured gateway address is used
+    monkeypatch.setenv("SHEET_WEBHOOK_URL", "https://evil.example/x")
+    assert server.inject_script_url(page) == page                                  # only a Google Apps Script address is ever injected

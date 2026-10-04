@@ -136,6 +136,15 @@ def workbook_bytes(ds: str) -> bytes | None:
     return out.read_bytes()
 
 
+def inject_script_url(page: bytes) -> bytes:
+    """The public page stores enquiries by posting to the Apps Script web app. On a hosted server (ACCESS_CODE set) the page is served
+    from here, so the address is filled in when it is sent: APPS_SCRIPT_URL, else the gateway address already configured."""
+    url = os.getenv("APPS_SCRIPT_URL") or (os.getenv("SHEET_WEBHOOK_URL") if os.getenv("ACCESS_CODE") else "")
+    if not url or not re.fullmatch(r"https://script\.google\.com/[A-Za-z0-9._/-]+", url):
+        return page
+    return page.replace(b'APPS_SCRIPT_URL: ""', b'APPS_SCRIPT_URL: "' + url.encode() + b'"', 1)
+
+
 def sheet_status() -> dict:
     """What the Google Sheet holds: accounts per city, so the dashboard can offer Load (import) and Save (export)."""
     if not sheet.enabled():
@@ -357,7 +366,8 @@ class Handler(BaseHTTPRequestHandler):
                 f = (SITE / rel).resolve()
                 if SITE.resolve() not in f.parents or not f.is_file() or f.name.endswith((".src.html", ".py", ".old.html")):
                     return self._send(404, {"error": "not found"})
-                return self._send(200, raw=f.read_bytes(), ctype=TYPES.get(f.suffix, "application/octet-stream"))
+                body = inject_script_url(f.read_bytes()) if f.name == "index.html" else f.read_bytes()
+                return self._send(200, raw=body, ctype=TYPES.get(f.suffix, "application/octet-stream"))
             if u.path == "/api/outbox":
                 return self._send(200, _read("outbox.json"))
             self._send(404, {"error": "not found"})

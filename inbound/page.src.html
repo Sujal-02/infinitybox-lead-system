@@ -145,6 +145,11 @@ select,input[type=text],input[type=email],input[type=number]{width:100%;height:4
 .gate form{display:none;margin-top:12px}
 .gate.open form{display:block}
 .gate.open .asks{display:none}
+/* open form: the painted shape has a fixed height, so drop it and let a plain navy card grow with the form */
+.gate.open svg.shape{display:none}
+.gate.open .face{position:relative;inset:auto;background:var(--neel);border-radius:28px;border-top:14px solid var(--sindoor);box-shadow:0 5px 0 #0F0D33}
+.gate.open .rosette{top:-30px;z-index:3}
+.gate.open .face{padding-top:44px}
 .gate label.f{color:var(--chalk);margin-top:10px}
 .gate select,.gate input{border-color:var(--chalk)}
 .gate .consent{display:flex;gap:10px;align-items:flex-start;margin:14px 0 4px;font-size:14.5px}
