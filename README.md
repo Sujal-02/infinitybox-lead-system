@@ -16,6 +16,24 @@ Finds companies likely to need cafeteria warewashing or kitchen design **right n
 
 The two live pages link to each other. They need GitHub Pages enabled for the repository (Settings, Pages, Source: GitHub Actions), which on a private repository needs a paid GitHub plan; the same pages also run from the app on your own computer (see Routes below).
 
+## Run it yourself (for reviewers: no shared keys, no Google account)
+You use your own free keys. They stay on your computer in a file called `.env` and are never uploaded.
+1. Install **Python 3.11 or newer** (python.org/downloads; on Windows tick "Add Python to PATH").
+2. Get the project folder (a zip, or `git clone` if you were given access) and open it.
+3. **Windows:** double-click `start.bat`. **Mac/Linux:** run `./start.sh`. The first run sets itself up (about a minute), then `setup_local.py` asks for your keys one by one. For each it explains what the service does, what happens if you skip it, what it costs (all have a free tier), where to get the key, and it checks the key works before saving. Only Gemini is required:
+
+| Key | What it is for | Without it |
+|---|---|---|
+| Gemini (aistudio.google.com/app/apikey) | The AI: turns news and pages into leads, writes drafts | Nothing runs (required) |
+| Firecrawl (firecrawl.dev, 1,000 free credits) | Web search and page reading: company sites, tenders, trackers | Only free news search: fewer leads, no website contacts |
+| Hunter (hunter.io/api-keys, 50 free searches a month) | Verified work emails (never guessed) | Contacts have names and roles; emails only if a site publishes them |
+| Apify (console.apify.com/account/integrations, about US$5 free a month) | Public LinkedIn company pages, no login | Contacts come from websites and Hunter only |
+
+4. The lead desk opens in your browser. **Find leads**: pick a city, keep "Quick look" (about 4 minutes and a small part of the free credits), press the button, watch the progress.
+5. **Leads**: open a company to see why it is a lead, the score, the source links and who to contact; **Write the email** makes an editable draft. "Send" only records it in the outbox: nothing is ever emailed.
+6. **Local sheet**: there is no Google Sheet. Press **Download as Excel sheet** on the Leads tab for the same tabs the sheet would hold (Accounts, Signals, People, Scores, Drafts, Pipeline). Each run also saves `workbook.xlsx` in its `data_<city>` folder.
+To change keys later run `python setup_local.py` (or `python setup_local.py --check` to test the saved ones). To share this project without any keys or run data, send a zip made with `git archive -o infinitybox.zip HEAD` (secrets and run data are git-ignored).
+
 ## 30-minute setup (no coding)
 
 1. **Start**: install Python 3.11+, then double-click `start.bat` (Windows) or run `./start.sh`. The first run sets up a private environment and creates `.env`.

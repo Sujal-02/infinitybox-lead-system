@@ -217,3 +217,17 @@ def test_demo_profile_caps_spend_and_offers_only_the_quick_run(monkeypatch):
     assert all(demo["monthly"][k] < main["monthly"][k] for k in ("firecrawl", "hunter", "gemini"))
     monkeypatch.delenv("BUDGET_PROFILE")
     assert set(jobs.sizes()) == {"quick", "standard", "full"}
+
+
+def test_local_sheet_download_and_setup_status(monkeypatch):
+    import io
+    import openpyxl
+    from app import data
+    monkeypatch.setenv("GEMINI_API_KEY", "x")
+    monkeypatch.setenv("FIRECRAWL_API_KEY", "")
+    st = server.setup_status()
+    assert [k["set"] for k in st["keys"]][:2] == [True, False] and "x" not in str(st)       # status only, never the key
+    ds, before = next(d for d in data.available() if d["sheet"]), server.store.DIR
+    wb = openpyxl.load_workbook(io.BytesIO(server.workbook_bytes(ds["id"])))
+    assert {"Accounts", "Scores", "Drafts", "Pipeline"} <= set(wb.sheetnames)
+    assert server.store.DIR == before                                                      # the store is pointed back after the export

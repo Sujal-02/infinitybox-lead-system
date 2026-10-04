@@ -10,6 +10,7 @@ import hmac
 import json
 import os
 import re
+import threading
 import time
 from collections import defaultdict
 from datetime import datetime
@@ -18,7 +19,9 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from src.cfg import ROOT, yml
-from src import budget
+from src import budget, sheet, store
+from src import run as pipeline
+from src.cfg import env
 from . import data, drafting, jobs, mailer
 
 STATE = ROOT / "app_data"
@@ -82,6 +85,33 @@ def _read(name: str):
 def _write(name: str, obj) -> None:
     STATE.mkdir(exist_ok=True)
     (STATE / name).write_text(json.dumps(obj, indent=1, ensure_ascii=False), "utf-8")
+
+
+EXPORT_LOCK = threading.Lock()  # the export briefly points the pipeline's store at one city's folder
+
+
+def workbook_bytes(ds: str) -> bytes | None:
+    """The same tables the Google Sheet would hold (Accounts, Signals, People, Scores, Drafts, Pipeline) as an .xlsx for one city's run.
+    This is the local "sheet" a person without a Google account can open in Excel."""
+    d = data.config(ds)
+    if d["kind"] != "pipeline":
+        return None
+    out = STATE / "export.xlsx"
+    STATE.mkdir(exist_ok=True)
+    with EXPORT_LOCK:
+        keep, store.DIR = store.DIR, ROOT / d["dir"]
+        try:
+            pipeline.export_workbook(out)
+        finally:
+            store.DIR = keep
+    return out.read_bytes()
+
+
+def setup_status() -> dict:
+    """Which keys are saved (never the keys themselves) and where results go."""
+    names = {"GEMINI_API_KEY": "Gemini (AI)", "FIRECRAWL_API_KEY": "Firecrawl (web pages)", "HUNTER_API_KEY": "Hunter (emails)", "APIFY_TOKEN": "Apify (LinkedIn lists)"}
+    return {"keys": [{"name": label, "set": bool(env(k)), "required": k == "GEMINI_API_KEY"} for k, label in names.items()],
+            "sheet": "Google Sheet" if sheet.enabled() else "Local Excel file"}
 
 
 def leads(ds: str, refresh: bool = False) -> list[dict]:
@@ -182,10 +212,12 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", "0")
         self.end_headers()
 
-    def _send(self, code: int, obj=None, raw: bytes | None = None, ctype="application/json"):
+    def _send(self, code: int, obj=None, raw: bytes | None = None, ctype="application/json", headers: dict | None = None):
         payload = raw if raw is not None else json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
-        self.send_header("Content-Type", ctype + "; charset=utf-8")
+        for k, v in (headers or {}).items():
+            self.send_header(k, v)
+        self.send_header("Content-Type", ctype + ("; charset=utf-8" if "xml" not in ctype and "sheet" not in ctype else ""))
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", "no-store")
         self._cors()
@@ -215,6 +247,14 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/run-options":
                 return self._send(200, {"cities": jobs.cities(), "sizes": {k: {x: v[x] for x in ("label", "minutes", "cost")} for k, v in jobs.sizes().items()},
                                         "demo": os.getenv("BUDGET_PROFILE") == "demo"})
+            if u.path == "/api/setup":
+                return self._send(200, setup_status())
+            if u.path == "/api/export":
+                blob = workbook_bytes(q["dataset"])
+                if blob is None:
+                    return self._send(404, {"error": "There is no sheet for this list."})
+                return self._send(200, raw=blob, ctype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                                  headers={"Content-Disposition": f'attachment; filename="leads_{q["dataset"]}.xlsx"', "Access-Control-Expose-Headers": "Content-Disposition"})
             if u.path == "/api/allowance":
                 return self._send(200, budget.status())
             if u.path == "/api/quota":
