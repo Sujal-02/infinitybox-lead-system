@@ -1,14 +1,14 @@
 /* Same look as the calculator page (truck-art palette). Fonts load from Google Fonts with system fallbacks. */
 @import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;800&family=Yatra+One&display=swap");
-:root { --neel:#26235C; --haldi:#F7B500; --sindoor:#D63D27; --chalk:#FFFDF5; --mor:#0B7A8A; }
+:root { --neel:#3D3A85; --haldi:#FFE08A; --sindoor:#F4836E; --chalk:#FFFDF5; --mor:#52BAC8; }
 * { box-sizing: border-box; }
 body { margin:0; font:400 18px/1.6 "Baloo 2", system-ui, sans-serif; color:var(--neel); background:var(--haldi); }
-body::before { content:""; display:block; height:20px; background:linear-gradient(135deg,var(--sindoor) 25%,transparent 25%) 0 0/24px 20px, linear-gradient(225deg,#3FAE3A 25%,transparent 25%) 0 0/24px 20px; }
+body::before { content:""; display:block; height:20px; background:linear-gradient(135deg,var(--sindoor) 25%,transparent 25%) 0 0/24px 20px, linear-gradient(225deg,#7CCF7A 25%,transparent 25%) 0 0/24px 20px; }
 main { max-width:760px; margin:28px auto 60px; padding:26px 24px 30px; background:var(--chalk); border:3px solid var(--neel); border-radius:18px; box-shadow:7px 7px 0 var(--neel); }
 h1 { font-family:"Yatra One","Baloo 2",serif; font-weight:400; font-size:clamp(32px,6vw,46px); line-height:1.1; margin:0 0 12px; }
 h2 { font-weight:800; font-size:24px; margin:26px 0 6px; }
 a { color:var(--neel); font-weight:700; }
 ul { padding-left:20px; } li { margin:4px 0; }
-.cta { display:inline-block; background:var(--neel); color:var(--chalk); padding:11px 24px; border:3px solid var(--neel); border-radius:99px; text-decoration:none; font-weight:800; box-shadow:0 4px 0 #0f0d33; margin-top:10px; }
+.cta { display:inline-block; background:var(--neel); color:var(--chalk); padding:11px 24px; border:3px solid var(--neel); border-radius:99px; text-decoration:none; font-weight:800; box-shadow:0 4px 0 #2B2862; margin-top:10px; }
 .cta:hover { transform:translateY(-2px); }
 :focus-visible { outline:3px solid var(--neel); outline-offset:3px; }

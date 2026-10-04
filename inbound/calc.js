@@ -5,10 +5,10 @@
 })(typeof self !== 'undefined' ? self : this, function () {
   // ---- assumptions: every value is shown on the page and can be edited by the visitor ----
   var ITEMS = [
-    { id: 'plate', name: 'Paper plates',     icon: 'i-paper-plate',   costRs: 3,   litres: 0.25, color: '#D63D27' },
-    { id: 'cup',   name: 'Cups',             icon: 'i-plastic-cup',   costRs: 1.5, litres: 0.2,  color: '#0B7A8A' },
-    { id: 'cut',   name: 'Spoons and forks', icon: 'i-plastic-spoon', costRs: 1,   litres: 0.02, color: '#3FAE3A' },
-    { id: 'box',   name: 'Takeaway boxes',   icon: 'i-takeaway-box',  costRs: 8,   litres: 0.6,  color: '#D7266F' }
+    { id: 'plate', name: 'Paper plates',     icon: 'i-paper-plate',   costRs: 3,   litres: 0.25, color: '#F4836E' },
+    { id: 'cup',   name: 'Cups',             icon: 'i-plastic-cup',   costRs: 1.5, litres: 0.2,  color: '#52BAC8' },
+    { id: 'cut',   name: 'Spoons and forks', icon: 'i-plastic-spoon', costRs: 1,   litres: 0.02, color: '#7CCF7A' },
+    { id: 'box',   name: 'Takeaway boxes',   icon: 'i-takeaway-box',  costRs: 8,   litres: 0.6,  color: '#F274A6' }
   ];
   var BIN_LITRES = 120;
 

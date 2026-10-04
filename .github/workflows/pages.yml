@@ -12,7 +12,21 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
+  test:                                  # nothing is published unless the page's tests pass
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q tests/test_inbound.py tests/test_inbound_calc.py
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     environment:
       name: github-pages
