@@ -75,3 +75,16 @@ See `ARCHITECTURE.md` for the data flow and monthly cost, `AI_LOG.md` for AI mis
 - **Outreach links** can prefill the page: `?m=2000&city=Pune&c=Acme&s=caterer&utm_source=mail&utm_campaign=batch1`.
 - **Where a lead lands:** with `python -m app`, open http://127.0.0.1:8765/site/ and submit; the lead appears in the app's "Inbound leads" tab, routed by segment (corporate/institution -> warewashing, fitout -> kitchen design, caterer -> partner). To send leads to a Google Sheet instead, deploy `inbound/apps_script.gs` and paste its URL into `APPS_SCRIPT_URL` at the top of the page script. Host the `inbound/` folder on GitHub Pages.
 - **Spam protection:** hidden honeypot field and a 3-second minimum fill time; consent box required.
+
+## Routes (what lives where)
+| Where | Public page (frontend) | Team dashboard |
+|---|---|---|
+| **On your computer** (`start.bat`) | http://127.0.0.1:8765/site/ | http://127.0.0.1:8765/ (also `/dashboard/`). Full desk: find leads, write emails, outbox, enquiries. |
+| **GitHub Pages** | `https://<user>.github.io/<repo>/` | `.../dashboard/`. Read-only snapshot of the lead lists with names, emails and LinkedIn profiles removed. |
+
+The two link to each other: the page footer has "Team dashboard", and the desk header has "Public page". Refresh the snapshot after a new run with `python -m app.export_static`, commit `dashboard/`, push.
+
+## CI/CD (`.github/workflows/`)
+- `ci.yml`: on every push and pull request, runs the tests and checks that the built pages match their sources. In a public repo it also fails if a key file or key-shaped string is tracked.
+- `pages.yml`: on a push to `main` that touches the page or dashboard, runs the page tests, then publishes the page, `/dashboard/` and a 404 page to GitHub Pages. Pages needs a public repo or a paid GitHub plan (it does not work for private repos on the free plan).
+- `run.yml`: manual "Run workflow" button to run a city from the Actions tab (needs the keys as repository secrets).

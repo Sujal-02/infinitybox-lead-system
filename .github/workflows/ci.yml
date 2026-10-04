@@ -20,6 +20,10 @@ jobs:
         run: |
           python inbound/build.py
           git diff --exit-code inbound/index.html
+      - name: Dashboard snapshot page is up to date with the desk
+        run: |
+          python -m app.export_static --html-only
+          git diff --exit-code dashboard/index.html
   secrets-guard:
     # In a PUBLIC repo, fail if a key file or key-shaped string is tracked. (The private share repo may hold .env on purpose.)
     if: ${{ github.event.repository.private == false }}

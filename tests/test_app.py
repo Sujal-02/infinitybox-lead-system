@@ -170,3 +170,21 @@ def test_draft_carries_a_tracked_link_the_model_cannot_write_or_remove():
     assert link in body and body.rstrip().endswith("InfinityBox") and "c=Acme" in link and "s=corporate" in link and "utm_campaign=bangalore-" in link
     assert drafting.problems(LEAD, subj, body, whole=True) == []                      # the link's digits and tags are not flagged as claims
     assert any("link" in b for b in drafting.problems(LEAD, subj, body.replace(link, ""), whole=True))   # removing it is flagged
+
+
+def test_public_snapshot_has_no_personal_details():
+    from app import export_static
+    lead = {"company": "Acme", "contacts": [{"name": "Asha Rao", "title": "Head of Facilities", "email": "asha@acme.com", "linkedin": "https://www.linkedin.com/in/x",
+                                              "source_url": "https://www.linkedin.com/in/x", "why": "Asha Rao is the decision maker", "tier": "tier1", "relevance": 0.9}],
+            "why_now": "Acme opened a campus; press contact press@acme.com", "sources": [{"quote": "Asha Rao said the campus opens soon"}]}
+    out = export_static.scrub(lead)
+    blob = str(out)
+    assert "Asha" not in blob and "@acme.com" not in blob and "linkedin.com/in" not in blob
+    assert out["contacts"][0]["title"] == "Head of Facilities" and out["contacts"][0]["hidden"] is True
+
+
+def test_dashboard_page_is_the_desk_in_read_only_mode():
+    from app import export_static
+    page = export_static.html()
+    assert 'window.STATIC_BASE = "data/"' in page and page.index("STATIC_BASE") < page.index("const STATIC")
+    assert (export_static.OUT / "data" / "datasets.json").exists()

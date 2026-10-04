@@ -143,7 +143,7 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         q = {k: v[0] for k, v in parse_qs(u.query).items()}
         try:
-            if u.path == "/":
+            if u.path in ("/", "/dashboard", "/dashboard/"):
                 return self._send(200, raw=(STATIC / "index.html").read_bytes(), ctype="text/html")
             if u.path == "/api/datasets":
                 return self._send(200, data.available())

@@ -239,7 +239,7 @@ footer{padding:36px 20px 40px;text-align:center;font-weight:700}
 
 <header class="top">
   <a class="brand" href="#top"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#m-rosette"/></svg>InfinityBox</a>
-  <nav><a href="#how">How it works</a><a href="#calc">Calculator</a><a href="#" data-tour>Tour</a><a class="btn small" href="#talk">Talk to us</a></nav>
+  <nav><a href="#how">How it works</a><a href="#calc">Calculator</a><a href="#" data-tour>Tour</a><a href="dashboard/" id="dashLink">Team dashboard</a><a class="btn small" href="#talk">Talk to us</a></nav>
 </header>
 
 <main id="top">
@@ -390,7 +390,7 @@ footer{padding:36px 20px 40px;text-align:center;font-weight:700}
 
 <footer>
   <svg class="trim" width="100%" height="12" aria-hidden="true" style="margin-bottom:18px"><rect width="100%" height="12" fill="url(#p-chevron)"/></svg>
-  InfinityBox: hygiene and kitchen infrastructure for cafeterias. <a href="https://getinfinitybox.com" target="_blank" rel="noopener">getinfinitybox.com</a>
+  InfinityBox: hygiene and kitchen infrastructure for cafeterias. <a href="https://getinfinitybox.com" target="_blank" rel="noopener">getinfinitybox.com</a> &middot; <a href="dashboard/" id="dashLink2">Team dashboard</a>
   <div class="fine" style="margin-top:8px;font-weight:400">We count anonymous visits and clicks (no cookies, no personal data) to see whether this page helps.</div>
 </footer>
 
@@ -709,6 +709,9 @@ $('#lead').addEventListener('submit', function (ev) {
 /* ---------- scroll reveal ---------- */
 var io = 'IntersectionObserver' in window ? new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }); }, { threshold: .15 }) : null;
 [].forEach.call(document.querySelectorAll('.reveal'), function (el, i) { el.style.transitionDelay = (i % 4) * 90 + 'ms'; io ? io.observe(el) : el.classList.add('on'); });
+/* the team dashboard: its own page on Pages (dashboard/), the desk itself when running locally */
+if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) { $('#dashLink').setAttribute('href', '/'); $('#dashLink2').setAttribute('href', '/'); }
+
 /* ---------- guided tour (a short walkthrough built into the page) ---------- */
 (function () {
   var STEPS = [

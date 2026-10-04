@@ -2,7 +2,7 @@ name: deploy-inbound-page
 on:
   push:
     branches: [main]
-    paths: ["inbound/**", ".github/workflows/pages.yml"]
+    paths: ["inbound/**", "dashboard/**", "app/static/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -36,7 +36,9 @@ jobs:
       - name: Collect the public files only (no source, build script or backend)
         run: |
           mkdir _site
-          cp -r inbound/index.html inbound/calc.js inbound/seo inbound/assets _site/
+          cp -r inbound/index.html inbound/404.html inbound/calc.js inbound/seo inbound/assets _site/
+          cp -r dashboard _site/dashboard      # read-only dashboard snapshot, personal details already removed
+          test -f _site/dashboard/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

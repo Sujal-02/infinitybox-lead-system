@@ -5,8 +5,8 @@ __pycache__/
 .pytest_cache/
 .venv/
 app_data/
-data/
-data_*/
+/data/
+/data_*/
 workbook_*.xlsx
 *.log
 .venv/
