@@ -6,8 +6,10 @@ from urllib.parse import quote
 
 from pydantic import BaseModel
 
-from src import llm
+from src import llm, playbook
 from src.cfg import yml
+
+URL = re.compile(r"https?://\S+")
 
 
 class DraftOut(BaseModel):
@@ -27,12 +29,15 @@ def _first_name(name: str) -> str:
     return n.split()[0].title() if n else ""
 
 
-def assemble(subject: str, body: str, contact: dict | None) -> tuple[str, str]:
-    """Add the greeting (only if we know a name) and the sign-off placeholder around the model's message."""
+def assemble(subject: str, body: str, contact: dict | None, lead: dict | None = None) -> tuple[str, str]:
+    """Add the greeting (only if we know a name), the tracked link to the public page and the sign-off placeholder around the model's message."""
     t = yml("templates")
     first = _first_name((contact or {}).get("name", ""))
     parts = [t["greeting"].format(first_name=first)] if first else []
-    return subject.strip(), "\n\n".join(parts + [body.strip(), t["signoff"]])
+    parts.append(body.strip())
+    if lead:
+        parts.append(t["link_line"].format(link=playbook.link_for(lead["company"], lead["segment"], lead["city"])))
+    return subject.strip(), "\n\n".join(parts + [t["signoff"]])
 
 
 def _allowed_text(lead: dict, notes: str) -> str:
@@ -43,7 +48,7 @@ def _allowed_text(lead: dict, notes: str) -> str:
 def problems(lead: dict, subject: str, body: str, notes: str = "", whole: bool = False) -> list[str]:
     """Hard guardrails. `body` is the model's message, or the whole edited email when whole=True."""
     pb, t = yml("playbook"), yml("templates")
-    text = f"{subject}\n{body}"
+    text = URL.sub("", f"{subject}\n{body}")  # URLs are added by the app; their tags are not claims
     bad = []
     for w in pb["forbidden_words"]:
         if re.search(rf"(?<![A-Za-z]){re.escape(w.strip())}", text, re.I):
@@ -57,8 +62,11 @@ def problems(lead: dict, subject: str, body: str, notes: str = "", whole: bool =
     if re.search(r"[\w.+-]+@[\w-]+\.[\w.]+", text):
         bad.append("contains an email address (the draft must not invent one)")
     limit = t["max_words"] if whole else pb["max_words"]
-    if len(body.split()) > limit:
-        bad.append(f"{len(body.split())} words; the limit is {limit}")
+    n = len(URL.sub("", body).split())
+    if n > limit:
+        bad.append(f"{n} words; the limit is {limit}")
+    if whole and pb["link"]["url"] not in body:
+        bad.append("the link to our page was removed (keep it so they can try the calculator)")
     if "infinitybox" not in text.lower():
         bad.append("does not mention InfinityBox")
     if len(subject.split()) > 12 or not subject.strip():
@@ -89,7 +97,9 @@ About InfinityBox: you may state ONLY these facts, in your own words, and nothin
 Never claim: certifications, technology, savings, percentages, guarantees, past clients, or anything not in the list above. Words you must not use: {', '.join(pb['forbidden_words'])}.
 
 Rules
-- At most {pb['max_words']} words. Plain, friendly, specific. No buzzwords, no flattery, no exclamation marks.
+- About 100 to 150 words and never more than {pb['max_words']}: three short paragraphs separated by a blank line (the style's structure says what each holds). Descriptive and specific, but plain and friendly. No buzzwords, no flattery, no exclamation marks, no bullet points.
+- Explain how InfinityBox works for THIS kind of organisation (use the approved facts) and what a first conversation would cover. Make clear why the trigger matters to them.
+- Do not write any link or URL: the app adds one after your message.
 - The first sentence must state the trigger using only words and numbers from the evidence.
 - Anything you do not know about them (their caterer, their plans, their needs) must be written as an "if" or a question, never as a fact.
 - Do not invent names, email addresses, numbers, dates or events.
@@ -102,7 +112,7 @@ def generate(lead: dict, style_id: str, contact: dict | None, notes: str = "") -
         if bad:
             raise ValueError("; ".join(bad))
     out = llm.ask(_prompt(lead, style_id, contact, notes), DraftOut, check=check)
-    subject, body = assemble(out.subject, out.body, contact)
+    subject, body = assemble(out.subject, out.body, contact, lead)
     return {"subject": subject, "body": body, "words": len(out.body.split()), "style": style_id}
 
 

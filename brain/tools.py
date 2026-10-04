@@ -166,7 +166,7 @@ def save_lead(**lead) -> str:
         choice = playbook.Choice(**(lead.get("outreach") or {}))
         problems += playbook.validate(choice, lead.get("segment", ""), f"{ev} {lead.get('summary', '')}") if lead.get("segment") in SEGMENTS else []
         if not problems:
-            rendered = playbook.render(company, lead["segment"], choice)
+            rendered = playbook.render(company, lead["segment"], choice, playbook.link_for(company, lead["segment"], lead.get("city", "")))
     except Exception as e:  # missing/ill-typed outreach fields, or a rendering rule
         problems.append(f"outreach: {str(e)[:200]}")
     if problems:

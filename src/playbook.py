@@ -55,12 +55,24 @@ def validate(choice: Choice, segment: str, evidence: str) -> list[str]:
     return bad
 
 
-def render(company: str, segment: str, choice: Choice) -> tuple[str, str]:
+def link_for(company: str, segment: str, city: str, today=None) -> str:
+    """The public page URL with the company, segment and city pre-filled and campaign tags, so visits can be traced to a batch."""
+    from datetime import date
+    from urllib.parse import urlencode
+    slug = re.sub(r"\W+", "-", city.lower()).strip("-")
+    q = urlencode({"c": company, "s": segment, "city": city, "utm_source": "email", "utm_medium": "outreach",
+                   "utm_campaign": f"{slug}-{(today or date.today()):%Y%m}"})
+    return f"{yml('playbook')['link']['url']}?{q}"
+
+
+def render(company: str, segment: str, choice: Choice, link: str = "") -> tuple[str, str]:
     """(subject, body) from the playbook. Raises ValueError if the result breaks the word limit or forbidden words."""
     p = yml("playbook")
     parts = [p["opening"].format(company=company, event_phrase=choice.event_phrase.strip().rstrip(".")),
-             p["value_lines"][choice.value_id]["text"], p["conditions"][choice.condition_id]["text"], p["ctas"][choice.cta_id]]
+             p["value_lines"][choice.value_id]["text"], p["details"].get(segment, ""), p["conditions"][choice.condition_id]["text"], p["ctas"][choice.cta_id]]
     body = " ".join(x for x in parts if x)
     if len(body.split()) > p["max_words"]:
         raise ValueError(f"email is {len(body.split())} words; limit {p['max_words']}")
+    if link:
+        body += "\n\n" + p["link"]["line"].format(link=link)
     return p["subjects"][segment].format(company=company), body

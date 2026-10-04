@@ -11,9 +11,16 @@ facts:
   caterer_benefits: "for the caterer: no capex, less dishwashing labour, lower cost per meal"    # [brief]
   dishwashing: "InfinityBox runs on-site and off-site dishwashing, from its own centralised washing facilities and from units inside client premises"   # getinfinitybox.com
   kitchens: "InfinityBox supports commercial kitchens end to end, from layout design to equipment, serviceware and smallware supply"                 # getinfinitybox.com
+  reuse: "InfinityBox runs reuse systems for cafeterias, where reusable plates, cups and boxes are washed and used again instead of single-use items"   # getinfinitybox.com
   verified_claims: []        # add only claims you can prove, e.g. "Serves N meals a day for <named client>". Empty = none used.
 
 forbidden_words: [IoT, NABH, closed-loop, zero-waste, zero waste, guarantee, guaranteed, certified, AI-powered, "ISO ", percent, "%", save, savings]
+
+# The public page every draft links to (the app appends it; the model never writes URLs). Tracking tags are added per lead:
+# ?c=<company>&s=<segment>&city=<city>&utm_source=email&utm_medium=outreach&utm_campaign=<city>-<yyyymm>
+link:
+  url: "https://sujal-02.github.io/infinitybox-lead-system/"
+  line: "To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: {link}"
 
 # One opening line. {company} and {event_phrase} are the only slots; event_phrase must restate the trigger from the evidence.
 opening: "Saw that {company} {event_phrase}."
@@ -35,6 +42,13 @@ value_lines:
   fitout_partner:
     for: [fitout]
     text: "InfinityBox designs commercial kitchens, including the dish-wash area, and can work alongside a fit-out team."
+
+# Detail lines: a second approved sentence that explains how it works, added to the assembled emails.
+details:
+  corporate: "The washing can be done in InfinityBox's own centralised facilities or in a unit inside your premises, whichever suits your space and meal volume."
+  institution: "The washing can be done in InfinityBox's own centralised facilities or in a unit inside your campus, so a canteen or mess can serve on reusable ware."
+  caterer: "The washing can be done in InfinityBox's own centralised facilities or in a unit at your client's site, so you do not have to carry the equipment."
+  fitout: "We can give input on the dish-wash area at design stage, so it is planned once with the rest of the kitchen."
 
 # Conditional lines: phrased as "if", because we do not know the facts. Pick at most one.
 conditions:
@@ -62,4 +76,4 @@ subjects:
   caterer: "Warewashing partnership with {company}"
   fitout: "Kitchen design and warewashing for {company}"
 
-max_words: 90
+max_words: 160

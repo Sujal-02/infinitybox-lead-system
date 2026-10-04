@@ -32,5 +32,5 @@ def draft(a: Account, sig: Signal, person: Person, manual=None) -> Draft:  # `ma
     p = PROMPT.format(company=a.name, segment=a.segment, city=a.city, role=person.role, summary=sig.summary,
                       evidence=sig.evidence, menu=playbook.options(a.segment))
     c = llm.ask(p, Choice, tag="draft", check=_check(a.segment, ev))
-    subject, body = playbook.render(a.name, a.segment, c)
+    subject, body = playbook.render(a.name, a.segment, c, playbook.link_for(a.name, a.segment, a.city))
     return Draft(account_id=a.id, role=c.to_role or person.role, subject=subject, body=body, trigger_used=sig.id)

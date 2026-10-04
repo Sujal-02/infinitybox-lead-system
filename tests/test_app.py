@@ -5,7 +5,7 @@ import pytest
 
 from app import data, drafting, server
 from app.explain import explain
-from src import cfg
+from src import cfg, playbook
 from src.models import Account, Person, Signal
 from src.score import score_account
 
@@ -43,7 +43,7 @@ LEAD = {"id": "acme", "company": "Acme", "segment": "corporate", "city": "Bangal
 def test_guardrails():
     ok = drafting.problems(LEAD, "Cafeteria warewashing for Acme", "Saw that Acme opens a 830,000 sq ft campus. InfinityBox provides warewashing. Would a call help?")
     assert ok == []
-    bad = drafting.problems(LEAD, "Hello", "InfinityBox is IoT-powered and certified, saving 40,000 rupees. Write to boss@acme.com. " + "word " * 100)
+    bad = drafting.problems(LEAD, "Hello", "InfinityBox is IoT-powered and certified, saving 40,000 rupees. Write to boss@acme.com. " + "word " * 200)
     joined = " ".join(bad)
     assert "IoT" in joined and "certified" in joined and "40,000" in joined and "email address" in joined and "words" in joined
     assert any("InfinityBox" in b for b in drafting.problems(LEAD, "Hello there", "Saw that Acme opens a campus."))
@@ -61,7 +61,7 @@ def test_send_records_but_never_emails(monkeypatch):
     monkeypatch.setattr(server, "find", lambda ds, i: LEAD)
     try:
         body = {"dataset": "x", "lead_id": "acme", "to": "a@acme.com", "subject": "Cafeteria warewashing for Acme",
-                "body": "Saw that Acme opens a 830,000 sq ft campus. InfinityBox provides warewashing. Would a call help?"}
+                "body": "Saw that Acme opens a 830,000 sq ft campus. InfinityBox provides warewashing. Would a call help?\n\n" + playbook.link_for("Acme", "corporate", "Bangalore")}
         code, out = server.handle_post("/api/send", body)
         assert code == 200 and "Not emailed" in out["record"]["status"] and "placeholder" in out["record"]["status"] and out["gmail_url"].startswith("https://mail.google.com/mail/?view=cm")
         assert server._read("outbox.json")[0]["company"] == "Acme"
@@ -162,3 +162,11 @@ def test_run_options_lists_the_six_cities():
     from app import jobs
     assert set(jobs.cities()) == {"Bangalore", "Hyderabad", "Pune", "NCR", "Mumbai", "Chennai"}
     assert all({"label", "minutes", "cost", "args"} <= set(v) for v in jobs.SIZES.values())
+
+
+def test_draft_carries_a_tracked_link_the_model_cannot_write_or_remove():
+    subj, body = drafting.assemble("S", "Message.", LEAD["contacts"][0], LEAD)
+    link = playbook.link_for("Acme", "corporate", "Bangalore")
+    assert link in body and body.rstrip().endswith("InfinityBox") and "c=Acme" in link and "s=corporate" in link and "utm_campaign=bangalore-" in link
+    assert drafting.problems(LEAD, subj, body, whole=True) == []                      # the link's digits and tags are not flagged as claims
+    assert any("link" in b for b in drafting.problems(LEAD, subj, body.replace(link, ""), whole=True))   # removing it is flagged

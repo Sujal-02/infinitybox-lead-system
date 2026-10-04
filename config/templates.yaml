@@ -5,7 +5,9 @@
 
 greeting: "Hi {first_name},"                       # used only when the contact's name is known
 signoff: "Regards,\n[Your name]\nInfinityBox"      # placeholder the user fills in
-max_words: 110                                     # whole email, including greeting and sign-off
+max_words: 230                                     # whole email, including greeting, link line and sign-off
+# Added by the app after the model's message (the model never writes URLs). {link} = playbook `link.url` + tracking tags for this lead.
+link_line: "To see what single-use items cost a cafeteria like yours, with your own numbers, there is a short calculator here: {link}"
 
 styles:
   trigger_first:
@@ -13,67 +15,67 @@ styles:
     for: [corporate, institution, caterer, fitout]
     triggers: []
     best_when: "A good default for most leads."
-    structure: "Sentence 1 states the trigger using only words and numbers from the evidence. Sentence 2 says in plain words what InfinityBox does. Sentence 3 is one soft ask (a short call or a one-page cost sheet). Three sentences in total."
+    structure: "Paragraph 1: state the trigger using only words and numbers from the evidence, then one sentence on why that usually puts the cafeteria and its dish-wash area on the agenda (phrase anything not known as an 'if'). Paragraph 2: say in plain words what InfinityBox does: on-site and off-site dishwashing, from its own centralised washing facilities or from units inside the client's premises, so a cafeteria can serve on reusable ware. Paragraph 3: say what a first conversation would cover (their meals a day, how food is served today, whether on-site or off-site washing fits) and end with one soft ask for a short call. Write 3 short paragraphs separated by a blank line, about 100 to 150 words in total."
 
   planning_stage:
     name: "Before the layout is fixed"
     for: [corporate, institution, fitout]
     triggers: [new_campus, lease]
     best_when: "A new campus, a new office or a big lease: the cafeteria and dish-wash area are probably still being planned."
-    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox designs commercial kitchens including the dish-wash area and provides warewashing. Sentence 3 is phrased as an if: 'If the cafeteria or kitchen is still being planned, it may help to talk before the layout is fixed.' Then one soft ask."
+    structure: "Paragraph 1: state the trigger from the evidence, then say that at this stage the cafeteria, kitchen and dish-wash area are usually still being planned. Paragraph 2: explain that InfinityBox designs commercial kitchens including the dish-wash area, and also provides warewashing, so layout and washing can be planned together, with serviceware and smallware supply if needed. Paragraph 3: phrased as an 'if': if the layout is not fixed yet, it may help to talk before it is; say what you would look at (meals a day, space for a wash area, on-site or off-site washing). End with one soft ask. Write 3 short paragraphs separated by a blank line, about 100 to 150 words in total."
 
   caterer_forward:
     name: "Forwardable to your caterer"
     for: [corporate, institution]
     triggers: []
     best_when: "The company probably has a caterer: give the reader something they can forward to the caterer."
-    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox provides warewashing. Sentence 3 is phrased as an if: 'If your cafeteria is run by a caterer, I can send a short note you can forward to them: no capex, less dishwashing labour, lower cost per meal.' Then one soft ask."
+    structure: "Paragraph 1: state the trigger from the evidence. Paragraph 2: say InfinityBox provides on-site and off-site warewashing for cafeterias and explain in a sentence or two how that works for a cafeteria that serves on reusable ware. Paragraph 3: phrased as an 'if': if the cafeteria is run by a caterer, offer to send a short note the reader can forward to them, covering: no capex, less dishwashing labour, lower cost per meal. End with one soft ask. Write 3 short paragraphs separated by a blank line, about 100 to 150 words in total."
 
   sustainability:
     name: "Reusable instead of single-use"
     for: [corporate, institution, caterer]
     triggers: [esg_plastic]
     best_when: "The lead has a plastic, waste or sustainability angle in the evidence."
-    structure: "Sentence 1 states the sustainability trigger from the evidence. Sentence 2 says InfinityBox provides warewashing so a cafeteria can serve on reusable ware instead of single-use items. Do not state any numbers about savings or waste. Then one soft ask."
+    structure: "Paragraph 1: state the sustainability trigger from the evidence. Paragraph 2: explain that InfinityBox provides warewashing so a cafeteria can serve on reusable ware instead of single-use items, and describe the options (washing in InfinityBox's centralised facilities, or in units inside the client's premises). Do not state any numbers about savings or waste. Paragraph 3: say what a first conversation would cover (how much single-use ware they use today, which option fits) and end with one soft ask. Write 3 short paragraphs separated by a blank line, about 100 to 150 words in total."
 
   tender_response:
     name: "Reply to a tender"
     for: [corporate, institution]
     triggers: [tender]
     best_when: "The trigger is a published tender or bid."
-    structure: "Sentence 1 refers to the tender using only words from the evidence. Sentence 2 says what InfinityBox provides. Sentence 3 asks, as a question, whether there is a way to be considered or whom to speak to. Do not claim eligibility, registration or past tenders."
+    structure: "Paragraph 1: refer to the tender using only words from the evidence. Paragraph 2: describe what InfinityBox provides (on-site and off-site warewashing, commercial kitchen design, serviceware) in terms of what the tender might need, without claiming eligibility, registration or past tenders. Paragraph 3: ask, as a question, whether there is a way to be considered or whom to speak to, and offer to share a short note on how the service works. Write 3 short paragraphs separated by a blank line, about 100 to 150 words in total."
 
   hostel_mess:
     name: "Hostel, mess and canteen"
     for: [institution]
     triggers: [cafeteria_revamp, new_campus]
     best_when: "A college, hospital or hostel with a mess or canteen."
-    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox provides warewashing that can serve a hostel mess or canteen. Sentence 3 is phrased as an if about whether they run a hostel mess or canteen. Then one soft ask."
+    structure: "Paragraph 1: state the trigger from the evidence. Paragraph 2: explain that InfinityBox provides warewashing that can serve a hostel mess or canteen, with washing either in its centralised facilities or in a unit inside the campus, so plates and cups can be reused many times. Paragraph 3: phrased as an 'if' about whether they run a hostel mess or canteen, say what a first conversation would cover (meals a day, space available) and end with one soft ask. Write 3 short paragraphs separated by a blank line, about 100 to 150 words in total."
 
   caterer_partner:
     name: "For caterers (partnership)"
     for: [caterer]
     triggers: [caterer_renewal]
     best_when: "The lead is a caterer or food-service operator: pitch a partnership, not a purchase."
-    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox provides offsite and onsite warewashing so a caterer can offer reusable ware without carrying the equipment or the dishwashing labour. Then one soft ask about exploring a partnership."
+    structure: "Paragraph 1: state the trigger from the evidence. Paragraph 2: explain that InfinityBox provides off-site and on-site warewashing so a caterer can offer reusable ware without carrying the equipment or the dishwashing labour. Paragraph 3: suggest exploring a partnership, say what a first call would cover (their client sites, meals a day, where washing could happen) and end with one soft ask. Write 3 short paragraphs separated by a blank line, about 100 to 150 words in total."
 
   fitout_partner:
     name: "For fit-out and design firms"
     for: [fitout]
     triggers: []
     best_when: "An interior or fit-out firm that can bring us into cafeteria projects."
-    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says InfinityBox designs commercial kitchens including the dish-wash area and can work alongside a fit-out team. Then one soft ask about upcoming cafeteria or pantry projects, phrased as a question."
+    structure: "Paragraph 1: state the trigger from the evidence. Paragraph 2: explain that InfinityBox designs commercial kitchens including the dish-wash area, supplies serviceware, and can work alongside a fit-out team so the cafeteria is planned once. Paragraph 3: ask as a question whether they have cafeteria or pantry projects coming up, and say how a first call could help (layout input at design stage). End with one soft ask. Write 3 short paragraphs separated by a blank line, about 100 to 150 words in total."
 
   gatekeeper_intro:
     name: "Ask for an introduction"
     for: [corporate, institution, caterer, fitout]
     triggers: []
     best_when: "The contact is a gatekeeper (e.g. a registrar or an MD) or nobody relevant was found."
-    structure: "Sentence 1 states the trigger from the evidence. Sentence 2 says in one line what InfinityBox does. Sentence 3 politely asks who looks after the cafeteria, canteen or facilities, and whether they could be pointed to that person. Do not pitch further."
+    structure: "Paragraph 1: state the trigger from the evidence. Paragraph 2: say briefly what InfinityBox does (warewashing, on-site and off-site, and commercial kitchen design) so the reader can judge who should see this. Paragraph 3: politely ask who looks after the cafeteria, canteen or facilities, and whether they could be pointed to that person. Do not pitch further. Write 3 short paragraphs separated by a blank line, about 80 to 110 words in total."
 
   two_liner:
     name: "Very short question"
     for: [corporate, institution, caterer, fitout]
     triggers: []
     best_when: "A busy reader. Two sentences only."
-    structure: "Exactly two sentences. Sentence 1 states the trigger from the evidence and says InfinityBox provides warewashing and kitchen design. Sentence 2 is a question asking whether a short call would be useful."
+    structure: "Exactly two sentences in two short paragraphs. Sentence 1 states the trigger from the evidence and says InfinityBox provides warewashing and kitchen design. Sentence 2 is a question asking whether a short call would be useful."
