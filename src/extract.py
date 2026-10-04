@@ -1,3 +1,5 @@
+"""Step 2: turn raw docs into signals. A keyword prefilter drops irrelevant headlines, Gemini reads the rest in batches,
+and a signal is kept only if its evidence is a verbatim substring of the document (the anti-hallucination guard)."""
 import hashlib
 import re
 from datetime import date

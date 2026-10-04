@@ -1,9 +1,10 @@
+"""The single LLM entry point (Gemini). Handles model fallback, transient-error retry, the free-trial budget and output validation."""
 from pathlib import Path
 
 from pydantic import BaseModel, ValidationError
 
 from . import budget, cfg
-from .cache import cached, retry
+from .cache import cached
 
 def models() -> list[str]:
     """Primary model first, then fallbacks (a retired or throttled model must not stop the run)."""

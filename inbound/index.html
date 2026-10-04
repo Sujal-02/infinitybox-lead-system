@@ -100,25 +100,18 @@ input[type=range]{width:100%;accent-color:var(--sindoor);height:34px}
 .big{display:flex;align-items:baseline;gap:8px;font-weight:800}
 .big input{font:800 38px "Baloo 2";width:6.2ch;border:0;border-bottom:var(--line) solid var(--neel);background:transparent;color:var(--neel);padding:0}
 .big span{font-size:18px}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0 4px}
-@media(max-width:520px){.fields{grid-template-columns:1fr}}
 label.f{display:block;font-weight:700;font-size:15px;margin-bottom:4px}
 select,input[type=text],input[type=email],input[type=number]{width:100%;height:48px;border:2px solid var(--neel);border-radius:12px;padding:0 12px;font:500 17px "Baloo 2",sans-serif;background:var(--chalk);color:var(--neel)}
 .nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px;align-items:center}
 .back{background:none;border:0;font:700 16px "Baloo 2";text-decoration:underline;cursor:pointer;color:var(--neel);padding:8px}
 
 /* items */
-.rows{display:grid;gap:12px}
 .item{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;border:var(--line) solid var(--neel);border-radius:14px;padding:10px 12px;background:var(--chalk);transition:background .2s}
 .item.has{background:#FFF6D6}
 .item svg{width:60px;height:60px}
 .item b{display:block;font-size:18px;line-height:1.15}
 .item small{display:flex;align-items:center;gap:4px;font-size:14px}
 .item small input{width:64px;height:30px;border-radius:8px;font-size:15px;padding:0 6px;text-align:center}
-.stepper{display:flex;align-items:center;gap:6px}
-.stepper button{width:46px;height:46px;border-radius:50%;border:var(--line) solid var(--neel);background:var(--haldi);font:800 26px/1 "Baloo 2";cursor:pointer;color:var(--neel);box-shadow:0 3px 0 var(--neel)}
-.stepper button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--neel)}
-.stepper output{min-width:30px;text-align:center;font:800 26px "Baloo 2"}
 .permeal{margin-top:12px;font-weight:700}
 
 /* result */
@@ -221,7 +214,6 @@ footer{padding:36px 20px 40px;text-align:center;font-weight:700}
 .mini svg{width:26px;height:26px}.mini.has{background:#FFF6D6}.mini[aria-current="true"]{transform:translateY(-2px);box-shadow:0 3px 0 var(--neel)}
 .permeal{text-align:center}
 /* guided tour */
-.tour-on{overflow-x:hidden}
 .tour-hl{position:absolute;z-index:80;border-radius:20px;box-shadow:0 0 0 9999px rgba(61,58,133,.18),0 0 0 4px var(--haldi);pointer-events:none;transition:all .35s var(--ease)}
 .tour-card{position:fixed;z-index:81;width:min(340px,calc(100vw - 32px));background:var(--chalk);border:var(--line) solid var(--neel);border-radius:var(--r);padding:16px 18px 14px;box-shadow:0 6px 0 var(--neel);animation:pop .3s var(--ease) both}
 @keyframes pop{from{opacity:0;translate:0 8px}to{opacity:1;translate:0 0}}
@@ -624,11 +616,6 @@ if (qs.get('s')) $('#fSeg').value = qs.get('s');
 
 /* ---------- step 3: result ---------- */
 var R = null;
-function countUp(el, to, fmt) {
-  if (reduce) { el.textContent = fmt(to); return; }
-  var t0 = performance.now(), from = 0;
-  (function f(t) { var p = Math.min(1, (t - t0) / 700), e = 1 - Math.pow(1 - p, 3); el.textContent = fmt(from + (to - from) * e); if (p < 1) requestAnimationFrame(f); })(t0);
-}
 var ringBuilt = false, segEls = {}, lastCenter = 0, tw = null;
 function ring() {
   var sh = C.shares(R, S.mode), svg = $('#ring');

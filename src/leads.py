@@ -5,7 +5,6 @@ from datetime import date, timedelta
 
 from . import store
 from .models import Account, LeadRow, Person, Score, Signal
-from .score import top_signal
 
 
 def kind(url: str) -> str:

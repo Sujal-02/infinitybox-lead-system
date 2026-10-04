@@ -1,3 +1,4 @@
+"""Data shapes shared by every step (pydantic). Each model is also a Google Sheet tab: field order = column order."""
 from datetime import date
 from typing import Literal
 

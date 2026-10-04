@@ -1,3 +1,5 @@
+"""Storage back-ends: Google Sheets through a service-account key or the Apps Script gateway, or a local .xlsx workbook.
+Both sheet back-ends expose the same few worksheet calls, so the pipeline does not care which one is used."""
 import json
 
 import gspread

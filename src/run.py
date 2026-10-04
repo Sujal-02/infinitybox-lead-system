@@ -1,3 +1,5 @@
+"""Command line for the whole pipeline: discover -> extract -> score -> people -> draft, plus sync to the sheet/workbook and
+small utilities (quota, source checks). `python -m src.run all --city Pune` runs everything; see the README for the commands."""
 import argparse
 import io
 import json
@@ -8,18 +10,21 @@ from .cfg import env
 from .discover import news, web
 from .draft import draft
 from .extract import extract
-from .models import Account, Doc, Draft, Person, Score, Signal, Source
+from .models import Account, Doc, Draft, Person, Score, Signal
 from .people import find_people
 from .score import score_all, top_signal
 
 stats: dict = {}
 
 
+# (store file, sheet tab, model): the five tables the pipeline keeps, in the order they are produced
+TABLES = [("accounts", "Accounts", Account), ("signals", "Signals", Signal), ("people", "People", Person),
+          ("scores", "Scores", Score), ("drafts", "Drafts", Draft)]
+
+
 def local_tables() -> dict:
     """Every tab's rows from the local store (the same data that goes to Google Sheets)."""
-    t = {tab: store.load(name, model) for name, tab, model in [("accounts", "Accounts", Account), ("signals", "Signals", Signal),
-                                                                ("people", "People", Person), ("scores", "Scores", Score),
-                                                                ("drafts", "Drafts", Draft)]}
+    t = {tab: store.load(name, model) for name, tab, model in TABLES}
     t["Pipeline"] = leads.build() if t["Accounts"] else []
     return t
 
@@ -41,8 +46,7 @@ def sync() -> None:
     book = sheet.open_book()
     sheet.init(book)
     keep = {t: {r.id if t == "Accounts" else r.account_id: r.status for r in sheet.read(book, t)} for t in ("Accounts", "Drafts")}
-    for name, tab, model in [("accounts", "Accounts", Account), ("signals", "Signals", Signal), ("people", "People", Person),
-                             ("scores", "Scores", Score), ("drafts", "Drafts", Draft)]:
+    for name, tab, model in TABLES:
         rows = store.load(name, model)
         for r in rows:
             if tab in keep and keep[tab].get(getattr(r, "id", None) or r.account_id):
@@ -74,7 +78,6 @@ def do_discover(city: str, limit: int | None, wide: bool = False) -> None:
             seen |= {d.url for d in got}
             docs += got
             stats[f"docs_{name}"] = len(got)
-        print("jobs source (Apify) not enabled")
     store.save("docs", docs[:limit] if limit else docs)
 
 
@@ -119,7 +122,7 @@ def do_people(top: int, city: str) -> None:
 
 
 def quota_data() -> dict:
-    """Live free-trial balances from each provider's own API. Each entry is {"label","used","total","note"} or {"label","error"}."""
+    """Live free-trial balances from each provider's own API. Each entry is {"label","left","total","note"} or {"label","error"}."""
     import requests
     out = {}
     try:
@@ -142,8 +145,7 @@ def quota_data() -> dict:
 
 
 def do_quota() -> None:
-    """Live balances next to what this project has spent (data/usage.json)."""
-    import requests
+    """Print the live free-trial balances (the same numbers the app shows on Home)."""
     for k, v in quota_data().items():
         print(f"{k:<10} " + (f"{v['left']:g} of {v['total']:g} {v['note']}" if "left" in v else f"unavailable ({v['error']})"))
     try:
@@ -200,8 +202,6 @@ def do_contacts(account_id: str) -> None:
 def do_draft(top: int, city: str) -> None:
     accs = {a.id: a for a in store.load("accounts", Account)}
     sigs, people = store.load("signals", Signal), store.load("people", Person)
-    mf = store.DIR / "manual_draft.json"  # optional hand-written drafts: {account_id: {subject, body}}
-    manual = json.loads(mf.read_text("utf-8")) if mf.exists() else None
     out = []
     for sc in [x for x in store.load("scores", Score) if accs[x.account_id].city == city][:top]:
         s = top_signal([x for x in sigs if x.account_id == sc.account_id], date.today())
@@ -209,7 +209,7 @@ def do_draft(top: int, city: str) -> None:
         if not s or not ps:
             continue
         try:
-            out.append(draft(accs[sc.account_id], s, next((p for p in ps if p.name), ps[0]), manual))
+            out.append(draft(accs[sc.account_id], s, next((p for p in ps if p.name), ps[0])))
         except Exception as e:
             print(f"draft dropped for {sc.account_id}: {e}")
             stats["draft_failed"] = stats.get("draft_failed", 0) + 1

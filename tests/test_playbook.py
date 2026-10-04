@@ -1,4 +1,3 @@
-import pytest
 
 from src import playbook
 from src.playbook import Choice

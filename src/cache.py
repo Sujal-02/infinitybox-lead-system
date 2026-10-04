@@ -1,3 +1,4 @@
+"""Disk cache and retry helper. Every paid API call goes through `cached`, so reruns and tests cost nothing."""
 import hashlib
 import json
 import time

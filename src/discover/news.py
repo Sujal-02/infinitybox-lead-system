@@ -1,3 +1,4 @@
+"""Free discovery source: Google News RSS searches per city, turned into docs for extraction."""
 import html
 import re
 from datetime import date, datetime

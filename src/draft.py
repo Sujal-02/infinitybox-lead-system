@@ -27,7 +27,7 @@ def _check(segment: str, evidence: str):
     return check
 
 
-def draft(a: Account, sig: Signal, person: Person, manual=None) -> Draft:  # `manual` kept for call compatibility; unused
+def draft(a: Account, sig: Signal, person: Person) -> Draft:
     ev = f"{sig.evidence} {sig.summary}"
     p = PROMPT.format(company=a.name, segment=a.segment, city=a.city, role=person.role, summary=sig.summary,
                       evidence=sig.evidence, menu=playbook.options(a.segment))

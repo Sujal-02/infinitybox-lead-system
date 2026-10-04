@@ -6,7 +6,7 @@ import re
 
 from datetime import date
 
-from src import budget, cfg, playbook
+from src import cfg, playbook
 from src.discover import news, web
 from . import scoring
 

@@ -1,3 +1,4 @@
+"""Step 3a: merge name variants of the same organisation (legal suffixes, one-word aliases) into one account."""
 import re
 from datetime import date
 from difflib import SequenceMatcher

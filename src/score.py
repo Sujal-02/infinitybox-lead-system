@@ -1,3 +1,4 @@
+"""Step 3b: deterministic scoring, no LLM. Fit (<=40) + Trigger (<=45, decays with age) + Reach (<=15); weights live in config/weights.yaml."""
 from datetime import date
 
 from .cfg import yml

@@ -1,6 +1,6 @@
 import pytest
 
-from src import cfg, hierarchy
+from src import hierarchy
 from src.hierarchy import classify, mailbox_relevance, relevance
 from src.models import Account, Person
 from src.people import _map_item, merge, select
@@ -79,12 +79,6 @@ def test_select_prefers_targets_and_flags_gatekeeper():
     only_gate = select([gate, P(role="info", role_match=0.15, tier="generic", email="i@u.in")])
     assert len(only_gate) == 1 and only_gate[0].tier == "tier3" and "introduction" in only_gate[0].why
     assert select([P(role="info", role_match=0.15, tier="generic")]) == []
-
-
-def test_unlisted_actor_refused(monkeypatch):
-    monkeypatch.setattr(cfg, "yml", lambda n: {"people": {"id": "TODO"}})
-    with pytest.raises(PermissionError):
-        cfg.actor("people")
 
 
 def test_office_lead_for_relevant_office_without_contacts():

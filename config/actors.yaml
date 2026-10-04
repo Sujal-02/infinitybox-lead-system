@@ -1,9 +1,6 @@
 # Allowlist of Apify actors. Only cookie-free / no-login actors. Anything not here is refused.
 # `verified: false` = input/output field names come from the public docs, not yet confirmed by a real run.
 # Run `python -m src.run apify_test --top 5` once APIFY_TOKEN is set, check the printed fields, then flip it.
-jobs:
-  id: TODO
-  input: {}
 people:
   id: harvestapi/linkedin-company-employees   # companies (LinkedIn URLs) + jobTitles filter, no cookies
   adapter: harvestapi
