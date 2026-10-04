@@ -32,7 +32,7 @@ def _dynamic() -> dict:
 
 
 def config(ds_id: str) -> dict:
-    return DATASETS.get(ds_id) or _dynamic()[ds_id]
+    return {**DATASETS, **_dynamic()}[ds_id]  # a newer run in data_<city>/ replaces the built-in list of the same name
 
 
 def available() -> list[dict]:

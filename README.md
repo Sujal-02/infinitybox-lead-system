@@ -2,6 +2,20 @@
 
 Finds companies likely to need cafeteria warewashing or kitchen design **right now**, ranks them with a visible reason, picks the role to approach, and writes **draft** emails. **Nothing is ever sent**; there is no send code.
 
+
+## Deliverables
+| What | Where |
+|---|---|
+| Working system, 30-minute setup | this README (below), `start.bat` / `start.sh` |
+| **Live public page** (calculator and lead form) | https://sujal-02.github.io/infinitybox-lead-system/ |
+| **Live team dashboard** (read-only snapshot, names and emails removed) | https://sujal-02.github.io/infinitybox-lead-system/dashboard/ |
+| Live run on one city, ranked accounts with role, trigger, score and reason | Pune: the "Pune" list in the dashboard; `LEADS_*.md` reports and the Google Sheet in the working copy |
+| Architecture and monthly cost in rupees | [ARCHITECTURE.md](ARCHITECTURE.md) |
+| AI log (mistakes caught, tools, prompts, decisions) | [AI_LOG.md](AI_LOG.md) |
+| Next 30 days | [NEXT_30_DAYS.md](NEXT_30_DAYS.md) |
+
+The two live pages link to each other. They need GitHub Pages enabled for the repository (Settings, Pages, Source: GitHub Actions), which on a private repository needs a paid GitHub plan; the same pages also run from the app on your own computer (see Routes below).
+
 ## 30-minute setup (no coding)
 
 1. **Start**: install Python 3.11+, then double-click `start.bat` (Windows) or run `./start.sh`. The first run sets up a private environment and creates `.env`.

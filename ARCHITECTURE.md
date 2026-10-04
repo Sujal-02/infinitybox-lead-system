@@ -67,3 +67,5 @@ Budget guard (`config/budgets.yaml`): per-run and monthly caps per service; the 
 ## Deploy (two options)
 1. **Local (works today):** `start.bat` (Windows) or `./start.sh`, fill `.env`, open http://127.0.0.1:8765.
 2. **GitHub:** push the repo (`.env`, `creds.json`, `data*/` are git-ignored); publish `inbound/` with GitHub Pages; deploy `inbound/apps_script.gs` as a web app and paste its URL into the page; a scheduled GitHub Action can run `python -m src.run all --city <City>` weekly.
+
+**What comes next:** [NEXT_30_DAYS.md](NEXT_30_DAYS.md) (daily scheduled runs, specialist scrapers, paid data, lead-quality feedback, Gmail drafts for a human to send).
