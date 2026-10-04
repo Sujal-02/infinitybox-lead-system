@@ -48,8 +48,8 @@ Fit ≤40 (segment, city, size, cafeteria on site) · Trigger ≤45 (type weight
 | Firecrawl (search + page reads) | 1,000 free credits | Hobby plan US$19 | 1,710 |
 | Hunter (verified emails) | 50 free searches | Starter US$49 | 4,410 |
 | Apify (optional LinkedIn actors) | free credit | Starter US$19 | 1,710 |
-| GitHub Pages, Apps Script, Google Sheet, local app | free | free | 0 |
-| **Total** | **₹0** | | **≈ ₹8,000** |
+| Render (hosted dashboard, free plan), GitHub Pages, Apps Script, Google Sheet, local app | free | Render Starter keeps the server awake and the disk (about US$7, roughly ₹630) | 0 |
+| **Total** | **₹0** | | **≈ ₹8,600** (including an always-on server) |
 
 Budget guard (`config/budgets.yaml`): per-run and monthly caps per service; the desk shows live balances and stops before a limit is hit.
 
@@ -65,9 +65,15 @@ Budget guard (`config/budgets.yaml`): per-run and monthly caps per service; the 
 - Hunter's free tier is small, so it is used last; coverage of named people is the main limit on the Reach score.
 - Where we went deep: **targeting** (trigger evidence with quotes, contact hierarchy that separates buyers from gatekeepers) and **engagement** (per-company drafts with guardrails).
 
-## Deploy (three options)
-0. **Pages dashboard with a live server:** Pages serves the dashboard; a small Docker server (`render.yaml`) runs the same app behind an access code with the capped `demo` allowance. See README, "Making the Pages dashboard fully functional".
-1. **Local (works today):** `start.bat` (Windows) or `./start.sh`, fill `.env`, open http://127.0.0.1:8765.
-2. **GitHub:** push the repo (`.env`, `creds.json`, `data*/` are git-ignored); publish `inbound/` with GitHub Pages; deploy `inbound/apps_script.gs` as a web app and paste its URL into the page; a scheduled GitHub Action can run `python -m src.run all --city <City>` weekly.
+## How it is deployed today
+| Piece | Where | Notes |
+|---|---|---|
+| Dashboard and pipeline | Render web service (`render.yaml`, Docker, free plan) at https://infinitybox-desk.onrender.com/ | access code on every API call; `BUDGET_PROFILE=demo` caps paid-API use and offers only the Quick look; sleeps when idle |
+| Public page | served by the same service at `/site/`, and by GitHub Pages | the Render copy gets the Apps Script address when it is served; the Pages copy gets it from the repository variable `APPS_SCRIPT_URL` |
+| Database | one Google Sheet, through an Apps Script web app that is bound to the sheet and has a single permission (this sheet) | lead lists keyed by city, enquiries (`Leads`), visit events (`Events`); a restarted server reloads from it |
+| CI/CD | GitHub Actions: `ci.yml` (tests, build checks, secrets guard), `pages.yml` (tests, then publish), `run.yml` (manual city run) | tests run from a clean checkout, so they pass without keys or local data |
+| Local | `start.bat` / `./start.sh`: the same app on one machine with the reviewer's own keys; no sheet needed (Excel download) | |
+
+**What it deliberately does not do:** send email, log in to LinkedIn, store keys in the repository.
 
 **What comes next:** [NEXT_30_DAYS.md](NEXT_30_DAYS.md) (daily scheduled runs, specialist scrapers, paid data, lead-quality feedback, Gmail drafts for a human to send).

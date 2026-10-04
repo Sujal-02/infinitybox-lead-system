@@ -1,147 +1,132 @@
 # InfinityBox Lead System
 
-Finds companies likely to need cafeteria warewashing or kitchen design **right now**, ranks them with a visible reason, picks the role to approach, and writes **draft** emails. **Nothing is ever sent**; there is no send code.
+Finds companies likely to need cafeteria warewashing or kitchen design **right now**, ranks them with a visible reason, picks the right person to approach, and writes **draft** emails. A public calculator page captures inbound enquiries and routes them to the right team. **Nothing is ever sent by this system**: "Send" only records a draft in an outbox.
 
+## Links and deliverables
 
-## Deliverables
 | What | Where |
 |---|---|
-| Working system, 30-minute setup | this README (below), `start.bat` / `start.sh` |
-| **Live public page** (calculator and lead form) | https://sujal-02.github.io/infinitybox-lead-system/ |
-| **Live team dashboard** (read-only snapshot, names and emails removed) | https://sujal-02.github.io/infinitybox-lead-system/dashboard/ |
-| Live run on one city, ranked accounts with role, trigger, score and reason | Pune: the "Pune" list in the dashboard; `LEADS_*.md` reports and the Google Sheet in the working copy |
-| Architecture and monthly cost in rupees | [ARCHITECTURE.md](ARCHITECTURE.md) |
-| AI log (mistakes caught, tools, prompts, decisions) | [AI_LOG.md](AI_LOG.md) |
+| **Live dashboard** (find leads, write drafts, enquiries, sheet) | https://infinitybox-desk.onrender.com/ (an access code is shared separately; a free host can take a minute to wake up) |
+| **Live public page** (calculator and enquiry form) | https://infinitybox-desk.onrender.com/site/ and, on GitHub Pages, https://sujal-02.github.io/infinitybox-lead-system/ |
+| Code | this repository (GitHub, private; access shared) |
+| Live run on one city: 25 ranked accounts and 5 drafts | [RESULTS_PUNE.md](RESULTS_PUNE.md); the same data is the "Pune" list in the dashboard |
+| Architecture, data flow and monthly cost in rupees | [ARCHITECTURE.md](ARCHITECTURE.md) |
+| AI log: tools, prompts, decisions, every mistake caught | [AI_LOG.md](AI_LOG.md) |
 | Next 30 days | [NEXT_30_DAYS.md](NEXT_30_DAYS.md) |
+| Demo video script (under 5 minutes) | [DEMO_SCRIPT.md](DEMO_SCRIPT.md) |
 
-The two live pages link to each other. They need GitHub Pages enabled for the repository (Settings, Pages, Source: GitHub Actions), which on a private repository needs a paid GitHub plan; the same pages also run from the app on your own computer (see Routes below).
+## What is in the box
 
-## Run it yourself (for reviewers: no shared keys, no Google account)
-You use your own free keys. They stay on your computer in a file called `.env` and are never uploaded.
-1. Install **Python 3.11 or newer** (python.org/downloads; on Windows tick "Add Python to PATH").
-2. Get the project folder (a zip, or `git clone` if you were given access) and open it.
-3. **Windows:** double-click `start.bat`. **Mac/Linux:** run `./start.sh`. The first run sets itself up (about a minute), then `setup_local.py` asks for your keys one by one. For each it explains what the service does, what happens if you skip it, what it costs (all have a free tier), where to get the key, and it checks the key works before saving. Only Gemini is required:
+| Part | What it does | Where |
+|---|---|---|
+| Lead pipeline | discover, extract signals, score, find contacts, draft; one command or one button per city | `src/` |
+| Lead dashboard | non-technical web app: Home, Leads, Find leads, Website enquiries, Outbox | `app/` |
+| Public page | calculator with radial dials, enquiry form, anonymous funnel tracking, guided tour | `inbound/` |
+| Google Sheet | the database: lead lists keyed by city, plus enquiries and visit events | `src/sheet.py`, `inbound/apps_script.gs` |
+| Hosted server | the same app behind an access code with a capped credit allowance | `Dockerfile`, `render.yaml` |
+| CI/CD | tests on every push, public page deployed to GitHub Pages | `.github/workflows/` |
+| Gemini-only agent | an experiment where Gemini does the research with tools; scoring is still done by code | `brain/` |
+
+## Run it yourself (reviewers: your own free keys, no Google account needed)
+
+1. Install **Python 3.11+** (on Windows tick "Add Python to PATH").
+2. Open the project folder. **Windows:** double-click `start.bat`. **Mac/Linux:** `./start.sh`. The first run sets itself up, then `setup_local.py` asks for your keys one at a time, explains what each does and what it costs, and checks that it works before saving. Keys stay in `.env` on your machine (git-ignored).
 
 | Key | What it is for | Without it |
 |---|---|---|
-| Gemini (aistudio.google.com/app/apikey) | The AI: turns news and pages into leads, writes drafts | Nothing runs (required) |
-| Firecrawl (firecrawl.dev, 1,000 free credits) | Web search and page reading: company sites, tenders, trackers | Only free news search: fewer leads, no website contacts |
-| Hunter (hunter.io/api-keys, 50 free searches a month) | Verified work emails (never guessed) | Contacts have names and roles; emails only if a site publishes them |
-| Apify (console.apify.com/account/integrations, about US$5 free a month) | Public LinkedIn company pages, no login | Contacts come from websites and Hunter only |
+| Gemini (aistudio.google.com/app/apikey) | Reads news into signals, writes drafts | Nothing runs (required) |
+| Firecrawl (firecrawl.dev, 1,000 free credits) | Web search and page reads: company sites, tenders, trackers | Free news search only: fewer leads, no website contacts |
+| Hunter (hunter.io, 50 free searches a month) | Verified work emails, never guessed | Contacts have names and roles, emails only if a site publishes them |
+| Apify (about US$5 free a month) | Public LinkedIn company pages, no login | Contacts come from websites and Hunter only |
 
-4. The lead desk opens in your browser. **Find leads**: pick a city, keep "Quick look" (about 4 minutes and a small part of the free credits), press the button, watch the progress.
-5. **Leads**: open a company to see why it is a lead, the score, the source links and who to contact; **Write the email** makes an editable draft. "Send" only records it in the outbox: nothing is ever emailed.
-6. **Local sheet**: there is no Google Sheet. Press **Download as Excel sheet** on the Leads tab for the same tabs the sheet would hold (Accounts, Signals, People, Scores, Drafts, Pipeline). Each run also saves `workbook.xlsx` in its `data_<city>` folder.
-To change keys later run `python setup_local.py` (or `python setup_local.py --check` to test the saved ones). To share this project without any keys or run data, send a zip made with `git archive -o infinitybox.zip HEAD` (secrets and run data are git-ignored).
+3. The dashboard opens at http://127.0.0.1:8765. **Find leads**: choose a city, keep "Quick look" (about 4 minutes, a small part of the free credits), press the button and watch the progress.
+4. **Leads**: open a company to see why it is a lead, how the score is built, the source links and who to contact. **Write the email** makes an editable draft.
+5. No keys at all? `python -m src.run all --city Pune --dry-run` runs the whole pipeline on test data.
 
-## 30-minute setup (no coding)
+Without a Google Sheet, press **Download as Excel sheet** on the Leads tab: the same tabs the sheet would hold.
 
-1. **Start**: install Python 3.11+, then double-click `start.bat` (Windows) or run `./start.sh`. The first run sets up a private environment and creates `.env`.
-2. **Keys**: open `.env` and fill in (all have free tiers; nothing is committed): `GEMINI_API_KEY` (aistudio.google.com), `FIRECRAWL_API_KEY` (firecrawl.dev), `HUNTER_API_KEY` (hunter.io), optional `APIFY_TOKEN` (leave empty to skip LinkedIn actors). Run `start` again.
-3. **Use**: the lead desk opens in the browser. "Find leads" runs a city (about 3 to 5 minutes for a quick look); "Leads" shows the ranked list.
-4. **Optional, Google Sheet** instead of a local workbook (one sheet holds the pipeline tabs, the website "Leads" and "Events"):
-   1. console.cloud.google.com: create a project, then enable **Google Sheets API** and **Google Drive API** (APIs & Services -> Library).
-   2. IAM & Admin -> Service accounts -> Create. No roles needed. Open it -> Keys -> Add key -> JSON. Save the file as `creds.json` in this folder (git-ignored). Copy the account's email (`...@...iam.gserviceaccount.com`).
-   3. Create an empty Google Sheet, **Share** it with that email as Editor, and copy the id from its URL (between `/d/` and `/edit`) into `GSHEET_ID` in `.env`.
-   4. `python -m src.run sheet_check` (says in plain words what is missing), then `python -m src.run init` (creates the tabs), then set `DRY_RUN=0`.
-   **If your organisation blocks service-account keys**, skip steps 1 and 2 and use the Apps Script gateway: open the sheet -> Extensions -> Apps Script, paste `inbound/apps_script.gs`; Project settings -> tick "Show appsscript.json" and replace its content with `inbound/appsscript.json` (this limits the permission to **this one sheet**, no email, no other files); Script properties -> `API_TOKEN` (any long random string); Deploy -> Web app (execute as you, access Anyone). Put the `/exec` URL in `SHEET_WEBHOOK_URL` and the token in `SHEET_API_TOKEN` in `.env`. `sheet_check` and `init` then work the same. Anyone with the URL still needs the token to write.
-   5. For website enquiries: the same Apps Script already handles the page's form and visit events (tabs Leads and Events). To get an email for each new enquiry, use the sheet's Tools -> Notification rules. In GitHub Actions use the secrets `SHEET_WEBHOOK_URL` and `SHEET_API_TOKEN` (or `GSHEET_ID` and `GOOGLE_CREDS_JSON` for a key).
-5. **Terminal alternative**: `python -m src.run all --city Pune`.
+## How it works
 
-Try it first without any keys or network: `python -m src.run all --city Pune --dry-run` (uses `tests/fixtures`).
+1. **Discover.** Google News queries per city (`config/cities.yaml`); from `config/city_sources.yaml` the city's own queries, and in a wide run one query per tech park, per recently seen expansion, per institution and per local news site; Firecrawl searches; and the fetchable tracker, lease and tender pages.
+2. **Extract.** A keyword prefilter, then Gemini reads headlines in batches and returns signals (new campus, lease, cafeteria work, tender, caterer contract, plastic/ESG, facilities hiring). **A signal is kept only if its quote is a verbatim substring of the page it came from**, so an invented event cannot enter the system.
+3. **Score** (fixed rules, no LLM): fit up to 40 (segment, city, size, cafeteria on site) + trigger up to 45 (type weight, halves every few weeks) + reach up to 15 (named relevant person, valid email, known caterer). Every point is labelled on screen, with "to raise this score" tips. Weights: `config/weights.yaml`, `config/triggers.yaml`.
+4. **Contacts** for the top accounts, in cost order: the organisation's own website, then optional Apify LinkedIn pages, then Hunter. A hierarchy (`config/hierarchy.yaml`) tiers titles per kind of organisation: decision maker, day-to-day owner, gatekeeper (a registrar, used only to ask for an introduction). **Emails are never generated**: only what Hunter returned or a page publishes.
+5. **Drafts.** Gemini writes three short paragraphs per company from the playbook (`config/playbook.yaml`, `config/templates.yaml`, 10 styles): why the trigger matters, how InfinityBox works for that kind of organisation, what a first call would cover. It may state only approved facts, must avoid forbidden words, and may quote only numbers found in the evidence; code adds the greeting, a tracked link to the calculator and a `[Your name]` sign-off. The reviewer edits every word, and problems are flagged live.
+6. **Send is a placeholder** (`app/mailer.py`): it records the message in the outbox and opens a pre-filled Gmail compose window for a person to send. Nothing is emailed by the app.
+
+## The public page and enquiries
+
+- Calculator: meals per day, items per meal, estimated monthly spend on single-use serviceware with editable placeholder prices. Figures from InfinityBox itself (30% water, 25% electricity, 40% single-use waste) are labelled "InfinityBox reports" and never applied to the visitor's numbers.
+- Enquiry form: the visitor says what they are (company, institution, caterer, fit-out); the enquiry is **routed** (corporate and institution to warewashing, fit-out to kitchen design, caterer to partnerships) and stored in the sheet's `Leads` tab. A honeypot field, a minimum fill time and a consent box guard against bots.
+- Tracking: first-party, anonymous funnel steps only (visited, started, chose items, saw result, opened form, sent), tagged by outreach batch through `utm_campaign`. No cookies, no third-party scripts, Do Not Track respected. Stored in the `Events` tab.
+- Every draft links to the page, pre-filled with the company, segment and city. The dashboard's **Website enquiries** tab shows enquiries and the funnel from the sheet and from the app itself.
+
+## Google Sheet as the database
+
+Lead lists are saved to the sheet, keyed by city (tabs Accounts, Signals, People, Scores, Drafts, Pipeline). Each pipeline run saves its city automatically; the Home tab has **Save to sheet** and **Load from sheet** per city; a server that restarts with an empty disk reloads from the sheet by itself. One city never overwrites another, and a `status` edited in the sheet is kept.
+
+Connect it with either route (both optional; without a sheet, lists stay as local files):
+- **Apps Script gateway** (works when a Google Cloud key is not allowed): open the sheet, Extensions, Apps Script; paste `inbound/apps_script.gs`; in Project settings show the manifest and replace it with `inbound/appsscript.json` (one permission: this sheet only, no email); set the script property `API_TOKEN`; Deploy as a web app (execute as you, access Anyone). Put the `/exec` address in `SHEET_WEBHOOK_URL` and the token in `SHEET_API_TOKEN`.
+- **Service account key:** enable the Sheets and Drive APIs, create a service account, save its key as `creds.json`, share the sheet with its email, set `GSHEET_ID`.
+
+Then `python -m src.run sheet_check` (plain-words diagnosis) and `python -m src.run init` (creates the tabs).
+
+## Hosting: Render (dashboard) and GitHub Pages (public page)
+
+`render.yaml` and the `Dockerfile` run the same app as a web service. Deploy: render.com, New, Blueprint, pick the repository, fill the keys and choose an `ACCESS_CODE`. In hosted mode:
+- every `/api` call needs the access code (wrong codes are rate limited); the public page itself is open;
+- credits are capped by `BUDGET_PROFILE=demo` (smaller allowance in `config/budgets.yaml`, Quick look only, one run at a time) and the Home tab shows what is left;
+- the public page is served with the sheet address filled in, so enquiries reach the sheet;
+- a free host sleeps when idle and loses its disk on restart; lists come back from the sheet.
+
+GitHub Pages serves the static public page and a read-only snapshot of the dashboard (names, emails and LinkedIn profiles removed). Repository variables used by the deploy: `APPS_SCRIPT_URL` (enquiries to the sheet) and `API_URL` (turns the Pages dashboard into a client of the Render server). Pages on a private repository needs a paid GitHub plan.
+
+## Configuration (`.env`)
+
+| Variable | Needed | Purpose |
+|---|---|---|
+| `GEMINI_API_KEY` | yes | AI |
+| `FIRECRAWL_API_KEY`, `HUNTER_API_KEY`, `APIFY_TOKEN` | optional | web, emails, LinkedIn pages |
+| `SHEET_WEBHOOK_URL`, `SHEET_API_TOKEN` | optional | sheet through the Apps Script gateway |
+| `GSHEET_ID`, `GOOGLE_CREDS_PATH` | optional | sheet through a service-account key |
+| `ACCESS_CODE`, `ALLOWED_ORIGIN`, `BUDGET_PROFILE`, `HOST`, `PORT` | hosted only | access code, allowed website origin, credit cap profile, listen address |
+| `APPS_SCRIPT_URL` | optional | overrides the address given to the hosted public page |
+| `CITY`, `TOP_N_PEOPLE`, `DRY_RUN`, `GEMINI_MODELS`, `DATA_DIR` | optional | defaults for runs |
+
+`config/budgets.yaml` caps what a run and a month may spend per service; only real (uncached) calls are charged, and a cap stops that source with a message while the run continues. `python -m src.run quota` shows live balances.
 
 ## Commands
+
 ```
-python -m src.run init
-python -m src.run discover --city Pune
-python -m src.run extract
-python -m src.run score
-python -m src.run people --top 40
-python -m src.run draft --top 5
-python -m src.run all --city Pune
+python -m src.run all --city Pune            # everything (add --wide for the full set of queries, --top N)
+python -m src.run discover | extract | score | people | draft
+python -m src.run leads --city Pune --min-score 30 --has-email --format md
+python -m src.run sheet_check | init | quota | check_sources | check_city_sources
+python -m app                                # the dashboard (python -m app.export_static rebuilds the Pages snapshot)
+python -m pytest -q                          # 94 tests, no keys needed
 ```
-Flags: `--dry-run`, `--limit N` (docs to process), `--no-cache`. Intermediate data lives in `data/`; API responses in `cache/`, so reruns are free.
 
-## Where leads are looked for
-Per city: Google News queries from `config/cities.yaml`, then (from `config/city_sources.yaml`) the city's own queries and, in a wide run, one query per tech park / micro-market, per recently seen expansion (a seed lead: kept only if a real article with a verbatim quote comes back), per institution and per local news site; plus Firecrawl searches and the fetchable tracker/lease/tender pages (`a: fetch`, best priority first, 2 pages in a limited run, 6 in a full run). Cities without a block in that file (Hyderabad, Chennai) still use the shared sources.
+## CI/CD
 
-## How it decides
-- **Signals** (new campus, lease, tender, ...) are pulled from Google News RSS and Firecrawl searches, then extracted by Gemini. A signal is kept only if its `evidence` is a verbatim substring of the fetched text.
-- **Score** = fit (0-40) + trigger (0-45, decays with a 60-90 day half-life) + reach (0-15). Weights in `config/`. `reason` is built from the top parts.
-- **People**: only for the top N accounts. Hunter finds business emails matching target roles; an email is stored only if Hunter marks it `valid`. Every account also gets a LinkedIn **search link** (manual fallback, no login).
-- **Drafts** cite the trigger in the first sentence, are under 90 words, and are checked automatically. For corporates the draft gives something forwardable to their caterer.
-- Change `Status` in Accounts/Drafts by hand (e.g. "contacted"); reruns keep it.
+- `ci.yml`: every push and pull request runs the tests, checks that the built pages match their sources and, in a public repository, that no key file or key-shaped string is tracked.
+- `pages.yml`: a push that touches the page or dashboard runs the page tests, injects `APPS_SCRIPT_URL` and `API_URL`, and publishes to GitHub Pages.
+- `run.yml`: a "Run workflow" button that runs a city from the Actions tab (keys as repository secrets).
 
-## Inbound calculator
-`inbound/index.html` is static. Preview: `python -m http.server -d inbound 8000`, open http://localhost:8000.
-Go live: (1) add a `Leads` tab (done by `init`); (2) from the sheet: Extensions > Apps Script, paste `inbound/apps_script.gs` and `inbound/appsscript.json` (one narrow permission, see step 4 of the setup), Deploy > Web app (execute as you, anyone can access); (3) paste the URL into `APPS_SCRIPT_URL` in `inbound/page.src.html`, run `python inbound/build.py`; (4) host `inbound/` on GitHub Pages.
-Routing: corporate/institution -> warewashing, fitout -> kitchen design, caterer -> partner. Every calculator number is an estimate in the visible `CONFIG` block.
+## Rules this system keeps
 
-## Assumptions
-- Seat/size estimates come from public headcount or news and are rough.
-- Caterer is often unknown from public data, so it is left blank rather than guessed.
-- No access to the InfinityBox CRM; "already contacted" is a manual status column.
-- Source reliability varies; the LinkedIn search link is the fallback for people.
-- Google News RSS gives headlines and snippets, not article bodies, so news evidence comes from those.
-- **Leads view and filters:** `python -m src.run leads --city Pune --segment institution --trigger tender --min-score 30 --has-email --since-days 90 --source-kind tender --format md|csv|json --out file`. Each row has the account, score, best contact (LinkedIn profile, email + status, page that backs it), the company's LinkedIn page and every news/tender link behind the lead. The same view is the `Pipeline` sheet tab (with filter dropdowns).
-- **Emails are never generated.** Only what Hunter returned (stored with its status, e.g. `valid`, `accept_all`) or an address published on the org's own website (status `published`, free-mail skipped).
-- **Contact hierarchy** (`config/hierarchy.yaml`, `src/hierarchy.py`): per kind of organisation (corporate, manufacturing, education, hospital, government, caterer, fit-out) titles are tiered: tier1 decision maker (0.9), tier2 day-to-day owner (0.7), tier3 gatekeeper (0.4, e.g. a registrar: used only to ask for an introduction), plus an exclude list (professors, surgeons, engineers, finance ...). A trigger boosts matching roles (tender favours purchase, new campus favours facilities/real estate). Relevance >= 0.6 is a real target; the engine returns a primary and a secondary target, else one gatekeeper plus any relevant office found on the site (tier `office`, e.g. a Hostel Office page with no published contact). `python -m src.run contacts --account <id>` prints every candidate with its tier and the reason.
-- **Apify actors:** `config/actors.yaml` lists `people` (harvestapi, has a location filter, refused after 10 free runs) and `people_alt` (apimaestro, no location filter so results are filtered to the city afterwards; works on the free plan but only reaches staff of India-centric employers, not the India staff of multinationals). The pipeline tries them in order and skips a refused one for the rest of the run.
-- **Gemini resilience:** `GEMINI_MODELS` (default gemini-3.8-flash, gemini-2.5-flash, gemini-2.5-flash-lite) are tried in turn, with one short retry on transient errors (429/5xx and the intermittent 403).
-- **Apify free plan (old note):** the LinkedIn actor allows only 10 free runs; after that runs return nothing and the log says so. The pipeline now reports this as a failure (it does not mean nobody was found).
-- **Contact order:** org website first (Firecrawl; cheapest, good for universities and small firms), then Apify LinkedIn, then Hunter only if no email was found. Pin a wrong match in `config/overrides.yaml`.
-- **POC engine** (`src/people.py`): per top-N account it merges Apify LinkedIn results (actor `harvestapi/linkedin-company-employees`, no cookies) and Hunter, keeps the 2 people whose title best fits the segment's target roles, and finds a verified email for the best one only. Set `APIFY_TOKEN`, then run `python -m src.run apify_test --top 5` once to confirm the actor's output fields before trusting it (`verified: false` in `config/actors.yaml` until then). Any actor not listed there is refused.
-- **Not built yet: Apify jobs actor** (`jobs` in `config/actors.yaml` is still a placeholder).
-- Each source fails independently; a per-source count is printed at the end of every run.
+- **Public data only.** News, company sites, public registries. No LinkedIn login or cookies; the optional Apify actors read public pages, and LinkedIn is otherwise only a search link a person clicks.
+- **No prospect is contacted.** There is no send code; drafts are for a person to review.
+- **Business-role data only** (DPDP): name, role and work email from a public source or Hunter, with the source kept next to each person.
+- **Evidence for every signal**: a verbatim quote and a source link.
+- **Free tiers**; every API response is cached and every paid call is charged against a cap.
+- **Secrets stay out of git** (`.env`, `creds.json` and run data are ignored; CI checks).
 
-## Tests
-`python -m pytest -q` (no keys needed; Apps Script test needs node).
+## Known limits
 
-See `ARCHITECTURE.md` for the data flow and monthly cost, `AI_LOG.md` for AI mistakes caught.
+- Named contacts are the weak spot: in the last full Pune run only 1 of 45 accounts got a named person, because of free-tier Apify and Hunter limits. Roles and LinkedIn search links are provided for the rest.
+- The same company can appear under two names (for example "L&T Tech" and "L&T Technology Services") and some job-board pages give thin evidence.
+- Seat and size figures come from public news and are rough; the caterer is left blank rather than guessed; there is no access to the InfinityBox CRM, so "already contacted" is a manual status.
+- Apify's free LinkedIn actor is limited to 10 runs; the pipeline reports this as a failure rather than "nobody found".
+- The public page's savings numbers are estimates from the visitor's own inputs and placeholder prices.
 
-## Free-trial budget
-`config/budgets.yaml` caps what one run and one month may spend per service (Firecrawl credits, Hunter searches, Apify runs, Gemini requests). Only real (uncached) calls are charged; a cap stops that source with a message and the run continues. `python -m src.run quota` shows live balances from each provider next to what this project has spent; every run ends with a spend line. Set the caps below your real balance.
-
-
-## The app (for non-technical users)
-`start.bat` / `./start.sh` (or `python -m app`) opens http://127.0.0.1:8765 with five tabs: Home (counts, how it works, free credits left), Leads, Find leads (pick a city and size, watch progress), Website enquiries (funnel and enquiries) and Outbox. In Leads, pick a list, click a company, and you see: why it is a lead, how the score is made (plain-English points, calculated by code, not the AI), the news/tender sources with the exact quote and a link, who to contact (with the reason, never a guessed email), and "Write the email".
-- **Writing the email:** choose one of 10 styles (`config/templates.yaml`; each asks for three short paragraphs: why the trigger matters to them, how InfinityBox works for that kind of organisation, what a first call would cover), choose who it is for, optionally add a note, press "Write a draft". Gemini writes it using only the approved facts and forbidden words in `config/playbook.yaml`; the app adds the greeting (if a name is known), a link to the public calculator page and a `[Your name]` sign-off. The link (set in `config/playbook.yaml` under `link.url`) is added by code, never by the model, pre-filled with the company, segment and city and tagged `utm_campaign=<city>-<yyyymm>` so visits show up in the Website enquiries tab; deleting it is flagged. Edit freely: unsupported claims, invented numbers, email addresses and over-long text are flagged live and block Send.
-- **Send is a placeholder.** `app/mailer.py` delivers nothing: it records the message in the Outbox (`app_data/outbox.json`) and offers a pre-filled Gmail compose link so a person presses send. To make it real later, replace `deliver()` in `app/mailer.py` with the Gmail MCP/API call; nothing else changes.
-
-
-## The public page (inbound)
-`inbound/index.html` is a single static page in a hand-painted-truck style ("Reuse OK Please"): hero with an animated truck, how the loop works, a calculator built from **radial dials**, a lead form on the truck's tailgate, who it is for, and an FAQ. It is built from `inbound/page.src.html` + `inbound/assets/sprite.svg` by `python inbound/build.py` (edit the source, rebuild). Plain HTML/CSS/JS, about 60 KB, no build tooling, works on phones.
-- **Calculator:** step 1 is a draggable meals dial (log scale, 100 to 20,000) with quick-pick chips plus chips for working days and city; step 2 is a swipeable carousel with one dial per item (0 to 5 per meal) and a tap-to-edit price; step 3 is an animated ring (Items or Rupees) with a truck that loads the biggest items. Dials support mouse, touch and keyboard (arrows, Home, End), snap with a short glide, and never wrap past the ends. Panes slide between steps; all motion is switched off for `prefers-reduced-motion`.
-- **Honest numbers:** every figure is the visitor's own input times editable placeholder prices (`calc.js`, shown on the page). The only InfinityBox figures (30% water, 25% electricity, 40% single-use waste) are labelled "InfinityBox reports", linked to getinfinitybox.com, and not applied to the visitor's numbers.
-- **Outreach links** can prefill the page: `?m=2000&city=Pune&c=Acme&s=caterer&utm_source=mail&utm_campaign=batch1`.
-- **Where a lead lands:** with `python -m app`, open http://127.0.0.1:8765/site/ and submit; the lead appears in the app's "Inbound leads" tab, routed by segment (corporate/institution -> warewashing, fitout -> kitchen design, caterer -> partner). To send leads to a Google Sheet instead, deploy `inbound/apps_script.gs` and paste its URL into `APPS_SCRIPT_URL` at the top of the page script. Host the `inbound/` folder on GitHub Pages.
-- **Spam protection:** hidden honeypot field and a 3-second minimum fill time; consent box required.
-
-## Routes (what lives where)
-| Where | Public page (frontend) | Team dashboard |
-|---|---|---|
-| **On your computer** (`start.bat`) | http://127.0.0.1:8765/site/ | http://127.0.0.1:8765/ (also `/dashboard/`). Full desk: find leads, write emails, outbox, enquiries. |
-| **GitHub Pages** | `https://<user>.github.io/<repo>/` | `.../dashboard/`. Read-only snapshot of the lead lists with names, emails and LinkedIn profiles removed. |
-
-The two link to each other: the page footer has "Team dashboard", and the desk header has "Public page". Refresh the snapshot after a new run with `python -m app.export_static`, commit `dashboard/`, push.
-
-## Making the Pages dashboard fully functional (capped credits)
-GitHub Pages only serves files, so the dashboard on Pages talks to a small server that runs this same app (`Dockerfile`, `render.yaml`). Without a server configured it stays a read-only snapshot.
-1. **Deploy the server** (free): on render.com choose New, Blueprint, pick this repo. It reads `render.yaml`. When asked, fill the keys (`GEMINI_API_KEY`, `FIRECRAWL_API_KEY`, `HUNTER_API_KEY`, optional `APIFY_TOKEN`, optional `SHEET_WEBHOOK_URL` and `SHEET_API_TOKEN`) and choose an `ACCESS_CODE`. Any host that runs Docker works the same way.
-2. **Connect Pages to it**: in the GitHub repo, Settings, Secrets and variables, Actions, Variables, add `API_URL` = the server's `https://...onrender.com` address. Run the `deploy-inbound-page` workflow. If your Pages address is not `https://sujal-02.github.io`, change `ALLOWED_ORIGIN` in `render.yaml` to it.
-3. **Open** `.../dashboard/`. It asks for the access code once per browser tab, then everything works: Find leads, Write the email, outbox.
-**How credits are capped:** the server runs with `BUDGET_PROFILE=demo`: a smaller allowance (`demo:` in `config/budgets.yaml`, for example 100 Gemini requests and 6 Hunter searches a month), only the Quick look size, one run at a time, and the Home tab shows what is left. A wrong access code is rate limited, and the public-page endpoints are switched off on the server. A free host sleeps when idle (the first request can take a minute) and forgets its lead lists when it restarts; the lists are rebuilt by Find leads, or kept in the Google Sheet when `SHEET_WEBHOOK_URL` is set.
-
-## The Google Sheet as the database (import and export)
-With a sheet connected (`SHEET_WEBHOOK_URL`/`SHEET_API_TOKEN`, or a key file), the sheet holds the lead lists, keyed by city, in the tabs Accounts, Signals, People, Scores, Drafts and Pipeline (each child row carries its city, so the same company in two cities never collides).
-- **Export (app to sheet):** every pipeline run saves its city automatically, and the Home tab has **Save to sheet** per list. Only that city's rows are replaced; other cities stay. A `status` you change in the sheet is kept.
-- **Import (sheet to app):** the Home tab's **Google Sheet** card lists the cities in the sheet with **Load from sheet**. On start, a server with an empty disk (a free host after a restart) loads every city from the sheet by itself, so the sheet is what makes the hosted dashboard durable.
-- Not connected? Lists stay as local files and can be downloaded as Excel.
-
-## Enquiries from the live page, in the sheet and on the dashboard
-Set the repository variable `APPS_SCRIPT_URL` (Settings, Secrets and variables, Actions, Variables) to your Apps Script web-app address (`https://script.google.com/.../exec`), then run the `deploy-inbound-page` workflow. The deployed public page then stores each enquiry in the sheet's `Leads` tab and each visit step in `Events`, and the dashboard's **Website enquiries** tab shows both next to this app's own (each row says "Google Sheet" or "This app"; the funnel counts both; the sheet is re-read at most every 20 seconds). Without the variable the page runs in preview mode and stores nothing.
-
-## CI/CD (`.github/workflows/`)
-- `ci.yml`: on every push and pull request, runs the tests and checks that the built pages match their sources. In a public repo it also fails if a key file or key-shaped string is tracked.
-- `pages.yml`: on a push to `main` that touches the page or dashboard, runs the page tests, then publishes the page, `/dashboard/` and a 404 page to GitHub Pages. Pages needs a public repo or a paid GitHub plan (it does not work for private repos on the free plan).
-- `run.yml`: manual "Run workflow" button to run a city from the Actions tab (needs the keys as repository secrets).
+See [NEXT_30_DAYS.md](NEXT_30_DAYS.md) for how these are addressed.

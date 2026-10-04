@@ -1,6 +1,6 @@
 # Next 30 days: from prototype to an autonomous lead system
 
-**Where we are.** A working prototype: one command (or one button) finds trigger-backed leads in a city, ranks them with a visible reason, finds contacts, and writes per-company draft emails. Nothing is ever sent. A public calculator page captures inbound leads. Known limits are listed in the last section.
+**Where we are.** A working, deployed prototype: one button (or command) finds trigger-backed leads in a city, ranks them with a visible reason, finds contacts, and writes per-company drafts that a person edits. It runs as a hosted dashboard (Render, behind an access code, capped credits) with a Google Sheet as its database, plus a public calculator page whose enquiries and visit funnel land in the same sheet. Nothing is ever sent. A full Pune run produced 45 accounts and 5 drafts ([RESULTS_PUNE.md](RESULTS_PUNE.md)); known limits are listed at the end.
 
 **Where we are going (day 30).** Every morning a scheduled run covers all six cities and puts a small, ranked batch of **Gmail drafts** in a shared mailbox. A reviewer opens each lead card, checks the news and source links, edits if needed, and presses **Send** in Gmail. That human send stays on purpose. Everything before it runs without anyone touching it.
 
