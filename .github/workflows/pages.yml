@@ -39,15 +39,6 @@ jobs:
           cp -r inbound/index.html inbound/404.html inbound/calc.js inbound/seo inbound/assets _site/
           cp -r dashboard _site/dashboard      # read-only dashboard snapshot, personal details already removed
           test -f _site/dashboard/index.html
-      - name: Send the public page's enquiries to the Google Sheet (repository variable APPS_SCRIPT_URL; empty = preview mode, nothing stored)
-        env:
-          APPS_SCRIPT_URL: ${{ vars.APPS_SCRIPT_URL }}
-        run: |
-          if [ -n "$APPS_SCRIPT_URL" ]; then
-            echo "$APPS_SCRIPT_URL" | grep -Eq '^https://script\.google\.com/[A-Za-z0-9._/-]+$' || { echo "APPS_SCRIPT_URL must be the https://script.google.com/.../exec address"; exit 1; }
-            sed -i "s|APPS_SCRIPT_URL: \"\"|APPS_SCRIPT_URL: \"$APPS_SCRIPT_URL\"|" _site/index.html
-            grep -q "$APPS_SCRIPT_URL" _site/index.html
-          fi
       - name: Point the dashboard at the hosted server (repository variable API_URL; empty keeps the read-only snapshot)
         env:
           API_URL: ${{ vars.API_URL }}

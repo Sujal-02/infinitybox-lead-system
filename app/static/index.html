@@ -155,6 +155,7 @@ dialog::backdrop{background:rgba(30,30,60,.45)}
     </div>
     <div class="actions"><button class="btn" data-go="leads">Review leads</button><button class="btn soft" data-go="find">Find leads for a city</button></div>
   </div>
+  <div class="card" id="setupCard" hidden><h3>Setup</h3><div class="muted small" id="setupNote"></div><div id="setupKeys" style="margin-top:8px"></div></div>
   <div class="card quota"><h3>Free credits left</h3><div class="muted small">The desk stops by itself before these run out.</div><div id="quota"><div class="empty">Checking...</div></div></div>
 </section>
 
@@ -162,6 +163,7 @@ dialog::backdrop{background:rgba(30,30,60,.45)}
   <div class="split">
     <div class="listcol">
       <label class="f" for="ds" style="margin-top:0">Lead list</label><select id="ds"></select>
+      <button class="btn soft" id="dlSheet" style="margin-top:10px;width:100%;justify-content:center" hidden>Download as Excel sheet</button>
       <input id="q" type="text" placeholder="Search a company..." aria-label="Search companies" style="margin-top:10px">
       <div class="chips" id="segs"></div>
       <div class="row small muted" style="margin:0 2px 8px"><span id="count"></span><select id="sort" style="width:auto;padding:2px 10px"><option value="score">Best score first</option><option value="new">Newest first</option></select></div>
@@ -183,7 +185,7 @@ dialog::backdrop{background:rgba(30,30,60,.45)}
 
 <section class="view" id="v-inbound">
   <div class="card"><h2>How the public page is doing</h2><p class="muted">Anonymous counts only: no cookies, no names. Each bar is the number of different visitors who got that far.</p><div class="fun" id="funnel"></div><div id="campaigns"></div></div>
-  <div class="card"><div class="row"><h2>Enquiries from the website</h2><button class="btn soft" onclick="loadInbound()">Refresh</button></div><p class="muted">People who used the calculator and asked to be contacted. Each one is routed to a team by what they told us they are. <a href="/site/" target="_blank" rel="noopener">Open the public page</a></p><div class="tablewrap" id="inbound"></div></div>
+  <div class="card"><h2>Enquiries from the website</h2><p class="muted">People who used the calculator and asked to be contacted. Each one is routed to a team by what they told us they are. <a href="/site/" target="_blank" rel="noopener">Open the public page</a></p><div class="tablewrap" id="inbound"></div></div>
 </section>
 
 <section class="view" id="v-outbox">
@@ -260,7 +262,17 @@ document.querySelectorAll('#tabs button').forEach(b => b.onclick = () => show(b.
 document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => show(b.dataset.go));
 
 /* ---------- home ---------- */
+async function loadSetup() {   // which keys are saved (local desk only); never shows the keys
+  if (STATIC || REMOTE) return;
+  try {
+    const s = await api('/api/setup'), miss = s.keys.some(k => k.required && !k.set);
+    $('#setupCard').hidden = false;
+    $('#setupNote').textContent = (miss ? 'The Gemini key is missing, so nothing can run yet. ' : '') + 'To add or change keys, close this window and run  python setup_local.py  (or double-click start.bat / ./start.sh). Results are saved in: ' + s.sheet + '.';
+    $('#setupKeys').replaceChildren(...s.keys.map(k => h('span', { class: 'tag ' + (k.set ? 'tota' : k.required ? 'sindoor' : 'haldi') }, (k.set ? '✓ ' : k.required ? '✗ ' : '– ') + k.name + (k.set ? '' : k.required ? ' (required)' : ' (optional, not set)'))));
+  } catch (e) { /* the setup card is a nicety */ }
+}
 async function loadHome() {
+  loadSetup();
   const [ob, inb] = await Promise.all([api('/api/outbox'), api('/api/inbound')]);
   $('#sOut').textContent = ob.length; $('#sIn').textContent = inb.length; $('#sLeads').textContent = S.leads.length || '-';
   const box = $('#quota');
@@ -287,13 +299,25 @@ async function initLeads() {
   S.styles = st.styles; S.facts = st.facts;
   const sel = $('#ds'); sel.replaceChildren(...ds.map(d => h('option', { value: d.id }, d.label)));
   sel.onchange = () => loadLeads(sel.value);
+  S.sheets = Object.fromEntries(ds.map(d => [d.id, d.sheet]));
+  $('#dlSheet').onclick = downloadSheet;
   $('#q').oninput = e => { S.q = e.target.value.toLowerCase(); renderList(); };
   $('#sort').onchange = e => { S.sort = e.target.value; renderList(); };
   if (ds.length) await loadLeads(ds[0].id);
   else $('#list').replaceChildren(h('div', { class: 'empty' }, 'No lead lists yet. Open "Find leads" to make one.'));
 }
+async function downloadSheet() {   // the local "sheet": the same tabs the Google Sheet holds, as an Excel file
+  const b = $('#dlSheet'), label = b.textContent; b.disabled = true; b.textContent = 'Preparing...';
+  try {
+    const r = await fetch(REMOTE + '/api/export?dataset=' + encodeURIComponent(S.ds), { headers: { 'X-Access-Code': store.get('ib_code') } });
+    if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || 'Could not prepare the sheet.');
+    const a = h('a', { href: URL.createObjectURL(await r.blob()), download: 'leads_' + S.ds + '.xlsx' }); document.body.append(a); a.click(); a.remove();
+  } catch (e) { alert(e.message); }
+  b.disabled = false; b.textContent = label;
+}
 async function loadLeads(ds) {
   S.ds = ds; S.cur = null; $('#ds').value = ds;
+  $('#dlSheet').hidden = STATIC || !(S.sheets || {})[ds];
   S.leads = await api('/api/leads?dataset=' + ds);
   const segs = ['all', ...new Set(S.leads.map(l => l.segment))];
   if (!segs.includes(S.seg)) S.seg = 'all';
@@ -459,9 +483,9 @@ async function loadInbound() {
   $('#campaigns').replaceChildren(f.campaigns.length ? h('div', {}, h('h3', { style: 'margin-top:18px' }, 'By outreach batch'), h('p', { class: 'muted small' }, 'From the utm_campaign in each email link.'),
     h('div', { class: 'tablewrap' }, h('table', {}, h('thead', {}, h('tr', {}, ['Batch', 'Visited', 'Saw a result', 'Sent an enquiry'].map(x => h('th', {}, x)))), h('tbody', {}, f.campaigns.map(c => h('tr', {}, h('td', {}, c.campaign), h('td', {}, c.steps[0].visitors), h('td', {}, c.steps[3].visitors), h('td', {}, c.steps[5].visitors))))))) : h('p', { class: 'muted small', style: 'margin-top:14px' }, 'No outreach batches seen yet. Add ?utm_campaign=batch1 to the links in your emails.'));
   const parse = r => { try { return JSON.parse(r.inputs_json); } catch (e) { return {}; } };
-  $('#inbound').replaceChildren(o.length ? h('table', {}, h('thead', {}, h('tr', {}, ['When', 'Company', 'Who', 'City', 'They are', 'Routed to', 'Meals/day', 'Their estimate / month', 'Stored in'].map(x => h('th', {}, x)))),
+  $('#inbound').replaceChildren(o.length ? h('table', {}, h('thead', {}, h('tr', {}, ['When', 'Company', 'Who', 'City', 'They are', 'Routed to', 'Meals/day', 'Their estimate / month'].map(x => h('th', {}, x)))),
     h('tbody', {}, o.map(r => { const p = parse(r), c = p.calc || {}; return h('tr', {}, h('td', {}, r.ts.replace('T', ' ')), h('td', {}, r.company), h('td', {}, (c.name || '') + (c.name ? ' · ' : '') + r.role, h('div', { class: 'muted small' }, p.contact || '')),
-      h('td', {}, r.city), h('td', {}, SEG[r.segment] || r.segment), h('td', {}, h('span', { class: 'tag tota' }, QUEUE_LABEL[r.queue] || r.queue)), h('td', {}, String(r.meals)), h('td', {}, c.totalRs ? 'Rs ' + c.totalRs.toLocaleString('en-IN') : ''), h('td', {}, h('span', { class: 'tag ' + (r.source === 'sheet' ? 'mor' : 'haldi') }, r.source === 'sheet' ? 'Google Sheet' : 'This app'))); })))
+      h('td', {}, r.city), h('td', {}, SEG[r.segment] || r.segment), h('td', {}, h('span', { class: 'tag tota' }, QUEUE_LABEL[r.queue] || r.queue)), h('td', {}, String(r.meals)), h('td', {}, c.totalRs ? 'Rs ' + c.totalRs.toLocaleString('en-IN') : '')); })))
     : h('div', { class: 'empty' }, 'No enquiries yet. Fill in the form on the public page and it will appear here.'));
 }
 async function loadOutbox() {

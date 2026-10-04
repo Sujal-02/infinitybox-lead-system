@@ -40,7 +40,7 @@ def available() -> list[dict]:
     for k, d in {**DATASETS, **_dynamic()}.items():
         probe = ROOT / d["dir"] / ("accounts.json" if d["kind"] == "pipeline" else "leads.json")
         if probe.exists():
-            out.append({"id": k, "label": d["label"]})
+            out.append({"id": k, "label": d["label"], "sheet": d["kind"] == "pipeline"})
     return out
 
 

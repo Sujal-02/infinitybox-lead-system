@@ -16,6 +16,24 @@ Finds companies likely to need cafeteria warewashing or kitchen design **right n
 
 The two live pages link to each other. They need GitHub Pages enabled for the repository (Settings, Pages, Source: GitHub Actions), which on a private repository needs a paid GitHub plan; the same pages also run from the app on your own computer (see Routes below).
 
+## Run it yourself (for reviewers: no shared keys, no Google account)
+You use your own free keys. They stay on your computer in a file called `.env` and are never uploaded.
+1. Install **Python 3.11 or newer** (python.org/downloads; on Windows tick "Add Python to PATH").
+2. Get the project folder (a zip, or `git clone` if you were given access) and open it.
+3. **Windows:** double-click `start.bat`. **Mac/Linux:** run `./start.sh`. The first run sets itself up (about a minute), then `setup_local.py` asks for your keys one by one. For each it explains what the service does, what happens if you skip it, what it costs (all have a free tier), where to get the key, and it checks the key works before saving. Only Gemini is required:
+
+| Key | What it is for | Without it |
+|---|---|---|
+| Gemini (aistudio.google.com/app/apikey) | The AI: turns news and pages into leads, writes drafts | Nothing runs (required) |
+| Firecrawl (firecrawl.dev, 1,000 free credits) | Web search and page reading: company sites, tenders, trackers | Only free news search: fewer leads, no website contacts |
+| Hunter (hunter.io/api-keys, 50 free searches a month) | Verified work emails (never guessed) | Contacts have names and roles; emails only if a site publishes them |
+| Apify (console.apify.com/account/integrations, about US$5 free a month) | Public LinkedIn company pages, no login | Contacts come from websites and Hunter only |
+
+4. The lead desk opens in your browser. **Find leads**: pick a city, keep "Quick look" (about 4 minutes and a small part of the free credits), press the button, watch the progress.
+5. **Leads**: open a company to see why it is a lead, the score, the source links and who to contact; **Write the email** makes an editable draft. "Send" only records it in the outbox: nothing is ever emailed.
+6. **Local sheet**: there is no Google Sheet. Press **Download as Excel sheet** on the Leads tab for the same tabs the sheet would hold (Accounts, Signals, People, Scores, Drafts, Pipeline). Each run also saves `workbook.xlsx` in its `data_<city>` folder.
+To change keys later run `python setup_local.py` (or `python setup_local.py --check` to test the saved ones). To share this project without any keys or run data, send a zip made with `git archive -o infinitybox.zip HEAD` (secrets and run data are git-ignored).
+
 ## 30-minute setup (no coding)
 
 1. **Start**: install Python 3.11+, then double-click `start.bat` (Windows) or run `./start.sh`. The first run sets up a private environment and creates `.env`.
@@ -113,9 +131,6 @@ GitHub Pages only serves files, so the dashboard on Pages talks to a small serve
 2. **Connect Pages to it**: in the GitHub repo, Settings, Secrets and variables, Actions, Variables, add `API_URL` = the server's `https://...onrender.com` address. Run the `deploy-inbound-page` workflow. If your Pages address is not `https://sujal-02.github.io`, change `ALLOWED_ORIGIN` in `render.yaml` to it.
 3. **Open** `.../dashboard/`. It asks for the access code once per browser tab, then everything works: Find leads, Write the email, outbox.
 **How credits are capped:** the server runs with `BUDGET_PROFILE=demo`: a smaller allowance (`demo:` in `config/budgets.yaml`, for example 100 Gemini requests and 6 Hunter searches a month), only the Quick look size, one run at a time, and the Home tab shows what is left. A wrong access code is rate limited, and the public-page endpoints are switched off on the server. A free host sleeps when idle (the first request can take a minute) and forgets its lead lists when it restarts; the lists are rebuilt by Find leads, or kept in the Google Sheet when `SHEET_WEBHOOK_URL` is set.
-
-## Enquiries from the live page, in the sheet and on the dashboard
-Set the repository variable `APPS_SCRIPT_URL` (Settings, Secrets and variables, Actions, Variables) to your Apps Script web-app address (`https://script.google.com/.../exec`), then run the `deploy-inbound-page` workflow. The deployed public page then stores each enquiry in the sheet's `Leads` tab and each visit step in `Events`, and the dashboard's **Website enquiries** tab shows both next to this app's own (each row says "Google Sheet" or "This app"; the funnel counts both; the sheet is re-read at most every 20 seconds). Without the variable the page runs in preview mode and stores nothing.
 
 ## CI/CD (`.github/workflows/`)
 - `ci.yml`: on every push and pull request, runs the tests and checks that the built pages match their sources. In a public repo it also fails if a key file or key-shaped string is tracked.
