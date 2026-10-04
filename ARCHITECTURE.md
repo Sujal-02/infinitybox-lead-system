@@ -18,7 +18,7 @@
  Lead desk (local web app, app/)  ──►  outbox.json / workbook .xlsx / Google Sheet (optional)
 
  Public page (inbound/, static)  ── calculator → form ──► Google Apps Script web app
-        ├─ appends row to Sheet tab "Leads", routes by segment, emails the team
+        ├─ appends row to Sheet tab "Leads" and routes by segment (script has one scope: this sheet only)
         └─ anonymous funnel events → Sheet tab "Events" (also shown in the Lead desk)
 ```
 

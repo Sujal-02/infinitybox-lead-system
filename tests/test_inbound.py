@@ -1,4 +1,4 @@
-"""Runs inbound/apps_script.gs under node with mocked Google services: form POST -> Leads row + email."""
+"""Runs inbound/apps_script.gs under node with mocked Google services: form POST -> Leads row (no email, no other Google service)."""
 import json
 import shutil
 import subprocess
@@ -13,7 +13,7 @@ const vm = require('vm'), fs = require('fs');
 const rows = [], mails = [];
 const ctx = { rows, mails,
   PropertiesService: { getScriptProperties: () => ({ getProperty: k => k + '_val' }) },
-  SpreadsheetApp: { openById: () => ({ getSheetByName: n => (n === 'Events' && !ctx.hasEvents) ? null : ({ appendRow: r => rows.push([n, r]) }),
+  SpreadsheetApp: { getActive: () => ({ getSheetByName: n => (n === 'Events' && !ctx.hasEvents) ? null : ({ appendRow: r => rows.push([n, r]) }),
     insertSheet: n => { ctx.hasEvents = true; return { appendRow: r => rows.push([n, r]) }; } }) },
   MailApp: { sendEmail: (...a) => mails.push(a) },
   ContentService: { MimeType: { JSON: 'json' }, createTextOutput: s => ({ s, setMimeType() { return this; } }) } };
@@ -44,4 +44,8 @@ def test_form_to_leads_row_and_routing():
     assert events[0][1][0] == "ts" and events[1][1][2] == "view" and events[1][1][5] == "batch1"
     row = leads[0][1]
     assert len(row) == 10 and row[1] == "Acme" and row[5] == 500 and row[8] == "kitchen design"
-    assert len(out["mails"]) == 1
+    assert out["mails"] == []                                         # the script cannot send email (narrow permissions)
+    import json as _j
+    manifest = _j.loads((GS.parent / "appsscript.json").read_text())
+    assert manifest["oauthScopes"] == ["https://www.googleapis.com/auth/spreadsheets.currentonly"]
+    assert "MailApp" not in GS.read_text() and "openById" not in GS.read_text()

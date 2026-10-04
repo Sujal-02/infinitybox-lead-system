@@ -12,8 +12,8 @@ Finds companies likely to need cafeteria warewashing or kitchen design **right n
    2. IAM & Admin -> Service accounts -> Create. No roles needed. Open it -> Keys -> Add key -> JSON. Save the file as `creds.json` in this folder (git-ignored). Copy the account's email (`...@...iam.gserviceaccount.com`).
    3. Create an empty Google Sheet, **Share** it with that email as Editor, and copy the id from its URL (between `/d/` and `/edit`) into `GSHEET_ID` in `.env`.
    4. `python -m src.run sheet_check` (says in plain words what is missing), then `python -m src.run init` (creates the tabs), then set `DRY_RUN=0`.
-   **If your organisation blocks service-account keys**, skip steps 1 and 2 and use the Apps Script gateway instead: in the sheet, Extensions -> Apps Script, paste `inbound/apps_script.gs`, set Script properties `SHEET_ID`, `TEAM_EMAIL` and `API_TOKEN` (any long random string), Deploy -> Web app (execute as you, access Anyone). Put the `/exec` URL in `SHEET_WEBHOOK_URL` and the token in `SHEET_API_TOKEN` in `.env`. `sheet_check` and `init` then work the same, with no key file. Anyone with the URL still needs the token to write.
-   5. For website enquiries: Apps Script on the same sheet, Script Properties `SHEET_ID` and `TEAM_EMAIL`, deploy `inbound/apps_script.gs` as a web app. In GitHub Actions use the secrets `GSHEET_ID` and `GOOGLE_CREDS_JSON` (the whole JSON).
+   **If your organisation blocks service-account keys**, skip steps 1 and 2 and use the Apps Script gateway: open the sheet -> Extensions -> Apps Script, paste `inbound/apps_script.gs`; Project settings -> tick "Show appsscript.json" and replace its content with `inbound/appsscript.json` (this limits the permission to **this one sheet**, no email, no other files); Script properties -> `API_TOKEN` (any long random string); Deploy -> Web app (execute as you, access Anyone). Put the `/exec` URL in `SHEET_WEBHOOK_URL` and the token in `SHEET_API_TOKEN` in `.env`. `sheet_check` and `init` then work the same. Anyone with the URL still needs the token to write.
+   5. For website enquiries: the same Apps Script already handles the page's form and visit events (tabs Leads and Events). To get an email for each new enquiry, use the sheet's Tools -> Notification rules. In GitHub Actions use the secrets `SHEET_WEBHOOK_URL` and `SHEET_API_TOKEN` (or `GSHEET_ID` and `GOOGLE_CREDS_JSON` for a key).
 5. **Terminal alternative**: `python -m src.run all --city Pune`.
 
 Try it first without any keys or network: `python -m src.run all --city Pune --dry-run` (uses `tests/fixtures`).
@@ -39,7 +39,7 @@ Flags: `--dry-run`, `--limit N` (docs to process), `--no-cache`. Intermediate da
 
 ## Inbound calculator
 `inbound/index.html` is static. Preview: `python -m http.server -d inbound 8000`, open http://localhost:8000.
-Go live: (1) add a `Leads` tab (done by `init`); (2) script.google.com, new project, paste `inbound/apps_script.gs`, set Script properties `SHEET_ID` and `TEAM_EMAIL`, Deploy > Web app (execute as you, anyone can access); (3) paste the URL into `CONFIG.APPS_SCRIPT_URL` in `index.html`; (4) host `inbound/` on GitHub Pages.
+Go live: (1) add a `Leads` tab (done by `init`); (2) from the sheet: Extensions > Apps Script, paste `inbound/apps_script.gs` and `inbound/appsscript.json` (one narrow permission, see step 4 of the setup), Deploy > Web app (execute as you, anyone can access); (3) paste the URL into `APPS_SCRIPT_URL` in `inbound/page.src.html`, run `python inbound/build.py`; (4) host `inbound/` on GitHub Pages.
 Routing: corporate/institution -> warewashing, fitout -> kitchen design, caterer -> partner. Every calculator number is an estimate in the visible `CONFIG` block.
 
 ## Assumptions

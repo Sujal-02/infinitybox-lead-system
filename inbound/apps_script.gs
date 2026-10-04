@@ -1,7 +1,10 @@
 /**
  * Google Apps Script web app: receives the calculator form, appends to the Leads tab,
- * routes by segment and emails the team.
- * Setup: Script properties -> SHEET_ID, TEAM_EMAIL, and API_TOKEN (a long random string; the same value goes in the pipeline's .env as SHEET_API_TOKEN). Deploy as Web app (execute as me, access: anyone).
+ * and routes by segment. Also the sheet gateway for the pipeline (sheetOp).
+ * Setup: create it from the sheet itself (Extensions -> Apps Script) so it is bound to that sheet. Script properties -> API_TOKEN
+ * (a long random string; the same value goes in the pipeline's .env as SHEET_API_TOKEN). Deploy as Web app (execute as me, access: anyone).
+ * Permissions: appsscript.json asks for ONE scope, spreadsheets.currentonly (this sheet only). It cannot open other files or send email.
+ * To be told about new enquiries, use the sheet's Tools -> Notification rules ("any changes are made" -> email).
  */
 var QUEUES = { corporate: "warewashing", institution: "warewashing", fitout: "kitchen design", caterer: "partner" };
 var SEGMENTS = Object.keys(QUEUES);
@@ -27,11 +30,7 @@ function doPost(e) {
     if (d.type === "event") return logEvent(d);  // anonymous funnel event from the page (no personal data)
     if (d.website) return reply({ ok: true });  // honeypot: bots fill this hidden field
     var row = buildLead(d, new Date().toISOString());
-    var props = PropertiesService.getScriptProperties();
-    SpreadsheetApp.openById(props.getProperty("SHEET_ID")).getSheetByName("Leads").appendRow(row);
-    MailApp.sendEmail(props.getProperty("TEAM_EMAIL"), "New lead [" + row[8] + "]: " + row[1],
-      "Company: " + row[1] + "\nRole: " + row[2] + "\nCity: " + row[3] + "\nSegment: " + row[4] +
-      "\nSeats: " + row[5] + "\nMeals/day: " + row[6] + "\nQueue: " + row[8] + "\nDetails: " + row[7]);
+    SpreadsheetApp.getActive().getSheetByName("Leads").appendRow(row);
     return reply({ ok: true, queue: row[8] });
   } catch (err) {
     return reply({ ok: false, error: String(err) });
@@ -39,7 +38,7 @@ function doPost(e) {
 }
 
 function logEvent(d) {
-  var ss = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty("SHEET_ID"));
+  var ss = SpreadsheetApp.getActive();
   var sh = ss.getSheetByName("Events");
   if (!sh) { sh = ss.insertSheet("Events"); sh.appendRow(["ts", "sid", "event", "utm_source", "utm_medium", "utm_campaign", "ref", "path"]); }
   var clip = function (v) { return String(v == null ? "" : v).slice(0, 100); };
@@ -51,7 +50,7 @@ function logEvent(d) {
 function sheetOp(d) {
   var props = PropertiesService.getScriptProperties(), token = props.getProperty("API_TOKEN");
   if (!token || d.token !== token) return reply({ ok: false, error: "bad token" });
-  var ss = SpreadsheetApp.openById(props.getProperty("SHEET_ID")), sh = d.title ? ss.getSheetByName(d.title) : null;
+  var ss = SpreadsheetApp.getActive(), sh = d.title ? ss.getSheetByName(d.title) : null;
   if (d.op === "list") return reply({ ok: true, title: ss.getName(), titles: ss.getSheets().map(function (x) { return x.getName(); }) });
   if (d.op === "add") { if (!sh) ss.insertSheet(String(d.title)); return reply({ ok: true }); }
   if (!sh) return reply({ ok: false, error: "no tab " + d.title });
