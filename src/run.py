@@ -7,7 +7,7 @@ from datetime import date
 
 from . import budget, cache, cfg, hierarchy, leads, sheet, store
 from .cfg import env
-from .discover import news, web
+from .discover import city as city_sources, news, web
 from .draft import draft
 from .extract import extract
 from .models import Account, Doc, Draft, Person, Score, Signal
@@ -65,7 +65,9 @@ def do_discover(city: str, limit: int | None, wide: bool = False) -> None:
         stats["docs_fixture"] = len(docs)
     else:
         docs, seen = [], set()
-        sources = [("news", lambda c: news.fetch(c, wide))] + ([("web", (lambda c: web.fetch(c, 2, 1)) if limit else web.fetch)] if env("FIRECRAWL_API_KEY") else [])
+        pages = 2 if limit else 6  # Firecrawl credits: fewer page reads in a limited (quick/standard) run
+        sources = [("news", lambda c: news.fetch(c, wide))] + ([("web", (lambda c: web.fetch(c, 2, 1)) if limit else web.fetch),
+                                                                ("city_pages", lambda c: city_sources.fetch_pages(c, pages))] if env("FIRECRAWL_API_KEY") else [])
         if not env("FIRECRAWL_API_KEY"):
             print("FIRECRAWL_API_KEY missing: web source skipped")
         for name, fn in sources:

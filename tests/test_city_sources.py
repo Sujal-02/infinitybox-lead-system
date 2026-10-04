@@ -24,3 +24,25 @@ def test_report_groups_by_city_then_category_and_lists_fixes():
     fix = t[t.index("## Fix list"):]
     assert "find the current site" in fix and "open it in a browser" in fix and "| Pune | a" in fix
     assert "e: https://x.in/e -> new.in" in t                                                           # reachable but moved
+
+
+def test_city_sources_feed_discovery():
+    from src.discover import city, news
+    base, wide = city.queries("Pune", False), city.queries("Pune", True)
+    assert base and set(base) <= set(wide) and len(wide) > len(base) + 15           # micro-markets, seed leads, institutions, media
+    assert any(q.startswith('"Hinjewadi') or "Hinjewadi" in q for q in wide) and any(q.startswith("site:") for q in wide)
+    assert city.queries("Hyderabad", True) == []                                      # no block for that city: nothing invented
+    assert set(wide) <= set(news.queries("Pune", True))                               # and they reach the news fetcher
+    urls = city.pages("Hyderabad", 6)                                                 # shared fetchable sources work for every city
+    assert urls and all(u.startswith("http") for u in urls) and urls[0].startswith("https://gccindex.in")
+    assert city.pages("Pune", 99).count("https://mahatenders.gov.in/nicgep/app") == 1  # a city's own `a: fetch` source is added once
+
+
+def test_one_failing_news_query_does_not_lose_the_rest(monkeypatch):
+    from src.discover import news
+    from src.models import Doc
+    from datetime import date
+    monkeypatch.setattr(news, "queries", lambda c, w: ["bad", "good"])
+    monkeypatch.setattr(news, "_get", lambda q: (_ for _ in ()).throw(RuntimeError("404")) if q == "bad" else "x")
+    monkeypatch.setattr(news, "parse", lambda xml: [Doc(url="u", title="t", text="t", date=date.today(), source="news")])
+    assert len(news.fetch("Pune")) == 1

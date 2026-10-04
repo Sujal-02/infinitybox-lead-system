@@ -30,6 +30,9 @@ python -m src.run all --city Pune
 ```
 Flags: `--dry-run`, `--limit N` (docs to process), `--no-cache`. Intermediate data lives in `data/`; API responses in `cache/`, so reruns are free.
 
+## Where leads are looked for
+Per city: Google News queries from `config/cities.yaml`, then (from `config/city_sources.yaml`) the city's own queries and, in a wide run, one query per tech park / micro-market, per recently seen expansion (a seed lead: kept only if a real article with a verbatim quote comes back), per institution and per local news site; plus Firecrawl searches and the fetchable tracker/lease/tender pages (`a: fetch`, best priority first, 2 pages in a limited run, 6 in a full run). Cities without a block in that file (Hyderabad, Chennai) still use the shared sources.
+
 ## How it decides
 - **Signals** (new campus, lease, tender, ...) are pulled from Google News RSS and Firecrawl searches, then extracted by Gemini. A signal is kept only if its `evidence` is a verbatim substring of the fetched text.
 - **Score** = fit (0-40) + trigger (0-45, decays with a 60-90 day half-life) + reach (0-15). Weights in `config/`. `reason` is built from the top parts.

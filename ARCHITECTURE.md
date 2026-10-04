@@ -5,7 +5,8 @@
 ```
  config/*.yaml (cities, sources, triggers, weights, roles, hierarchy, playbook, budgets)
         |
- 1 DISCOVER ── news RSS + city/national source list + Firecrawl search ──► docs (url, date, text)
+ 1 DISCOVER ── news RSS (city queries + one per tech park, seed lead, institution, local news site)
+               + Firecrawl search + the fetchable pages in config/city_sources.yaml ──► docs (url, date, text)
  2 EXTRACT  ── keyword prefilter, then Gemini Flash reads headlines in batches ──► signals
                guard: every signal must carry a quote that is a verbatim substring of the page
  3 SCORE    ── fixed rules, no LLM: Fit 40 + Trigger 45 (decays with age) + Reach 15 = 100
