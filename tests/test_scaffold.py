@@ -71,3 +71,32 @@ def test_cache_hits_disk(monkeypatch):
 def test_unlisted_actor_refused():
     with pytest.raises(PermissionError):
         cfg.actor("linkedin_with_cookies")
+
+
+def test_script_gateway_behaves_like_a_sheet(monkeypatch):
+    """The Apps Script gateway (no Google Cloud key) must work with the same init/append/read/replace calls."""
+    import json
+    store = {}
+
+    class Resp:
+        def __init__(self, j): self.j, self.status_code = j, 200
+        def json(self): return self.j
+
+    def post(url, data, headers, timeout):
+        d = json.loads(data)
+        assert d["token"] == "t"
+        op, t = d["op"], d.get("title")
+        if op == "list": return Resp({"ok": True, "title": "Book", "titles": list(store)})
+        if op == "add": store.setdefault(t, []); return Resp({"ok": True})
+        if op == "values": return Resp({"ok": True, "values": store[t]})
+        if op == "append": store[t].extend(d["rows"]); return Resp({"ok": True})
+        if op == "clear": store[t] = []; return Resp({"ok": True})
+    import requests
+    monkeypatch.setattr(requests, "post", post)
+    b = sheet.ScriptBook("http://x", "t")
+    assert set(sheet.init(b)) == set(sheet.TABS) | {"Events"} and sheet.init(b) == []
+    a = Account(id="a1", name="Acme", city="Pune", segment="corporate", first_seen=date(2026, 3, 1))
+    sheet.append(b, "Accounts", [a])
+    assert sheet.read(b, "Accounts")[0].name == "Acme"
+    sheet.replace(b, "Accounts", [])
+    assert store["Accounts"] == [sheet.columns("Accounts")]

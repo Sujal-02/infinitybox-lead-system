@@ -34,6 +34,8 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}          # optional: leave the secret out to skip LinkedIn actors
           GSHEET_ID: ${{ secrets.GSHEET_ID }}
+          SHEET_WEBHOOK_URL: ${{ secrets.SHEET_WEBHOOK_URL }}   # Apps Script gateway: use instead of a service-account key
+          SHEET_API_TOKEN: ${{ secrets.SHEET_API_TOKEN }}
           GOOGLE_CREDS_PATH: creds.json
           TOP_N_PEOPLE: ${{ vars.TOP_N_PEOPLE || '2' }}
           DRY_RUN: "0"

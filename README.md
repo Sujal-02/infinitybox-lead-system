@@ -12,6 +12,7 @@ Finds companies likely to need cafeteria warewashing or kitchen design **right n
    2. IAM & Admin -> Service accounts -> Create. No roles needed. Open it -> Keys -> Add key -> JSON. Save the file as `creds.json` in this folder (git-ignored). Copy the account's email (`...@...iam.gserviceaccount.com`).
    3. Create an empty Google Sheet, **Share** it with that email as Editor, and copy the id from its URL (between `/d/` and `/edit`) into `GSHEET_ID` in `.env`.
    4. `python -m src.run sheet_check` (says in plain words what is missing), then `python -m src.run init` (creates the tabs), then set `DRY_RUN=0`.
+   **If your organisation blocks service-account keys**, skip steps 1 and 2 and use the Apps Script gateway instead: in the sheet, Extensions -> Apps Script, paste `inbound/apps_script.gs`, set Script properties `SHEET_ID`, `TEAM_EMAIL` and `API_TOKEN` (any long random string), Deploy -> Web app (execute as you, access Anyone). Put the `/exec` URL in `SHEET_WEBHOOK_URL` and the token in `SHEET_API_TOKEN` in `.env`. `sheet_check` and `init` then work the same, with no key file. Anyone with the URL still needs the token to write.
    5. For website enquiries: Apps Script on the same sheet, Script Properties `SHEET_ID` and `TEAM_EMAIL`, deploy `inbound/apps_script.gs` as a web app. In GitHub Actions use the secrets `GSHEET_ID` and `GOOGLE_CREDS_JSON` (the whole JSON).
 5. **Terminal alternative**: `python -m src.run all --city Pune`.
 

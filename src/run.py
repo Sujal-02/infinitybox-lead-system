@@ -35,8 +35,8 @@ def sync() -> None:
     Without creds.json the same tables are written to a local Excel workbook instead."""
     if cfg.dry:
         return
-    if not (cfg.ROOT / env("GOOGLE_CREDS_PATH", "creds.json")).exists():
-        print(f"no creds.json: wrote local workbook {export_workbook()}")
+    if not sheet.enabled():
+        print(f"no Google Sheet configured (creds.json or SHEET_WEBHOOK_URL): wrote local workbook {export_workbook()}")
         return
     book = sheet.open_book()
     sheet.init(book)
@@ -239,7 +239,7 @@ def do_check_sources() -> None:
     for s in src:
         if s.status == "dead":
             print(f"  dead: {s.name} {s.url} {s.http or ''}")
-    if not cfg.dry and (cfg.ROOT / env("GOOGLE_CREDS_PATH", "creds.json")).exists():
+    if not cfg.dry and sheet.enabled():
         book = sheet.open_book()
         sheet.init(book)
         sheet.replace(book, "Sources", src)

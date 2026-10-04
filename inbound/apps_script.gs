@@ -1,7 +1,7 @@
 /**
  * Google Apps Script web app: receives the calculator form, appends to the Leads tab,
  * routes by segment and emails the team.
- * Setup: Script properties -> SHEET_ID, TEAM_EMAIL. Deploy as Web app (execute as me, access: anyone).
+ * Setup: Script properties -> SHEET_ID, TEAM_EMAIL, and API_TOKEN (a long random string; the same value goes in the pipeline's .env as SHEET_API_TOKEN). Deploy as Web app (execute as me, access: anyone).
  */
 var QUEUES = { corporate: "warewashing", institution: "warewashing", fitout: "kitchen design", caterer: "partner" };
 var SEGMENTS = Object.keys(QUEUES);
@@ -23,6 +23,7 @@ function buildLead(d, now) {
 function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents);
+    if (d.op) return sheetOp(d);                  // the pipeline writing to the sheet (needs API_TOKEN); see src/sheet.py ScriptBook
     if (d.type === "event") return logEvent(d);  // anonymous funnel event from the page (no personal data)
     if (d.website) return reply({ ok: true });  // honeypot: bots fill this hidden field
     var row = buildLead(d, new Date().toISOString());
@@ -44,6 +45,27 @@ function logEvent(d) {
   var clip = function (v) { return String(v == null ? "" : v).slice(0, 100); };
   sh.appendRow([clip(d.ts), clip(d.sid), clip(d.event), clip(d.utm_source), clip(d.utm_medium), clip(d.utm_campaign), clip(d.ref), clip(d.path)]);
   return reply({ ok: true });
+}
+
+// Sheet gateway for the pipeline when a Google Cloud service-account key is not allowed. Every call needs the API_TOKEN.
+function sheetOp(d) {
+  var props = PropertiesService.getScriptProperties(), token = props.getProperty("API_TOKEN");
+  if (!token || d.token !== token) return reply({ ok: false, error: "bad token" });
+  var ss = SpreadsheetApp.openById(props.getProperty("SHEET_ID")), sh = d.title ? ss.getSheetByName(d.title) : null;
+  if (d.op === "list") return reply({ ok: true, title: ss.getName(), titles: ss.getSheets().map(function (x) { return x.getName(); }) });
+  if (d.op === "add") { if (!sh) ss.insertSheet(String(d.title)); return reply({ ok: true }); }
+  if (!sh) return reply({ ok: false, error: "no tab " + d.title });
+  if (d.op === "values") return reply({ ok: true, values: sh.getLastRow() ? sh.getDataRange().getDisplayValues() : [] });
+  if (d.op === "clear") { sh.clear(); return reply({ ok: true }); }
+  if (d.op === "append") {
+    var rows = d.rows || [], w = rows.reduce(function (m, r) { return Math.max(m, r.length); }, 0);
+    if (!rows.length) return reply({ ok: true });
+    var range = sh.getRange(sh.getLastRow() + 1, 1, rows.length, w);
+    range.setNumberFormat("@");                    // keep text as text (no auto-converted dates or numbers)
+    range.setValues(rows.map(function (r) { while (r.length < w) r.push(""); return r; }));
+    return reply({ ok: true });
+  }
+  return reply({ ok: false, error: "unknown op" });
 }
 
 function reply(obj) {

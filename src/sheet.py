@@ -1,3 +1,5 @@
+import json
+
 import gspread
 from pydantic import BaseModel
 
@@ -14,7 +16,65 @@ def columns(tab: str) -> list[str]:
     return list(TABS[tab].model_fields)
 
 
+class ScriptWS:
+    """The few worksheet calls the pipeline uses, sent to the Apps Script gateway (inbound/apps_script.gs, sheetOp)."""
+    def __init__(self, book, title):
+        self.book, self.title = book, title
+
+    def row_values(self, n):
+        v = self.book.call("values", self.title) or []
+        return v[n - 1] if len(v) >= n else []
+
+    def append_row(self, r):
+        self.append_rows([r])
+
+    def append_rows(self, rows):
+        for i in range(0, len(rows), 200):
+            self.book.call("append", self.title, rows=rows[i:i + 200])
+
+    def get_all_records(self):
+        v = self.book.call("values", self.title)
+        return [dict(zip(v[0], r)) for r in v[1:]] if v else []
+
+    def clear(self):
+        self.book.call("clear", self.title)
+
+
+class ScriptBook:
+    def __init__(self, url, token):
+        self.url, self.token = url, token
+
+    def call(self, op, title="", **kw):
+        import requests
+        r = requests.post(self.url, data=json.dumps({"op": op, "token": self.token, "title": title, **kw}), headers={"Content-Type": "text/plain"}, timeout=60)
+        j = r.json()
+        if not j.get("ok"):
+            raise RuntimeError(f"sheet gateway: {j.get('error', r.status_code)}")
+        return j.get("values") if op == "values" else j
+
+    def worksheets(self):
+        return [ScriptWS(self, t) for t in self.call("list")["titles"]]
+
+    def worksheet(self, title):
+        return ScriptWS(self, title)
+
+    def add_worksheet(self, title, rows=0, cols=0):
+        self.call("add", title)
+
+    @property
+    def title(self):
+        return self.call("list")["title"]
+
+
+def enabled() -> bool:
+    """A Google Sheet is used when there is a service-account key or an Apps Script gateway; otherwise a local workbook is written."""
+    from .cfg import ROOT
+    return bool(env("SHEET_WEBHOOK_URL")) or (ROOT / env("GOOGLE_CREDS_PATH", "creds.json")).exists()
+
+
 def open_book():
+    if env("SHEET_WEBHOOK_URL"):
+        return ScriptBook(env("SHEET_WEBHOOK_URL"), env("SHEET_API_TOKEN"))
     gc = gspread.service_account(filename=env("GOOGLE_CREDS_PATH", "creds.json"))
     return gc.open_by_key(env("GSHEET_ID"))
 
@@ -24,9 +84,13 @@ EVENTS_HEADER = ["ts", "sid", "event", "utm_source", "utm_medium", "utm_campaign
 
 def check() -> str:
     """Open the sheet and say what is wrong in plain words if it cannot be opened. Returns a short success line."""
-    import json
-    from pathlib import Path
     from .cfg import ROOT
+    if env("SHEET_WEBHOOK_URL"):
+        try:
+            book = open_book()
+            return f"ok: '{book.title}' opened through the Apps Script gateway; tabs: {', '.join(w.title for w in book.worksheets())}"
+        except Exception as e:
+            raise SystemExit(f"gateway failed: {e}. Check SHEET_WEBHOOK_URL (the /exec URL), SHEET_API_TOKEN equals the script's API_TOKEN, and the web app is deployed with access: Anyone")
     path = ROOT / env("GOOGLE_CREDS_PATH", "creds.json")
     if not path.exists():
         raise SystemExit(f"{path.name} not found: download the service-account JSON key from Google Cloud and save it here")
