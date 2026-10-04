@@ -219,15 +219,26 @@ def test_demo_profile_caps_spend_and_offers_only_the_quick_run(monkeypatch):
     assert set(jobs.sizes()) == {"quick", "standard", "full"}
 
 
-def test_local_sheet_download_and_setup_status(monkeypatch):
-    import io
-    import openpyxl
-    from app import data
-    monkeypatch.setenv("GEMINI_API_KEY", "x")
-    monkeypatch.setenv("FIRECRAWL_API_KEY", "")
-    st = server.setup_status()
-    assert [k["set"] for k in st["keys"]][:2] == [True, False] and "x" not in str(st)       # status only, never the key
-    ds, before = next(d for d in data.available() if d["sheet"]), server.store.DIR
-    wb = openpyxl.load_workbook(io.BytesIO(server.workbook_bytes(ds["id"])))
-    assert {"Accounts", "Scores", "Drafts", "Pipeline"} <= set(wb.sheetnames)
-    assert server.store.DIR == before                                                      # the store is pointed back after the export
+def test_dashboard_shows_enquiries_and_visits_stored_in_the_google_sheet(monkeypatch):
+    """The live public page writes to the sheet (Leads, Events); the dashboard reads them through the gateway next to its own."""
+    tabs = {"Leads": [["ts", "company", "role", "city", "segment", "seats", "meals", "inputs_json", "queue", "owner"],
+                      ["2026-10-04T10:00:00Z", "Acme Foods", "Facilities", "Pune", "corporate", "500", "900", '{"contact": "a@acme.com"}', "warewashing", ""]],
+            "Events": [["ts", "sid", "event", "utm_source", "utm_medium", "utm_campaign", "ref", "path"],
+                       ["t", "s1", "view", "email", "outreach", "pune-202610", "", "/"], ["t", "s1", "lead", "email", "outreach", "pune-202610", "", "/"],
+                       ["t", "s2", "junk", "", "", "", "", "/"]]}
+
+    class Book:
+        def call(self, op, title="", **kw):
+            return tabs[title]
+    monkeypatch.setenv("SHEET_WEBHOOK_URL", "https://example.test/exec")
+    monkeypatch.setattr(server.sheet, "open_book", lambda: Book())
+    monkeypatch.setattr(server, "_read", lambda name: [])
+    server._SHEET.clear()
+    rows = server.inbound()
+    assert rows[0]["company"] == "Acme Foods" and rows[0]["source"] == "sheet" and rows[0]["meals"] == 900 and rows[0]["queue"] == "warewashing"
+    f = server.funnel()
+    assert [s["visitors"] for s in f["overall"]][0] == 1 and f["overall"][-1]["visitors"] == 1   # visited 1, sent an enquiry 1; the unknown event is ignored
+    assert f["campaigns"][0]["campaign"] == "pune-202610"
+    monkeypatch.delenv("SHEET_WEBHOOK_URL")
+    server._SHEET.clear()
+    assert server.inbound() == [] and server.sheet_tab("Leads") == []                           # no gateway: nothing read, nothing broken

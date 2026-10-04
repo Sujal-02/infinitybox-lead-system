@@ -10,7 +10,6 @@ import hmac
 import json
 import os
 import re
-import threading
 import time
 from collections import defaultdict
 from datetime import datetime
@@ -19,9 +18,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from src.cfg import ROOT, yml
-from src import budget, sheet, store
-from src import run as pipeline
-from src.cfg import env
+from src import budget, sheet
 from . import data, drafting, jobs, mailer
 
 STATE = ROOT / "app_data"
@@ -49,14 +46,43 @@ def record_event(body: dict) -> tuple[int, dict]:
     return 200, {"ok": True}
 
 
+_SHEET: dict[str, tuple[float, list[dict]]] = {}  # tab -> (time read, rows)
+
+
+def sheet_tab(tab: str) -> list[dict]:
+    """Rows of a tab in the Google Sheet, read through the Apps Script gateway and kept for 20 s so page loads stay quick.
+    This is where the live public page (on GitHub Pages) stores enquiries and visit events. [] when no gateway is set or it fails."""
+    if not os.getenv("SHEET_WEBHOOK_URL"):
+        return []
+    hit = _SHEET.get(tab)
+    if hit and time.time() - hit[0] < 20:
+        return hit[1]
+    try:
+        v = sheet.open_book().call("values", tab) or []
+        rows = [dict(zip(v[0], r)) for r in v[1:]]
+    except Exception:  # a sheet hiccup must not break the dashboard: show the last rows we had
+        rows = hit[1] if hit else []
+    _SHEET[tab] = (time.time(), rows)
+    return rows
+
+
+def inbound() -> list[dict]:
+    """Enquiries from the public page: this app's own store plus the Google Sheet "Leads" tab, newest first.
+    Each row says where it came from (`source`), so the dashboard can show both."""
+    mine = [{**r, "source": "app"} for r in (_read("inbound_leads.json") or [])]
+    num = lambda v: int(float(v)) if str(v).replace(".", "", 1).isdigit() else 0
+    theirs = [{**r, "seats": num(r.get("seats")), "meals": num(r.get("meals")), "source": "sheet"} for r in sheet_tab("Leads") if r.get("company")]
+    return sorted(mine + theirs, key=lambda r: str(r.get("ts", "")), reverse=True)
+
+
 def funnel() -> dict:
-    """Unique visitors reaching each step, overall and per outreach campaign (utm_campaign)."""
-    ev = _read("events.json") or []
+    """Unique visitors reaching each step, overall and per outreach campaign (utm_campaign). Counts this app's events and the sheet's."""
+    ev = (_read("events.json") or []) + [e for e in sheet_tab("Events") if e.get("event") in FUNNEL and e.get("sid")]
     def count(rows):
         seen = {s: {e["sid"] for e in rows if e["event"] == s} for s in FUNNEL}
         return [{"step": s, "label": FUNNEL_LABEL[s], "visitors": len(seen[s])} for s in FUNNEL]
-    camps = sorted({e["utm_campaign"] for e in ev if e["utm_campaign"]})
-    return {"overall": count(ev), "campaigns": [{"campaign": c, "steps": count([e for e in ev if e["utm_campaign"] == c])} for c in camps]}
+    camps = sorted({e["utm_campaign"] for e in ev if e.get("utm_campaign")})
+    return {"overall": count(ev), "campaigns": [{"campaign": c, "steps": count([e for e in ev if e.get("utm_campaign") == c])} for c in camps]}
 
 
 def record_lead(body: dict) -> tuple[int, dict]:
@@ -85,33 +111,6 @@ def _read(name: str):
 def _write(name: str, obj) -> None:
     STATE.mkdir(exist_ok=True)
     (STATE / name).write_text(json.dumps(obj, indent=1, ensure_ascii=False), "utf-8")
-
-
-EXPORT_LOCK = threading.Lock()  # the export briefly points the pipeline's store at one city's folder
-
-
-def workbook_bytes(ds: str) -> bytes | None:
-    """The same tables the Google Sheet would hold (Accounts, Signals, People, Scores, Drafts, Pipeline) as an .xlsx for one city's run.
-    This is the local "sheet" a person without a Google account can open in Excel."""
-    d = data.config(ds)
-    if d["kind"] != "pipeline":
-        return None
-    out = STATE / "export.xlsx"
-    STATE.mkdir(exist_ok=True)
-    with EXPORT_LOCK:
-        keep, store.DIR = store.DIR, ROOT / d["dir"]
-        try:
-            pipeline.export_workbook(out)
-        finally:
-            store.DIR = keep
-    return out.read_bytes()
-
-
-def setup_status() -> dict:
-    """Which keys are saved (never the keys themselves) and where results go."""
-    names = {"GEMINI_API_KEY": "Gemini (AI)", "FIRECRAWL_API_KEY": "Firecrawl (web pages)", "HUNTER_API_KEY": "Hunter (emails)", "APIFY_TOKEN": "Apify (LinkedIn lists)"}
-    return {"keys": [{"name": label, "set": bool(env(k)), "required": k == "GEMINI_API_KEY"} for k, label in names.items()],
-            "sheet": "Google Sheet" if sheet.enabled() else "Local Excel file"}
 
 
 def leads(ds: str, refresh: bool = False) -> list[dict]:
@@ -212,12 +211,10 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", "0")
         self.end_headers()
 
-    def _send(self, code: int, obj=None, raw: bytes | None = None, ctype="application/json", headers: dict | None = None):
+    def _send(self, code: int, obj=None, raw: bytes | None = None, ctype="application/json"):
         payload = raw if raw is not None else json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
-        for k, v in (headers or {}).items():
-            self.send_header(k, v)
-        self.send_header("Content-Type", ctype + ("; charset=utf-8" if "xml" not in ctype and "sheet" not in ctype else ""))
+        self.send_header("Content-Type", ctype + "; charset=utf-8")
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", "no-store")
         self._cors()
@@ -247,14 +244,6 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/run-options":
                 return self._send(200, {"cities": jobs.cities(), "sizes": {k: {x: v[x] for x in ("label", "minutes", "cost")} for k, v in jobs.sizes().items()},
                                         "demo": os.getenv("BUDGET_PROFILE") == "demo"})
-            if u.path == "/api/setup":
-                return self._send(200, setup_status())
-            if u.path == "/api/export":
-                blob = workbook_bytes(q["dataset"])
-                if blob is None:
-                    return self._send(404, {"error": "There is no sheet for this list."})
-                return self._send(200, raw=blob, ctype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                                  headers={"Content-Disposition": f'attachment; filename="leads_{q["dataset"]}.xlsx"', "Access-Control-Expose-Headers": "Content-Disposition"})
             if u.path == "/api/allowance":
                 return self._send(200, budget.status())
             if u.path == "/api/quota":
@@ -263,7 +252,7 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/funnel":
                 return self._send(200, funnel())
             if u.path == "/api/inbound":
-                return self._send(200, _read("inbound_leads.json") or [])
+                return self._send(200, inbound())
             if u.path == "/site" or u.path.startswith("/site/"):
                 rel = u.path[len("/site"):].lstrip("/") or "index.html"
                 f = (SITE / rel).resolve()

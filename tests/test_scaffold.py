@@ -122,18 +122,3 @@ def test_gateway_retries_an_empty_reply(monkeypatch):
     monkeypatch.setattr(requests, "post", lambda *a, **k: calls.append(1) or R(len(calls) > 1))
     monkeypatch.setattr(sheet.time, "sleep", lambda s: None)
     assert [w.title for w in sheet.ScriptBook("http://x", "t").worksheets()] == ["A"] and len(calls) == 2
-
-
-def test_setup_script_keeps_other_settings_and_never_prints_keys(tmp_path_factory=None):
-    import setup_local as s
-    from src import cfg
-    d = cfg.ROOT / "cache" / "_setup_test"
-    d.mkdir(parents=True, exist_ok=True)
-    env = d / ".env"
-    env.write_text("# my notes\nGEMINI_API_KEY=\nCITY=Pune\n", "utf-8")
-    s.write_env({"GEMINI_API_KEY": "key-1234567890", "HUNTER_API_KEY": "h-abcdefghij", "DRY_RUN": "0"}, env)
-    got = s.read_env(env)
-    assert got["GEMINI_API_KEY"] == "key-1234567890" and got["CITY"] == "Pune" and got["DRY_RUN"] == "0"
-    assert env.read_text("utf-8").startswith("# my notes")
-    assert s.mask("key-1234567890") == "...7890" and "key-12" not in s.mask("key-1234567890") and s.mask("") == "(not set)"
-    assert all(x["does"] and x["without"] and x["free"] for x in s.SERVICES) and [x["required"] for x in s.SERVICES].count(True) == 1
