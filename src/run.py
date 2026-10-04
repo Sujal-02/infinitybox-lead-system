@@ -36,10 +36,19 @@ def export_workbook(path=None) -> str:
 
 
 def sync() -> None:
-    """Push local data to the sheet. Manual `status` edits on Accounts/Drafts survive.
-    Without creds.json the same tables are written to a local Excel workbook instead."""
+    """Best-effort copy of the local data to the sheet (or a local workbook). The local files are the source of truth, so a
+    sheet outage must never stop the pipeline: it prints a warning, writes the workbook instead, and carries on."""
     if cfg.dry:
         return
+    try:
+        _push_to_sheet()
+    except Exception as e:
+        print(f"sheet sync skipped ({type(e).__name__}: {str(e)[:120]}); wrote local workbook {export_workbook()}")
+
+
+def _push_to_sheet() -> None:
+    """Push local data to the sheet. Manual `status` edits on Accounts/Drafts survive. Without a sheet configured the same
+    tables go to a local Excel workbook instead."""
     if not sheet.enabled():
         print(f"no Google Sheet configured (creds.json or SHEET_WEBHOOK_URL): wrote local workbook {export_workbook()}")
         return
@@ -53,10 +62,11 @@ def sync() -> None:
                 r.status = keep[tab][getattr(r, "id", None) or r.account_id]
         sheet.replace(book, tab, rows)
     sheet.replace(book, "Pipeline", leads.build())
-    try:
-        book.worksheet("Pipeline").set_basic_filter()  # filter dropdowns on the header row
-    except Exception as e:
-        print(f"could not set sheet filter: {type(e).__name__}")
+    if hasattr(book, "set_basic_filter") or not isinstance(book, sheet.ScriptBook):  # the Apps Script gateway has no filter call
+        try:
+            book.worksheet("Pipeline").set_basic_filter()  # filter dropdowns on the header row
+        except Exception as e:
+            print(f"could not set sheet filter: {type(e).__name__}")
 
 
 def do_discover(city: str, limit: int | None, wide: bool = False) -> None:

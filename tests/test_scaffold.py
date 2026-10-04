@@ -100,3 +100,25 @@ def test_script_gateway_behaves_like_a_sheet(monkeypatch):
     assert sheet.read(b, "Accounts")[0].name == "Acme"
     sheet.replace(b, "Accounts", [])
     assert store["Accounts"] == [sheet.columns("Accounts")]
+
+
+def test_sheet_outage_never_stops_the_pipeline(monkeypatch):
+    from src import run
+    monkeypatch.setattr(run.cfg, "dry", False)
+    monkeypatch.setattr(run, "_push_to_sheet", lambda: (_ for _ in ()).throw(RuntimeError("gateway down")))
+    monkeypatch.setattr(run, "export_workbook", lambda path=None: "wb.xlsx")
+    run.sync()  # must not raise
+
+
+def test_gateway_retries_an_empty_reply(monkeypatch):
+    import requests
+    calls = []
+
+    class R:
+        def __init__(self, ok): self.ok = ok
+        def json(self):
+            if not self.ok: raise ValueError("empty")
+            return {"ok": True, "titles": ["A"]}
+    monkeypatch.setattr(requests, "post", lambda *a, **k: calls.append(1) or R(len(calls) > 1))
+    monkeypatch.setattr(sheet.time, "sleep", lambda s: None)
+    assert [w.title for w in sheet.ScriptBook("http://x", "t").worksheets()] == ["A"] and len(calls) == 2

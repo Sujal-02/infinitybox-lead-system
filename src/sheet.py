@@ -1,6 +1,7 @@
 """Storage back-ends: Google Sheets through a service-account key or the Apps Script gateway, or a local .xlsx workbook.
 Both sheet back-ends expose the same few worksheet calls, so the pipeline does not care which one is used."""
 import json
+import time
 
 import gspread
 from pydantic import BaseModel
@@ -48,8 +49,16 @@ class ScriptBook:
 
     def call(self, op, title="", **kw):
         import requests
-        r = requests.post(self.url, data=json.dumps({"op": op, "token": self.token, "title": title, **kw}), headers={"Content-Type": "text/plain"}, timeout=60)
-        j = r.json()
+        body = json.dumps({"op": op, "token": self.token, "title": title, **kw})
+        for attempt in range(4):  # Apps Script now and then answers with an empty or HTML page when busy: wait and ask again
+            try:
+                r = requests.post(self.url, data=body, headers={"Content-Type": "text/plain"}, timeout=90)
+                j = r.json()
+                break
+            except (requests.RequestException, ValueError) as e:
+                if attempt == 3:
+                    raise RuntimeError(f"sheet gateway unreachable or not answering JSON ({type(e).__name__})") from e
+                time.sleep(3 * (attempt + 1))
         if not j.get("ok"):
             raise RuntimeError(f"sheet gateway: {j.get('error', r.status_code)}")
         return j.get("values") if op == "values" else j
