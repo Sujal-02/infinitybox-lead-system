@@ -188,3 +188,32 @@ def test_dashboard_page_is_the_desk_in_read_only_mode():
     page = export_static.html()
     assert 'window.STATIC_BASE = "data/"' in page and page.index("STATIC_BASE") < page.index("const STATIC")
     assert (export_static.OUT / "data" / "datasets.json").exists()
+
+
+def test_hosted_mode_needs_the_access_code_and_limits_wrong_guesses(monkeypatch):
+    monkeypatch.setenv("ACCESS_CODE", "s3cret")
+    server.FAILS.clear()
+    assert server.access_check("/api/leads", "", "1.1.1.1")[0] == 401
+    assert server.access_check("/api/leads", "s3cret", "1.1.1.1")[0] == 200
+    assert server.access_check("/", "", "1.1.1.1")[0] == 200                      # the page itself is not secret, its data is
+    assert server.access_check("/api/lead", "s3cret", "1.1.1.1")[0] == 404        # local-only endpoints are off on a hosted server
+    for _ in range(20):
+        server.access_check("/api/leads", "wrong", "2.2.2.2")
+    server.FAILS["4.4.4.4"] = []
+    for _ in range(50):
+        server.access_check("/api/leads", "", "4.4.4.4")                          # no code at all never locks anyone out
+    assert server.access_check("/api/leads", "s3cret", "4.4.4.4")[0] == 200
+    assert server.access_check("/api/leads", "s3cret", "2.2.2.2")[0] == 429       # guessing is rate limited, even with the right code
+    monkeypatch.delenv("ACCESS_CODE")
+    assert server.access_check("/api/leads", "", "3.3.3.3")[0] == 200             # no code configured (local use): open
+
+
+def test_demo_profile_caps_spend_and_offers_only_the_quick_run(monkeypatch):
+    from app import jobs
+    from src import budget
+    monkeypatch.setenv("BUDGET_PROFILE", "demo")
+    assert set(jobs.sizes()) == {"quick"} and jobs.start("Pune", "full")[0] == 422
+    demo, main = budget.caps(), budget.yml("budgets")
+    assert all(demo["monthly"][k] < main["monthly"][k] for k in ("firecrawl", "hunter", "gemini"))
+    monkeypatch.delenv("BUDGET_PROFILE")
+    assert set(jobs.sizes()) == {"quick", "standard", "full"}

@@ -39,6 +39,15 @@ jobs:
           cp -r inbound/index.html inbound/404.html inbound/calc.js inbound/seo inbound/assets _site/
           cp -r dashboard _site/dashboard      # read-only dashboard snapshot, personal details already removed
           test -f _site/dashboard/index.html
+      - name: Point the dashboard at the hosted server (repository variable API_URL; empty keeps the read-only snapshot)
+        env:
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          if [ -n "$API_URL" ]; then
+            echo "$API_URL" | grep -Eq '^https://[A-Za-z0-9._:/-]+$' || { echo "API_URL must be an https URL"; exit 1; }
+            sed -i "s|window.API_BASE = \"\"|window.API_BASE = \"$API_URL\"|" _site/dashboard/index.html
+            grep -q "$API_URL" _site/dashboard/index.html
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

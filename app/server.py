@@ -1,14 +1,24 @@
-"""Local web app (standard library only). Bound to 127.0.0.1: it is a prototype for one person on one machine.
-"Send" is a placeholder (app/mailer.py): it records the message in an outbox and offers a pre-filled Gmail compose link."""
+"""Web app (standard library only). By default bound to 127.0.0.1 for one person on one machine.
+"Send" is a placeholder (app/mailer.py): it records the message in an outbox and offers a pre-filled Gmail compose link.
+
+Hosted mode (for the GitHub Pages dashboard), all through environment variables:
+  ACCESS_CODE      every /api call must send it as the X-Access-Code header (wrong codes are rate limited)
+  ALLOWED_ORIGIN   the Pages site that may call this API from a browser (CORS), e.g. https://user.github.io
+  BUDGET_PROFILE   "demo" caps paid-API use with the small allowance in config/budgets.yaml and offers only the Quick look
+  HOST / PORT      listen address (a host sets PORT; HOST=0.0.0.0 to accept outside connections)"""
+import hmac
 import json
+import os
 import re
 import time
+from collections import defaultdict
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from src.cfg import ROOT, yml
+from src import budget
 from . import data, drafting, jobs, mailer
 
 STATE = ROOT / "app_data"
@@ -129,19 +139,66 @@ def handle_post(path: str, body: dict) -> tuple[int, dict]:
     return 404, {"error": "unknown endpoint"}
 
 
+FAILS: dict[str, list[float]] = defaultdict(list)  # client address -> times of recent wrong access codes
+PUBLIC_ONLY = ("/api/lead", "/api/event")  # written by the local copy of the public page; switched off on a hosted server
+
+
+def access_check(path: str, given: str, client: str, now: float | None = None) -> tuple[int, str]:
+    """(200, "") if allowed, else (status, message). Only /api paths need the code, and only when ACCESS_CODE is set."""
+    code = os.getenv("ACCESS_CODE", "")
+    if not code or not path.startswith("/api/"):
+        return 200, ""
+    now = now or time.time()
+    FAILS[client] = [t for t in FAILS[client] if now - t < 60]
+    if len(FAILS[client]) >= 20:  # a page load sends several requests at once, so one wrong code can count several times
+        return 429, "Too many wrong codes. Wait a minute and try again."
+    if path in PUBLIC_ONLY:
+        return 404, "not found"
+    if not hmac.compare_digest(given.encode(), code.encode()):
+        if given:  # a request with no code at all (the page just opened) is not a guess
+            FAILS[client].append(now)
+        return 401, "A valid access code is needed."
+    return 200, ""
+
+
 class Handler(BaseHTTPRequestHandler):
+    def _cors(self):
+        origin = os.getenv("ALLOWED_ORIGIN", "").rstrip("/")
+        if origin:
+            self.send_header("Access-Control-Allow-Origin", origin)
+            self.send_header("Access-Control-Allow-Headers", "Content-Type, X-Access-Code")
+            self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+            self.send_header("Vary", "Origin")
+
+    def _gate(self, path: str) -> bool:
+        code, msg = access_check(path, self.headers.get("X-Access-Code", ""), self.client_address[0])
+        if code != 200:
+            self._send(code, {"error": msg})
+        return code == 200
+
+    def do_OPTIONS(self):
+        self.send_response(204)
+        self._cors()
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def _send(self, code: int, obj=None, raw: bytes | None = None, ctype="application/json"):
         payload = raw if raw is not None else json.dumps(obj, ensure_ascii=False).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", ctype + "; charset=utf-8")
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", "no-store")
+        self._cors()
         self.end_headers()
         self.wfile.write(payload)
 
     def do_GET(self):
         u = urlparse(self.path)
         q = {k: v[0] for k, v in parse_qs(u.query).items()}
+        if u.path == "/healthz":
+            return self._send(200, {"ok": True})
+        if not self._gate(u.path):
+            return
         try:
             if u.path in ("/", "/dashboard", "/dashboard/"):
                 return self._send(200, raw=(STATIC / "index.html").read_bytes(), ctype="text/html")
@@ -156,7 +213,10 @@ class Handler(BaseHTTPRequestHandler):
             if u.path == "/api/job":
                 return self._send(200, jobs.status())
             if u.path == "/api/run-options":
-                return self._send(200, {"cities": jobs.cities(), "sizes": {k: {x: v[x] for x in ("label", "minutes", "cost")} for k, v in jobs.SIZES.items()}})
+                return self._send(200, {"cities": jobs.cities(), "sizes": {k: {x: v[x] for x in ("label", "minutes", "cost")} for k, v in jobs.sizes().items()},
+                                        "demo": os.getenv("BUDGET_PROFILE") == "demo"})
+            if u.path == "/api/allowance":
+                return self._send(200, budget.status())
             if u.path == "/api/quota":
                 from src.run import quota_data
                 return self._send(200, quota_data())
@@ -177,6 +237,8 @@ class Handler(BaseHTTPRequestHandler):
             self._send(500, {"error": str(e)[:200]})
 
     def do_POST(self):
+        if not self._gate(urlparse(self.path).path):
+            return
         try:
             body = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))) or b"{}")
             code, obj = handle_post(urlparse(self.path).path, body)
@@ -191,6 +253,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def serve(port: int = 8765) -> None:
-    srv = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"InfinityBox Leads app: http://127.0.0.1:{port}   public page: http://127.0.0.1:{port}/site/   (Ctrl+C to stop)")
+    host, port = os.getenv("HOST", "127.0.0.1"), int(os.getenv("PORT", port))
+    srv = ThreadingHTTPServer((host, port), Handler)
+    print(f"InfinityBox Leads app: http://{host}:{port}   public page: http://{host}:{port}/site/   (Ctrl+C to stop)", flush=True)
     srv.serve_forever()

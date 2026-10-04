@@ -28,7 +28,8 @@ def scrub(lead: dict) -> dict:
 
 def html() -> str:
     src = (ROOT / "app" / "static" / "index.html").read_text("utf-8")
-    flag = '<script>window.STATIC_BASE = "data/";</script>\n'
+    # API_BASE is filled in by the Pages workflow from the repository variable API_URL (the hosted server); empty = read-only snapshot
+    flag = '<script>window.API_BASE = ""; window.STATIC_BASE = "data/";</script>\n'
     i = src.rindex("<script>")
     return src[:i] + flag + src[i:]
 

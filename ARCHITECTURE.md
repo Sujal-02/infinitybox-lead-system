@@ -64,7 +64,8 @@ Budget guard (`config/budgets.yaml`): per-run and monthly caps per service; the 
 - Hunter's free tier is small, so it is used last; coverage of named people is the main limit on the Reach score.
 - Where we went deep: **targeting** (trigger evidence with quotes, contact hierarchy that separates buyers from gatekeepers) and **engagement** (per-company drafts with guardrails).
 
-## Deploy (two options)
+## Deploy (three options)
+0. **Pages dashboard with a live server:** Pages serves the dashboard; a small Docker server (`render.yaml`) runs the same app behind an access code with the capped `demo` allowance. See README, "Making the Pages dashboard fully functional".
 1. **Local (works today):** `start.bat` (Windows) or `./start.sh`, fill `.env`, open http://127.0.0.1:8765.
 2. **GitHub:** push the repo (`.env`, `creds.json`, `data*/` are git-ignored); publish `inbound/` with GitHub Pages; deploy `inbound/apps_script.gs` as a web app and paste its URL into the page; a scheduled GitHub Action can run `python -m src.run all --city <City>` weekly.
 

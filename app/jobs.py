@@ -27,8 +27,13 @@ def cities() -> list[str]:
     return list(yml("cities"))
 
 
+def sizes() -> dict:
+    """On the public host (BUDGET_PROFILE=demo) only the smallest run is offered, so one click cannot use the whole allowance."""
+    return {"quick": SIZES["quick"]} if os.getenv("BUDGET_PROFILE") == "demo" else SIZES
+
+
 def start(city: str, size: str) -> tuple[int, dict]:
-    if city not in cities() or size not in SIZES:
+    if city not in cities() or size not in sizes():
         return 422, {"error": "unknown city or size"}
     p = JOB.get("proc")
     if p and p.poll() is None:

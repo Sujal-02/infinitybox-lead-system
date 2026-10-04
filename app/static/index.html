@@ -200,7 +200,23 @@ function h(tag, attrs = {}, ...kids) {
   for (const c of kids.flat()) if (c != null && c !== false) e.append(c.nodeType ? c : document.createTextNode(c));
   return e;
 }
-const STATIC = window.STATIC_BASE || '';   // set only in the read-only GitHub Pages copy (see app/export_static.py)
+// Three ways to run: on your computer (neither flag), on GitHub Pages talking to the hosted server (API_BASE, set at deploy time),
+// or on GitHub Pages with no server configured (STATIC_BASE: a read-only snapshot). See app/export_static.py.
+const REMOTE = (window.API_BASE || '').replace(/\/$/, '');
+const STATIC = REMOTE ? '' : (window.STATIC_BASE || '');
+const store = { get: k => { try { return sessionStorage.getItem(k) || ''; } catch (e) { return ''; } }, set: (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) {} } };
+let codeAsk = null;   // several requests can fail at once: they all wait for the same single prompt
+function askCode(wrong) {   // the hosted server wants an access code; ask once per browser tab
+  return codeAsk || (codeAsk = new Promise(res => {
+    const dlg = $('#dlg'), inp = h('input', { type: 'password', id: 'code', placeholder: 'Access code', autocomplete: 'current-password' }), msg = h('div');
+    const done = ok => { dlg.close(); res(ok ? inp.value.trim() : ''); };
+    dlg.replaceChildren(...[h('h3', { style: 'margin-top:0' }, 'Access code'), h('p', { class: 'muted small' }, 'This demo server uses paid services with a small, capped allowance, so it needs a code. Ask the person who shared it.'),
+      wrong ? h('div', { class: 'note bad' }, 'That code did not work.') : null, inp, msg,
+      h('div', { class: 'actions' }, h('button', { class: 'btn', onclick: () => done(true) }, 'Continue'), h('button', { class: 'btn line', onclick: () => done(false) }, 'Cancel'))].filter(Boolean));
+    inp.onkeydown = e => { if (e.key === 'Enter') done(true); };
+    dlg.oncancel = () => { codeAsk = null; res(''); }; dlg.showModal(); inp.focus();
+  }).finally(() => { codeAsk = null; }));
+}
 const LOCAL_ONLY = 'This is a read-only snapshot. Open the desk on your computer to do this.';
 async function staticApi(path, body) {
   if (body) throw new Error(LOCAL_ONLY);
@@ -210,9 +226,17 @@ async function staticApi(path, body) {
   if (!f) throw new Error(LOCAL_ONLY);
   const r = await fetch(STATIC + f); if (!r.ok) throw new Error('Snapshot file missing: ' + f); return r.json();
 }
-async function api(path, body) {
+async function api(path, body, retried) {
   if (STATIC) return staticApi(path, body);
-  const r = await fetch(path, body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {});
+  const headers = { 'X-Access-Code': store.get('ib_code') };
+  if (body) headers['Content-Type'] = 'application/json';
+  let r;
+  try { r = await fetch(REMOTE + path, body ? { method: 'POST', headers, body: JSON.stringify(body) } : { headers }); }
+  catch (e) { throw new Error(REMOTE ? 'Cannot reach the demo server. It may be starting up (free hosts sleep): wait a minute and try again.' : 'Cannot reach the app.'); }
+  if (r.status === 401 && (retried || 0) < 3) {   // ask (again, if the stored code was wrong) and retry
+    const code = await askCode(!!store.get('ib_code'));
+    if (code) { store.set('ib_code', code); return api(path, body, (retried || 0) + 1); }
+  }
   const j = await r.json().catch(() => ({ error: 'Unexpected reply from the app.' }));
   if (!r.ok) throw Object.assign(new Error(j.error || 'Something went wrong'), { problems: j.problems || [] });
   return j;
@@ -241,6 +265,14 @@ async function loadHome() {
   $('#sOut').textContent = ob.length; $('#sIn').textContent = inb.length; $('#sLeads').textContent = S.leads.length || '-';
   const box = $('#quota');
   if (STATIC) { box.replaceChildren(h('div', { class: 'empty' }, 'Credit balances are shown in the desk on your computer.')); return; }
+  if (REMOTE) {   // the demo allowance, not the real account balances
+    try {
+      const a = await api('/api/allowance'), name = { firecrawl: 'Web pages (Firecrawl)', hunter: 'Email lookups (Hunter)', apify: 'LinkedIn lookups (Apify)', gemini: 'AI writing (Gemini)' };
+      box.replaceChildren(...Object.entries(a).map(([k, v]) => h('div', { class: 'q' }, h('div', { class: 'lab' }, h('span', {}, name[k] || k), h('span', {}, Math.max(0, v.cap - v.used).toLocaleString('en-IN') + ' of ' + v.cap.toLocaleString('en-IN') + ' left this month')),
+        h('div', { class: 'bar2' }, h('i', { style: 'width:' + Math.max(2, Math.min(100, (v.cap - v.used) / v.cap * 100)) + '%' })))));
+    } catch (e) { box.replaceChildren(h('div', { class: 'empty' }, 'Could not read the allowance.')); }
+    return;
+  }
   try {
     const q = await api('/api/quota');
     box.replaceChildren(...Object.values(q).map(x => x.error ? h('div', { class: 'q muted small' }, x.label + ': could not check right now') :
@@ -438,7 +470,9 @@ async function loadOutbox() {
   $('#outbox').replaceChildren(o.length ? h('table', {}, h('thead', {}, h('tr', {}, ['When', 'Company', 'To', 'Subject', 'Status'].map(x => h('th', {}, x)))),
     h('tbody', {}, o.map(r => h('tr', {}, h('td', {}, r.ts.replace('T', ' ')), h('td', {}, r.company), h('td', {}, r.to || '(not set)'), h('td', {}, r.subject), h('td', {}, h('span', { class: 'tag haldi' }, r.status || 'Recorded')))))) : h('div', { class: 'empty' }, 'Nothing recorded yet.'));
 }
-if (STATIC) { $('#snap').hidden = false; $('#siteLink').href = '../'; $('#siteLink').removeAttribute('target'); }
+if (STATIC || REMOTE) { $('#siteLink').href = '../'; $('#siteLink').removeAttribute('target'); }
+if (STATIC) $('#snap').hidden = false;
+if (REMOTE) { $('#snap').hidden = false; $('#snap').textContent = 'Demo server: everything works, but paid services have a small capped allowance (Home shows what is left). A free host can take a minute to wake up.'; }
 initLeads().then(loadHome);
 </script>
 </body>

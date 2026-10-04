@@ -1,0 +1,18 @@
+# Render Blueprint: New -> Blueprint -> pick this repo. Free plan (it sleeps when idle and loses its disk on restart, which is fine for a demo).
+services:
+  - type: web
+    name: infinitybox-desk
+    runtime: docker
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - { key: HOST, value: 0.0.0.0 }
+      - { key: BUDGET_PROFILE, value: demo }                      # small capped allowance, Quick look only
+      - { key: ALLOWED_ORIGIN, value: https://sujal-02.github.io }  # the Pages site that may call this API
+      - { key: ACCESS_CODE, sync: false }                         # you choose it; share it only with people who should use the credits
+      - { key: GEMINI_API_KEY, sync: false }
+      - { key: FIRECRAWL_API_KEY, sync: false }
+      - { key: HUNTER_API_KEY, sync: false }
+      - { key: APIFY_TOKEN, sync: false }                         # optional: leave empty to skip LinkedIn actors
+      - { key: SHEET_WEBHOOK_URL, sync: false }                   # optional: Google Sheet through the Apps Script gateway
+      - { key: SHEET_API_TOKEN, sync: false }

@@ -15,3 +15,17 @@ monthly:        # calendar month; keep a reserve below your real balance
   hunter: 30
   apify: 20     # runs. People search ~ $0.10 per run on the free $5 credit; harvestapi actor is refused after 10 free runs, the fallback is not
   gemini: 300
+
+# Smaller allowance used when the app runs on a public host (BUDGET_PROFILE=demo). Same units. Per-run is counted per process,
+# and on a long-running server the process lives until it restarts, so this is also a hard ceiling until then.
+demo:
+  per_run:
+    firecrawl: 60
+    hunter: 2
+    apify: 1
+    gemini: 40
+  monthly:
+    firecrawl: 150
+    hunter: 6
+    apify: 3
+    gemini: 100

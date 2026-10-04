@@ -1,0 +1,16 @@
+.git
+.github
+.env
+creds.json
+.venv
+__pycache__
+.pytest_cache
+cache
+app_data
+data
+data_*
+workbook_*.xlsx
+LEADS_*.md
+inspo
+tests
+*.log

@@ -14,6 +14,12 @@ class BudgetExceeded(RuntimeError):
 run_used: dict[str, float] = {}
 
 
+def caps() -> dict:
+    """The allowance in force: config/budgets.yaml, or its `demo` section when BUDGET_PROFILE=demo (the public host)."""
+    b = yml("budgets")
+    return b["demo"] if cfg.env("BUDGET_PROFILE") == "demo" else b
+
+
 def _file():
     return cfg.ROOT / "data" / "usage.json"
 
@@ -25,11 +31,11 @@ def _ledger() -> dict:
 
 def charge(service: str, n: float = 1) -> None:
     """Record n units of `service`, or raise BudgetExceeded if this run's or this month's cap would be passed."""
-    caps = yml("budgets")
+    c = caps()
     month = date.today().strftime("%Y-%m")
     led = _ledger()
     used = led.setdefault(month, {}).get(service, 0)
-    per_run, monthly = caps["per_run"].get(service), caps["monthly"].get(service)
+    per_run, monthly = c["per_run"].get(service), c["monthly"].get(service)
     if per_run is not None and run_used.get(service, 0) + n > per_run:
         raise BudgetExceeded(f"{service}: per-run cap {per_run} reached (config/budgets.yaml)")
     if monthly is not None and used + n > monthly:
@@ -40,8 +46,14 @@ def charge(service: str, n: float = 1) -> None:
     _file().write_text(json.dumps(led, indent=1), "utf-8")
 
 
+def status() -> dict:
+    """{service: {"used", "cap"}} for this month under the allowance in force (the hosted dashboard shows it)."""
+    c, used = caps(), _ledger().get(date.today().strftime("%Y-%m"), {})
+    return {s: {"used": used.get(s, 0), "cap": cap} for s, cap in c["monthly"].items()}
+
+
 def summary() -> str:
-    caps, month = yml("budgets"), date.today().strftime("%Y-%m")
+    c, month = caps(), date.today().strftime("%Y-%m")
     used = _ledger().get(month, {})
-    return " | ".join(f"{s}: run {run_used.get(s, 0):g}/{caps['per_run'].get(s, '-')}, month {used.get(s, 0):g}/{caps['monthly'].get(s, '-')}"
-                      for s in caps["monthly"])
+    return " | ".join(f"{s}: run {run_used.get(s, 0):g}/{c['per_run'].get(s, '-')}, month {used.get(s, 0):g}/{c['monthly'].get(s, '-')}"
+                      for s in c["monthly"])

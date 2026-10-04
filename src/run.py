@@ -149,7 +149,7 @@ def quota_data() -> dict:
         out["firecrawl"] = {"label": "Web pages (Firecrawl)", "error": type(e).__name__}
     try:
         from . import budget as _b
-        caps, used = cfg.yml("budgets")["monthly"], _b._ledger().get(date.today().strftime("%Y-%m"), {})
+        caps, used = _b.caps()["monthly"], _b._ledger().get(date.today().strftime("%Y-%m"), {})
         out["gemini"] = {"label": "AI writing (Gemini)", "left": max(0, caps["gemini"] - used.get("gemini", 0)), "total": caps["gemini"], "note": "requests left under your monthly cap"}
     except Exception as e:
         out["gemini"] = {"label": "AI writing (Gemini)", "error": type(e).__name__}

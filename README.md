@@ -107,6 +107,13 @@ See `ARCHITECTURE.md` for the data flow and monthly cost, `AI_LOG.md` for AI mis
 
 The two link to each other: the page footer has "Team dashboard", and the desk header has "Public page". Refresh the snapshot after a new run with `python -m app.export_static`, commit `dashboard/`, push.
 
+## Making the Pages dashboard fully functional (capped credits)
+GitHub Pages only serves files, so the dashboard on Pages talks to a small server that runs this same app (`Dockerfile`, `render.yaml`). Without a server configured it stays a read-only snapshot.
+1. **Deploy the server** (free): on render.com choose New, Blueprint, pick this repo. It reads `render.yaml`. When asked, fill the keys (`GEMINI_API_KEY`, `FIRECRAWL_API_KEY`, `HUNTER_API_KEY`, optional `APIFY_TOKEN`, optional `SHEET_WEBHOOK_URL` and `SHEET_API_TOKEN`) and choose an `ACCESS_CODE`. Any host that runs Docker works the same way.
+2. **Connect Pages to it**: in the GitHub repo, Settings, Secrets and variables, Actions, Variables, add `API_URL` = the server's `https://...onrender.com` address. Run the `deploy-inbound-page` workflow. If your Pages address is not `https://sujal-02.github.io`, change `ALLOWED_ORIGIN` in `render.yaml` to it.
+3. **Open** `.../dashboard/`. It asks for the access code once per browser tab, then everything works: Find leads, Write the email, outbox.
+**How credits are capped:** the server runs with `BUDGET_PROFILE=demo`: a smaller allowance (`demo:` in `config/budgets.yaml`, for example 100 Gemini requests and 6 Hunter searches a month), only the Quick look size, one run at a time, and the Home tab shows what is left. A wrong access code is rate limited, and the public-page endpoints are switched off on the server. A free host sleeps when idle (the first request can take a minute) and forgets its lead lists when it restarts; the lists are rebuilt by Find leads, or kept in the Google Sheet when `SHEET_WEBHOOK_URL` is set.
+
 ## CI/CD (`.github/workflows/`)
 - `ci.yml`: on every push and pull request, runs the tests and checks that the built pages match their sources. In a public repo it also fails if a key file or key-shaped string is tracked.
 - `pages.yml`: on a push to `main` that touches the page or dashboard, runs the page tests, then publishes the page, `/dashboard/` and a 404 page to GitHub Pages. Pages needs a public repo or a paid GitHub plan (it does not work for private repos on the free plan).

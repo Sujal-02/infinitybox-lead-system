@@ -40,7 +40,7 @@ Rules (hard):
 
 
 def _remaining() -> dict:
-    caps, led = cfg.yml("budgets"), budget._ledger().get(date.today().strftime("%Y-%m"), {})
+    caps, led = budget.caps(), budget._ledger().get(date.today().strftime("%Y-%m"), {})
     return {s: int(min(caps["per_run"][s], caps["monthly"][s] - led.get(s, 0))) for s in ("firecrawl", "hunter", "apify")}
 
 
