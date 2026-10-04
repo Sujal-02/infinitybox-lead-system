@@ -1,6 +1,6 @@
 # AI Log
 
-Every AI mistake and how it was caught, then the tools, the prompts that shaped the system and the decisions a person made. 25 entries; each one was found by a test, a log, a real run or by reading the output, and each has a fix or a test.
+Every AI mistake and how it was caught, then the tools, the prompts that shaped the system and the decisions a person made. 26 entries; each one was found by a test, a log, a real run or by reading the output, and each has a fix or a test.
 
 | Date | Phase | Mistake | How caught | Fix |
 |---|---|---|---|---|
@@ -29,6 +29,7 @@ Every AI mistake and how it was caught, then the tools, the prompts that shaped 
 | 2026-10-04 | 10 | Tests passed on my machine but 4 would have failed in CI: they relied on the git-ignored `cache/` folder and local run data, and one asserted `"x" not in` a string that contains "Excel" | Cloned the repository to a clean folder (what the CI runner sees) and ran the suite there | State folder now created with parents; the setup-status test builds its own tiny dataset and uses a distinctive fake key. Lesson: run the tests from a fresh clone before trusting a green local run |
 | 2026-10-04 | 11 | First "sheet as database" version keyed rows by account id only; saving Bangalore silently deleted one Pune account because the same company id exists in both cities (Pune 45 -> 44 in the real sheet) | Checked the real sheet's per-city counts right after the first save, not just the unit tests (which used distinct ids) | Child rows now carry `city` and everything is keyed by (account, city); test with the same id in two cities added; the real sheet re-saved and verified (Pune 45, Bangalore 47, import round trip identical) |
 | 2026-10-04 | 11 | The enquiry form overflowed its navy box on the live page: the box is a painted shape with a fixed aspect ratio and the form is laid over it, so when the form opens it is taller than the shape. I had only ever looked at the closed state | The user reported it on the Render page; reproduced by opening the form and comparing the form's bottom with the box's bottom | Open state drops the painted shape and uses a card that grows with the form; checked desktop and phone width (no overflow, no sideways scroll). The hosted page also never stored enquiries (its local endpoints are switched off there and no sheet address was set): the server now fills in the Apps Script address when it serves the page |
+| 2026-10-04 | 12 | A test (funnel counts) started failing on my machine once the real sheet held real visit events, because the dashboard now reads the sheet and the test did not isolate it; I also pushed that commit in the same command chain as the failing test run | Saw `1 failed` in the output after the push | `tests/conftest.py` clears the sheet, access-code and allowance settings for every test, so a developer machine and a clean runner behave the same. Lesson: stop the chain on a failing test, then push |
 
 ## AI tools used
 | Tool | Used for |
